@@ -30,7 +30,7 @@ It says **"Great question! Let me think about this..."** for three paragraphs be
 
 **This skill fixes that.**
 
-One slash command, `/i-have-adhd`, and Claude Code reshapes every response so an ADHD brain can act on it:
+One slash command, `/i-have-adhd`, and Claude Code reshapes every response so you can act on it:
 
 - 🎯 **The first line is the answer.** Command, path, snippet. No warmup.
 - 🔢 **Multi-step tasks get numbered.** One action per step. Bounded.
@@ -212,6 +212,10 @@ The frontmatter `description` is what the model reads to decide when to engage. 
 ## ⭐ Star This Repo
 
 If this saved you one scroll past one "Great question!", that's a fair trade. Costs nothing. Helps a lot.
+
+## Credits
+
+The rules are loosely based on strategies from *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. Rostain, adapted for how an LLM should *respond*, not how a human should organize their day.
 
 ## License
 
