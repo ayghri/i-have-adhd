@@ -7,10 +7,11 @@ A Claude Code plugin. One skill inside.
 ### Claude Code
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ./i-have-adhd
-claude plugin marketplace add ./i-have-adhd
+claude plugin marketplace add ayghri/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
+
+No local clone needed — Claude Code fetches the repo and keeps it updated.
 
 Open Claude Code, type `/i-have-adhd`.
 
@@ -48,10 +49,10 @@ Look for `i-have-adhd` in the configured `i-have-adhd` marketplace.
 ### Claude Code
 
 ```bash
-cd ./i-have-adhd && git pull
+claude plugin marketplace update i-have-adhd
 ```
 
-The marketplace re-reads the local checkout. Next Claude Code session picks up changes.
+Next Claude Code session picks up changes.
 
 ### Codex
 
@@ -91,8 +92,8 @@ Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps
 
 **`/i-have-adhd` not in autocomplete.** Restart Claude Code. The plugin index is read at startup.
 
-**`claude plugin marketplace add` fails.** Point at the repo root, not at `.claude-plugin/`. The path must contain `.claude-plugin/marketplace.json`.
+**`claude plugin marketplace add` fails.** Use the `owner/repo` form: `claude plugin marketplace add ayghri/i-have-adhd`. If you point it at a local path instead, it must be the repo root (the directory containing `.claude-plugin/marketplace.json`), not `.claude-plugin/` itself.
 
 **Skill activates but model still preambles.** Open a new session. Old context may carry. If it still drifts, tighten the rule wording in `skills/i-have-adhd/SKILL.md`, then re-invoke.
 
-**Want different rules.** Edit `skills/i-have-adhd/SKILL.md`. Re-invoke `/i-have-adhd` (or restart) and the new rules apply.
+**Want different rules.** Fork the repo, edit `skills/i-have-adhd/SKILL.md`, then install your fork: `claude plugin marketplace add <your-username>/i-have-adhd`. (Or clone locally and `claude plugin marketplace add ./i-have-adhd`.) Re-invoke `/i-have-adhd` and the new rules apply.

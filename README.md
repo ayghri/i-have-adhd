@@ -11,27 +11,31 @@
 
 ## Install
 
-### Claude Code
+<details>
+<summary><strong>Claude Code</strong></summary>
 
 ```bash
 claude plugin marketplace add ayghri/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
-In Claude Code: `/i-have-adhd`.
+Then type `/i-have-adhd`. No local clone needed — Claude Code fetches the repo and keeps it updated.
 
-To disable: `claude plugin disable i-have-adhd` or use `/plugin disable i-have-adhd` from within CC.
+</details>
 
-### Codex
+<details>
+<summary><strong>Codex</strong></summary>
 
 ```bash
 codex plugin marketplace add ayghri/i-have-adhd --ref main
 codex plugin add i-have-adhd@i-have-adhd
 ```
 
-In Codex: use `$i-have-adhd` when you want the output style applied explicitly. The skill can also be invoked implicitly when Codex sees a task that benefits from action-first, ADHD-friendly output.
+Then type `$i-have-adhd` to apply the output style explicitly. The skill can also be invoked implicitly when Codex sees a task that benefits from it.
 
-More in [INSTALL.md](./INSTALL.md).
+</details>
+
+Everything else — verify, update, disable, uninstall, troubleshooting — lives in [INSTALL.md](./INSTALL.md).
 
 ## What it does
 
@@ -85,7 +89,7 @@ A Claude Code skill that stops burying the answer. Action first. Steps numbered.
 
 ## Tune it
 
-Edit `skills/i-have-adhd/SKILL.md`. Re-invoke `/i-have-adhd`.
+Fork, edit `skills/i-have-adhd/SKILL.md`, install your fork: `claude plugin marketplace add <your-username>/i-have-adhd`. Re-invoke `/i-have-adhd`.
 
 ## Credits
 
