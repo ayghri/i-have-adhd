@@ -1,8 +1,18 @@
 # Install i-have-adhd
 
-A Claude Code plugin. One skill inside.
+One portable skill for Qlaw, Claude Code, and Codex.
 
 ## TL;DR
+
+### Qlaw
+
+Open [Qlaw](https://qlaw.quick.shopify.io/) and ask:
+
+```text
+Install the i-have-adhd skill from https://github.com/ayghri/i-have-adhd
+```
+
+Qlaw will fetch `skills/i-have-adhd/SKILL.md` and save it at `/skills/i-have-adhd/SKILL.md`. No plugin wrapper is needed.
 
 ### Claude Code
 
@@ -26,6 +36,16 @@ codex plugin add i-have-adhd@i-have-adhd
 In Codex, type `$i-have-adhd` to request the output style explicitly.
 
 ## Verify
+
+### Qlaw
+
+Open Qlaw's file browser with `/files` and confirm this file exists:
+
+```text
+/skills/i-have-adhd/SKILL.md
+```
+
+The skill appears in Qlaw's available skills on the next turn.
 
 ### Claude Code
 
@@ -96,3 +116,12 @@ Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps
 **Skill activates but model still preambles.** Open a new session. Old context may carry. If it still drifts, tighten the rule wording in `skills/i-have-adhd/SKILL.md`, then re-invoke.
 
 **Want different rules.** Edit `skills/i-have-adhd/SKILL.md`. Re-invoke `/i-have-adhd` (or restart) and the new rules apply.
+
+
+## Updating in Qlaw
+
+Ask Qlaw to reinstall the skill from the same GitHub URL. It will fetch the current `skills/i-have-adhd/SKILL.md` and replace the installed copy after confirmation.
+
+## Uninstalling from Qlaw
+
+Delete `/skills/i-have-adhd/` from the Qlaw file browser. Deleting files is irreversible, so Qlaw will ask for confirmation first.
