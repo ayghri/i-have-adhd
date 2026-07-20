@@ -52,16 +52,10 @@ Open a new Cursor Agent chat, type `/i-have-adhd`.
 
 ```bash
 mkdir -p ~/.cursor/skills
-git clone --depth 1 https://github.com/ayghri/i-have-adhd.git /tmp/i-have-adhd
-cp -R /tmp/i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
-rm -rf /tmp/i-have-adhd
+cp -R /path/to/i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
 
-Already cloned (e.g. for Claude Code):
-
-```bash
-cp -R ./skills/i-have-adhd ~/.cursor/skills/
-```
+Replace `/path/to/i-have-adhd` with an existing checkout, such as the checkout used for Claude Code.
 
 Project-only without the CLI:
 

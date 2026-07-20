@@ -40,7 +40,7 @@ npx skills add ayghri/i-have-adhd
 
 Global: `npx skills add ayghri/i-have-adhd -g`. Cursor-only: `npx skills add ayghri/i-have-adhd -a cursor -y`.
 
-In Cursor Agent: `/i-have-adhd` (or `@i-have-adhd`). Start a new Agent chat after install.
+In Cursor Agent: `/i-have-adhd`. Start a new Agent chat after install.
 
 To uninstall: `npx skills remove i-have-adhd` (or `-g` if installed globally).
 
@@ -49,9 +49,7 @@ To uninstall: `npx skills remove i-have-adhd` (or `-g` if installed globally).
 
 ```bash
 mkdir -p ~/.cursor/skills
-git clone --depth 1 https://github.com/ayghri/i-have-adhd.git /tmp/i-have-adhd
-cp -R /tmp/i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
-rm -rf /tmp/i-have-adhd
+cp -R /path/to/i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
 
 </details>
