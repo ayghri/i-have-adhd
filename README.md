@@ -11,6 +11,16 @@
 
 ## Install
 
+### Qlaw
+
+Open [Qlaw](https://qlaw.quick.shopify.io/) and ask:
+
+```text
+Install the i-have-adhd skill from https://github.com/ayghri/i-have-adhd
+```
+
+Qlaw will save `skills/i-have-adhd/SKILL.md` to `/skills/i-have-adhd/SKILL.md`. The skill format is already Qlaw-compatible.
+
 ### Claude Code
 
 ```bash
