@@ -36,7 +36,7 @@ More in [INSTALL.md](./INSTALL.md).
 
 ## What it does
 
-A Claude Code skill that stops burying the answer. Action first. Steps numbered. No "Hope this helps!"
+A cross-agent skill that stops burying the answer. Answers first. Bounded steps. No "Hope this helps!"
 
 
 ## What changes
@@ -73,16 +73,16 @@ A Claude Code skill that stops burying the answer. Action first. Steps numbered.
 
 10 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
-1. Lead with the next action.
-2. Number multi-step tasks.
-3. End with one concrete next step.
-4. Suppress tangents.
-5. Restate state every turn.
-6. Specific time estimates (minutes, not "a bit").
-7. Make wins visible.
-8. Matter-of-fact errors.
-9. Cap lists at 5 items.
-10. No preamble. No recap. No closers.
+1. Lead with the answer or next action.
+2. Turn procedures into bounded steps.
+3. Track substantial work visibly.
+4. Make progress concrete.
+5. Suppress tangents.
+6. Preserve necessary detail.
+7. Use time estimates only when useful.
+8. Report errors matter-of-factly.
+9. Respect the user's output contract.
+10. Remove filler.
 
 ## Tune it
 

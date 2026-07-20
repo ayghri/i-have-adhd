@@ -1,4 +1,4 @@
 {
   "name": "i-have-adhd",
-  "description": "Shape Claude Code output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible."
+  "description": "Shape Claude Code output for an ADHD reader with answers first, bounded steps, visible progress, and preserved agent autonomy."
 }

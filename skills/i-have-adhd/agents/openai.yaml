@@ -1,7 +1,7 @@
 interface:
   display_name: "I Have ADHD"
-  short_description: "Action-first output for ADHD readers"
-  default_prompt: "Use $i-have-adhd to make this response action-first and easy to execute."
+  short_description: "Low-friction output for ADHD readers"
+  default_prompt: "Use $i-have-adhd to make this response easy to start, scan, and execute."
 
 policy:
   allow_implicit_invocation: true

@@ -1,14 +1,14 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "i-have-adhd",
-  "description": "Shape Claude Code output for an ADHD reader. Action-first, numbered steps, no tangents.",
+  "description": "Shape Claude Code output for an ADHD reader. Answers first, bounded steps, visible progress.",
   "owner": {
     "name": "Ayoub G."
   },
   "plugins": [
     {
       "name": "i-have-adhd",
-      "description": "Action-first, ADHD-friendly output shaping for Claude Code.",
+      "description": "Low-friction, ADHD-friendly output shaping for Claude Code.",
       "source": "./",
       "category": "productivity"
     }

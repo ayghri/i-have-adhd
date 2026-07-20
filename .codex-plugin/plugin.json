@@ -1,7 +1,7 @@
 {
   "name": "i-have-adhd",
-  "version": "0.1.0",
-  "description": "ADHD-friendly output shaping for Codex: action first, numbered steps, no tangents, and visible progress.",
+  "version": "0.2.0",
+  "description": "ADHD-friendly output shaping for Codex: answers first, bounded steps, visible progress, and preserved agent autonomy.",
   "author": {
     "name": "Ayoub G.",
     "url": "https://github.com/ayghri"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "I Have ADHD",
-    "shortDescription": "Action-first output for ADHD readers",
-    "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible.",
+    "shortDescription": "Low-friction output for ADHD readers",
+    "longDescription": "Shape Codex responses for an ADHD reader with answers first, bounded steps, visible progress, necessary detail, and preserved agent autonomy.",
     "developerName": "Ayoub G.",
     "category": "Productivity",
     "capabilities": [
@@ -29,8 +29,8 @@
     "websiteURL": "https://github.com/ayghri/i-have-adhd",
     "defaultPrompt": [
       "Use i-have-adhd for this task.",
-      "Make this answer action-first and easy to execute.",
-      "Review this response for ADHD-friendly structure."
+      "Make this answer easy to start, scan, and execute.",
+      "Review this response for ADHD-friendly structure without losing necessary detail."
     ],
     "brandColor": "#2563EB",
     "composerIcon": "./logo.png",
