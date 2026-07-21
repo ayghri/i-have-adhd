@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.js\"",
+            "commandWindows": "if (Get-Command node -ErrorAction SilentlyContinue) { node \"$env:CLAUDE_PLUGIN_ROOT\\hooks\\always-on.js\" }",
+            "timeout": 5,
+            "statusMessage": "Checking i-have-adhd always-on flag..."
+          }
+        ]
+      }
+    ]
+  }
+}

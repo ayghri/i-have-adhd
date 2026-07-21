@@ -37,13 +37,19 @@ Or keep it installed and turn it off: `claude plugin disable i-have-adhd`.
 
 ### Always-on (optional)
 
-Add to `~/.claude/CLAUDE.md`:
+One command. A `SessionStart` hook loads the full ruleset at the start of every session — no `/i-have-adhd` needed:
 
-```markdown
-## Output style
-
-Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps, no preamble, no closers, state restated each turn.
+```bash
+touch ~/.claude/.i-have-adhd-always
 ```
+
+Back to on-demand:
+
+```bash
+rm ~/.claude/.i-have-adhd-always
+```
+
+The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. Honors `$CLAUDE_CONFIG_DIR` if you've moved your config dir. "stop adhd mode" still turns it off for the current session.
 
 </details>
 
@@ -195,13 +201,16 @@ Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps
 
 1. **Installed, not invoked.** Nothing happens. `SKILL.md` sets `disable-model-invocation: true`, so the model never sees the skill and never applies the rules on its own.
 2. **You type `/i-have-adhd`.** Rules on for that session. "stop adhd mode" or "normal mode" turns them off.
-3. **You add the always-on config above.** Rules on from message one, every session.
+3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code). A `SessionStart` hook loads the full ruleset from message one, every session.
+4. **You add the always-on snippet above** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 No middle ground. If you did not turn it on, it is off.
 
 ## Troubleshooting
 
 **`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup.
+
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`) and restart — hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
 

@@ -21,6 +21,8 @@ claude plugin install i-have-adhd@i-have-adhd
 
 Then type `/i-have-adhd`. No local clone needed — Claude Code fetches the repo and keeps it updated.
 
+Want it on every session? `touch ~/.claude/.i-have-adhd-always` — see [INSTALL.md](./INSTALL.md).
+
 </details>
 
 <details>
