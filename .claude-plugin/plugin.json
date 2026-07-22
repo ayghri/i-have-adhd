@@ -1,4 +1,9 @@
 {
   "name": "i-have-adhd",
-  "description": "Shape Claude Code output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible."
+  "version": "0.1.0",
+  "description": "Shape Claude Code output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible.",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  }
 }
