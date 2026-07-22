@@ -1,0 +1,1 @@
+../../../skills/i-have-adhd/SKILL.md
