@@ -5,6 +5,5 @@
   "author": {
     "name": "Ayoub G.",
     "url": "https://github.com/ayghri"
-  },
-  "hooks": "./hooks/hooks.json"
+  }
 }
