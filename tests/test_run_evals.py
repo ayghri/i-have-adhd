@@ -1,3 +1,4 @@
+import argparse
 import json
 import sys
 import tempfile
@@ -119,6 +120,45 @@ class EvaluationHarnessTest(unittest.TestCase):
             path.write_text(json.dumps({"id": "ok"}) + "\nnot-json\n")
             with self.assertRaisesRegex(ValueError, "line 2"):
                 run_evals.read_jsonl(path)
+
+    def test_unmetered_runner_is_rejected_before_any_call(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            marker = tmp_path / "ran"
+            runner_config = tmp_path / "runners.json"
+            runner_config.write_text(
+                json.dumps(
+                    {
+                        "stub": {
+                            "command": ["sh", "-c", f"touch {marker} && echo hi"],
+                            "response_format": "text",
+                        }
+                    }
+                )
+            )
+            args = argparse.Namespace(
+                cases=ROOT / "evals" / "cases.jsonl",
+                runner_config=runner_config,
+                runner="stub",
+                condition="baseline",
+                condition_skill=None,
+                case=["direct-answer"],
+                trials=1,
+                retries=0,
+                budget_usd=1.0,
+                allow_unmetered=False,
+                output=tmp_path / "out.jsonl",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "never reports dollar cost"):
+                run_evals.run_evaluations(args)
+
+            self.assertFalse(marker.exists(), "runner was invoked before the rejection")
+            self.assertFalse((tmp_path / "out.jsonl").exists())
+
+            args.allow_unmetered = True
+            self.assertEqual(0, run_evals.run_evaluations(args))
+            self.assertTrue(marker.exists())
 
     def test_completed_keys_support_resuming_partial_runs(self):
         rows = [

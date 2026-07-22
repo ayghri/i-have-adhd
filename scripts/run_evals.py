@@ -218,6 +218,11 @@ def run_evaluations(args: argparse.Namespace) -> int:
     runner = config[args.runner]
     command = list(runner["command"])
     response_format = runner.get("response_format", "text")
+    if response_format != "claude-json" and not args.allow_unmetered:
+        raise RuntimeError(
+            f"The {response_format!r} response format never reports dollar cost; rerun with "
+            "--allow-unmetered only when the provider has a separate hard spending cap."
+        )
     reported_cost = 0.0
     prior_rows = read_jsonl(args.output) if args.output.exists() else []
     done = completed_keys(prior_rows)
