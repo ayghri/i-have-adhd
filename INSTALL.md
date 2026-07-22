@@ -502,6 +502,15 @@ No middle ground. If you did not turn it on, it is off.
 
 **Installed but replies still preamble.** Open a new session. If it still drifts, tighten the wording in `skills/i-have-adhd/SKILL.md`.
 
-**Want different rules.** Fork, edit `skills/i-have-adhd/SKILL.md`, install your fork: `claude plugin marketplace add <your-username>/i-have-adhd`.
+**Want different rules.** Fork, edit `skills/i-have-adhd/SKILL.md`, then swap your copy in:
+
+```bash
+claude plugin uninstall i-have-adhd            # drop the upstream copy first:
+claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
+claude plugin marketplace add <your-username>/i-have-adhd
+claude plugin install i-have-adhd@i-have-adhd
+```
+
+Restart, then re-invoke `/i-have-adhd`.
 
 **Skill missing after `npx skills add`.** Start a new agent chat. Skills are indexed at session start. Confirm the folder landed where your agent scans (`~/.cursor/skills/` for Cursor, `.agents/skills/` for OpenCode) and that the frontmatter `name` matches the folder name.
