@@ -79,6 +79,8 @@ The reader cannot hold "we are on step 3 of 5" between messages. Restate it.
 Bad: "Done. Ready for the next part?"
 Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
 
+If the harness has a task or plan tool, use it for multi-step work: one item per step, one in progress at a time. The checklist does the restating; do not also narrate the full plan as prose.
+
 ### 6. Give specific time estimates
 
 Vague estimates fail. Ballpark in concrete units.
