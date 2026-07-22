@@ -1,0 +1,24 @@
+name: output-style in sync
+
+# Fails if output-styles/i-have-adhd.md is stale, i.e. SKILL.md was edited
+# without rerunning scripts/build-output-style.sh. Keeps SKILL.md the single
+# source of truth.
+on:
+  pull_request:
+    paths:
+      - skills/i-have-adhd/SKILL.md
+      - output-styles/**
+      - scripts/build-output-style.sh
+      - .github/workflows/output-style-sync.yml
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerate the output style
+        run: sh scripts/build-output-style.sh
+      - name: Fail if it differs from the committed file
+        run: git diff --exit-code output-styles/i-have-adhd.md

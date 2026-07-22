@@ -37,13 +37,17 @@ Or keep it installed and turn it off: `claude plugin disable i-have-adhd`.
 
 ### Always-on (optional)
 
-Add to `~/.claude/CLAUDE.md`:
+The plugin bundles an `i-have-adhd` output style. Select it once and it persists across sessions — no `CLAUDE.md` edit needed.
 
-```markdown
-## Output style
+Pick it via `/config` → **Output style**, or set it directly in `.claude/settings.json` (use `~/.claude/settings.json` for every project):
 
-Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps, no preamble, no closers, state restated each turn.
+```json
+{
+  "outputStyle": "i-have-adhd"
+}
 ```
+
+Turn it off by switching the output style back to **Default**.
 
 </details>
 
