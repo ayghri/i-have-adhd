@@ -1,5 +1,5 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
   "name": "i-have-adhd",
   "description": "Shape Claude Code output for an ADHD reader. Action-first, numbered steps, no tangents.",
   "owner": {
