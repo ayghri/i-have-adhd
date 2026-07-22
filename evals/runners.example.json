@@ -9,6 +9,8 @@
       "--no-session-persistence",
       "--setting-sources",
       "",
+      "--model",
+      "claude-opus-4-8",
       "--tools",
       ""
     ],
