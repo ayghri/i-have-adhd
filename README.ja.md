@@ -5,7 +5,7 @@
   <strong align="center">ADHD に配慮した出力。ADHD の診断は不要です！</strong>
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="ライセンス"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/merx666/i-have-adhd-antigravity?style=flat" alt="ライセンス"></a>
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 <summary><strong>Claude Code</strong></summary>
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
+claude plugin marketplace add merx666/i-have-adhd-antigravity
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
@@ -35,7 +35,7 @@ claude plugin install i-have-adhd@i-have-adhd
 <summary><strong>Codex</strong></summary>
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
+codex plugin marketplace add merx666/i-have-adhd-antigravity --ref main
 codex plugin add i-have-adhd@i-have-adhd
 ```
 

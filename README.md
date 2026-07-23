@@ -5,7 +5,7 @@
   <strong align="center">ADHD-friendly outputs. No ADHD diagnosis needed!</strong>
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/merx666/i-have-adhd-antigravity?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -18,10 +18,25 @@
 ## Install
 
 <details>
+<summary><strong>Google Antigravity</strong></summary>
+
+```bash
+git clone https://github.com/merx666/i-have-adhd-antigravity.git
+cd i-have-adhd-antigravity
+./install.sh
+```
+
+Or you can use the built-in plugin manager: `agy plugin install https://github.com/merx666/i-have-adhd-antigravity`.
+
+See [INSTALL.md](./INSTALL.md) for more details.
+
+</details>
+
+<details>
 <summary><strong>Claude Code</strong></summary>
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
+claude plugin marketplace add merx666/i-have-adhd-antigravity
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
@@ -35,7 +50,7 @@ Want it on every session? `touch ~/.claude/.i-have-adhd-always` (see [INSTALL.md
 <summary><strong>Codex</strong></summary>
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
+codex plugin marketplace add merx666/i-have-adhd-antigravity --ref main
 codex plugin add i-have-adhd@i-have-adhd
 ```
 
