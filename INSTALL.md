@@ -1,7 +1,5 @@
 # Install i-have-adhd
 
-One skill. Claude Code, Codex, Antigravity, and any harness that reads agent skills.
-
 <details>
 <summary><strong>Claude Code</strong></summary>
 
@@ -354,6 +352,80 @@ gemini extensions update i-have-adhd    # extension route
 ```bash
 gemini extensions uninstall i-have-adhd    # extension route
 rm ~/.gemini/commands/i-have-adhd.toml     # command route
+```
+
+</details>
+
+<details>
+<summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
+
+Copilot reads Agent Skills natively: the same `SKILL.md`, no conversion. It scans `.github/skills/`, `.claude/skills/`, and `.agents/skills/` in the project, and `~/.copilot/skills/`, `~/.claude/skills/`, and `~/.agents/skills/` globally.
+
+### Install
+
+```bash
+npx skills add ayghri/i-have-adhd -a github-copilot        # this project
+npx skills add ayghri/i-have-adhd -a github-copilot -g     # all projects
+```
+
+Without the CLI, copy the skill folder into any directory Copilot scans:
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd
+mkdir -p ~/.copilot/skills
+cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
+```
+
+### Verify
+
+Type `/` in the chat input and confirm `i-have-adhd` appears. Or:
+
+```bash
+npx skills list
+npx skills ls -g    # if installed globally
+```
+
+### Update
+
+```bash
+npx skills update i-have-adhd
+```
+
+Or re-copy the folder after `git pull`.
+
+### Uninstall
+
+```bash
+npx skills remove i-have-adhd
+```
+
+Or delete the `i-have-adhd` folder from the skills directory it landed in.
+
+### Activation note
+
+Copilot respects `disable-model-invocation`: nothing applies until you invoke the skill, same as Claude Code (tested in [#60](https://github.com/ayghri/i-have-adhd/pull/60)).
+
+### Always-on (optional)
+
+Add the block below to `.github/copilot-instructions.md` in the project (Copilot reads it into every chat):
+
+```markdown
+## Output style
+
+The reader has ADHD. Shape every response so it can be acted on:
+
+1. Lead with the answer or next action: command, path, or snippet first.
+2. Number multi-step work; one bounded action per step.
+3. End with one next action doable in under two minutes.
+4. Finish the current issue before raising a new one.
+5. Restate progress each turn ("step 3 of 5 done").
+6. Give time estimates in concrete units, never "a bit".
+7. After a change, show what now works.
+8. Errors: state location, cause, and fix. No drama.
+9. Cap lists at 5 items.
+10. No preamble, no recaps, no closers.
+
+Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
 ```
 
 </details>
