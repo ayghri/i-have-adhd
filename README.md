@@ -102,6 +102,12 @@ claude plugin install i-have-adhd@i-have-adhd
 
 Restart Claude Code, then re-invoke `/i-have-adhd`.
 
+## Eval it
+
+Tell your agent:
+
+> Read [evals/README.md](./evals/README.md) and run the relevant evals before submitting a skill change or PR. Use `scripts/run_scenario_eval.py` for multi-turn changes.
+
 ## Credits
 
 Loosely based on *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. Rostain. Adapted for how an LLM should respond, not how a human should organize their day.
