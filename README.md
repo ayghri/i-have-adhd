@@ -95,6 +95,30 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 9. Cap lists at 5 items.
 10. No preamble. No recap. No closers.
 
+## Optional bionic reading mode
+
+The same skill includes an opt-in bionic reading mode. It is off by default.
+After invoking `i-have-adhd`, say `enable bionic reading` to bold the leading
+part of ordinary prose words. Say `normal text` or `stop bionic mode` to turn it
+off while keeping the rest of the skill active.
+
+This is an experimental visual preference, not a treatment or an evidence-based
+claim about ADHD, reading speed, or comprehension. Code, URLs, paths, and other
+structured text stay unchanged.
+
+### Evidence
+
+The mode is opt-in because the current evidence is mixed and does not yet
+establish a general or ADHD-specific reading benefit. Relevant studies include:
+
+- [Ariyani (2023), *JOEL: Journal of Educational and Language Research*](https://garuda.kemdiktisaintek.go.id/documents/detail/4239848): reported improved classroom scores after two cycles with 30 tenth-grade students (67 to 72 average; 63% to 75% meeting the threshold). This is a positive preliminary signal, but it had no control group and cannot isolate the bionic formatting effect.
+- [Možina et al. (2025), *SAGE Open*](https://doi.org/10.1177/21582440251376158): found shorter average fixations with bionic text, but also more saccades and longer overall reading time; bionic formatting did not significantly improve comprehension or memorisation. This is a mixed eye-tracking result, not a demonstrated reading benefit.
+- [Snell (2024), *Acta Psychologica*](https://doi.org/10.1016/j.actpsy.2024.104304): found no significant reading-time difference between Bionic and normal text.
+- [Spear et al. (2025), *Attention, Perception, & Psychophysics*](https://doi.org/10.3758/s13414-025-03067-w): found no facilitation from bolding word beginnings and no benefit for the individual-difference groups tested.
+
+There is still no strong controlled evidence establishing Bionic Reading as an
+ADHD treatment or a CBT-based intervention.
+
 ## Tune it
 
 Fork, edit `skills/i-have-adhd/SKILL.md`, then swap your copy in:

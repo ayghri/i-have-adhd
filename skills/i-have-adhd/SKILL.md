@@ -140,3 +140,31 @@ Before sending, delete:
 Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
 If yes, send.
+
+## Optional bionic reading mode
+
+Bionic reading is an experimental visual formatting preference, not a
+treatment and not a proven reading or ADHD intervention. It is off by default.
+
+Enable it only when the reader explicitly says `enable bionic reading` or
+`bionic mode`. Keep it on for the session until the reader says `disable bionic
+reading`, `normal text`, or `stop bionic mode`.
+
+When it is enabled:
+
+1. Bold the first half of **every** ordinary prose word in every paragraph,
+   bullet, and prose line. Do not bold only the first word of a line. For
+   example: `**Bion**ic **read**ing **bold**s the **firs**t half of **each**
+   word.`
+2. Use `ceil(letter_count / 2)` leading letters per word, with one-letter words
+   fully bolded when they are eligible.
+3. Keep punctuation outside the bold span when practical.
+4. Leave code, commands, file paths, URLs, identifiers, tables, diffs, YAML,
+   JSON, and existing Markdown emphasis unchanged.
+5. Do not force the formatting into headings, citations, or text where it
+   makes the meaning harder to scan.
+6. Never claim that the mode improves speed, comprehension, attention, or
+   ADHD symptoms; it is a reversible personal preference.
+
+If the reader asks for normal text, disable only this visual mode and keep the
+rest of `i-have-adhd` active.

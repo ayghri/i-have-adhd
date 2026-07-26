@@ -12,6 +12,10 @@ claude plugin install i-have-adhd@i-have-adhd
 
 Type `/i-have-adhd`.
 
+The skill also includes an opt-in visual mode. Say `enable bionic reading` to
+bold the leading part of ordinary prose words, or `normal text` to turn that
+mode off without disabling the rest of the skill.
+
 ### Verify
 
 ```bash
@@ -62,6 +66,10 @@ codex plugin add i-have-adhd@i-have-adhd
 ```
 
 Type `$i-have-adhd`.
+
+The same skill includes an opt-in visual mode. Say `enable bionic reading` to
+bold the leading part of ordinary prose words, or `normal text` to turn that
+mode off without disabling the rest of the skill.
 
 ### Verify
 
