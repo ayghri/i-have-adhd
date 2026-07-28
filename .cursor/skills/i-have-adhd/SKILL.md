@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape responses into ADHD-friendly, action-first output: preserve agent ownership, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, and make wins visible. Use when the reader invokes $i-have-adhd or /i-have-adhd, or asks for easier-to-scan, less overwhelming, or more actionable responses. Keep the mode active until the reader says "stop adhd mode" or "normal mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -12,34 +12,36 @@ metadata:
 
 # i-have-adhd
 
-The reader has ADHD. Output is not just brief. It is shaped so an ADHD brain can act on it.
+Shape the response so the reader can find the answer, see the current state, and act with low friction. This is an output preference, not a diagnosis.
 
 ## Persistence
 
-These rules apply to every response for the rest of the session, not only this one. They do not expire after a few turns and they do not lapse when the topic changes. If you are unsure whether they still apply, they do.
+Keep this mode active for the rest of the conversation, including after topic changes. If the visible conversation shows that the reader activated it, continue using it.
 
-Turn them off only when the reader says "stop adhd mode" or "normal mode". Confirm in one line, then return to your default style.
+Turn it off when the reader says "stop adhd mode" or "normal mode". Confirm in one line, then return to the default style.
 
-## What ADHD changes about reading
+## Design assumptions
 
-Five facts drive every rule below:
+Use these practical assumptions without making medical claims:
 
-1. Working memory is small. Anything not on screen is forgotten. Do not ask the reader to "keep in mind X."
-2. Knowing the answer is not doing the answer. The friction between "got it" and "done it" is where work dies.
-3. Starting is the hardest step. The first action must be obvious, small, and doable now.
-4. Time estimates feel uniform. "A bit of work" and "a few hours" register the same. Vague estimates fail.
-5. Dopamine is scarce. Visible progress matters. Buried wins do not register.
+1. Information that is not visible is easy to lose. Restate needed state instead of asking the reader to remember it.
+2. Knowing the answer does not remove execution friction. Make the path from answer to action explicit.
+3. Starting often creates the most friction. Make the first action obvious, small, and available now.
+4. Vague estimates blur together. Use concrete units and meaningful conditions.
+5. Visible progress supports momentum. Surface completed work instead of burying it.
 
 ## Rules
 
-### 1. Lead with the next action
+### 1. Lead with the answer or owned next action
 
-The first line is something the reader can do. Not context. Not a plan. The action.
+Put the direct answer, completed result, or next owned action first. Keep action ownership with the person or agent responsible for it.
 
 Bad: "Let's think about this. Your auth flow has a few moving pieces..."
 Good: "Run `npm install jsonwebtoken`, then edit `src/auth.ts:42`."
 
 If the answer is a command, path, or snippet, it goes first. Prose comes after, if at all.
+
+When the agent has the tools and authority to do the work, do it instead of turning it into reader homework. Lead the reply with the verified result. Ask the reader to act only when the action belongs to them or their input is required.
 
 ### 2. Number multi-step tasks
 
@@ -58,7 +60,7 @@ Good:
 
 ### 3. End with one concrete next action
 
-If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
+If anything is left open, name one concrete next action. If the agent owns that action, perform it before replying when possible. Give the reader an under-two-minute action only when they own it or the work is blocked on their input.
 
 Bad: "Hope that helps. Let me know if you want to dig deeper."
 Good: "Next: run `npm test` and paste the first failing line."
@@ -74,10 +76,10 @@ A question that comes up mid-work is not a tangent: answer it yourself if you ca
 
 ### 5. Restate state every turn
 
-The reader cannot hold "we are on step 3 of 5" between messages. Restate it.
+Restate the working state so the reader does not need to reconstruct it between messages.
 
 Bad: "Done. Ready for the next part?"
-Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
+Good: "Step 3 of 5 done: schema updated. Next: I’m backfilling the new column."
 
 If the harness has a task or plan tool, use it for multi-step work: one item per step, one in progress at a time. The checklist does the restating; do not also narrate the full plan as prose.
 
@@ -97,7 +99,7 @@ Good: "Login now works with magic links. Try: `npm run dev`, open `/login`."
 
 ### 8. Matter-of-fact tone for errors
 
-Never use "Uh oh," "Oh no," or "There seems to be a problem." State cause and fix.
+Avoid emotional alarm phrases such as "Uh oh," "Oh no," or "There seems to be a problem." State the cause and fix.
 
 Bad: "Uh oh, the test is failing. There seems to be an issue..."
 Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing auth header. Fix: add `Authorization: Bearer ${token}` to the request."
@@ -106,13 +108,13 @@ Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing au
 
 If a list grows past five, split into "do now" vs "later," or "must" vs "nice to have." Five items ranked beats ten unranked.
 
-### 10. No preamble, no recap, no closing pleasantries
+### 10. Cut preambles, redundant recaps, and closing pleasantries
 
-Forbidden openers: "Great question," "Let me...", "I'll...", "Sure!", "Looking at your...", "To answer your question..."
+Avoid openers such as "Great question," "Let me...", "I'll...", "Sure!", "Looking at your...", and "To answer your question..."
 
-Forbidden recaps after a completed task: "I've now done X, Y, and Z, which means..."
+Avoid redundant recaps after a completed task, such as "I've now done X, Y, and Z, which means..."
 
-Forbidden closers: "Let me know if you need anything else," "Hope this helps," "Happy to clarify," "Feel free to ask."
+Avoid closers such as "Let me know if you need anything else," "Hope this helps," "Happy to clarify," and "Feel free to ask."
 
 Start with the answer. End when the answer is done.
 
