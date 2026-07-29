@@ -110,6 +110,46 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 </details>
 
 <details>
+<summary><strong>CodeBuddy</strong></summary>
+
+CodeBuddy is wired into the `npx skills` CLI, so install is one command — same as Cursor, OpenCode, or Copilot.
+
+### Install
+
+```bash
+npx skills add ayghri/i-have-adhd                  # this workspace
+npx skills add ayghri/i-have-adhd -g               # all projects
+npx skills add ayghri/i-have-adhd -a codebuddy -y  # one agent only
+```
+
+New agent chat, type `/i-have-adhd`.
+
+### Verify
+
+```bash
+npx skills list
+npx skills ls -g    # if installed globally
+```
+
+Or type `/` in a CodeBuddy session and confirm `i-have-adhd` appears.
+
+### Update
+
+```bash
+npx skills update i-have-adhd
+npx skills update -g    # if installed globally
+```
+
+### Uninstall
+
+```bash
+npx skills remove i-have-adhd
+npx skills remove i-have-adhd -g    # if installed globally
+```
+
+</details>
+
+<details>
 <summary><strong>Zed</strong></summary>
 
 Zed's Agent reads Agent Skills natively: the same `SKILL.md`, no conversion. (Zed's older "Rules" were replaced by Skills plus `AGENTS.md` instructions.)
