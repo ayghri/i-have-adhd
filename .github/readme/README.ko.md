@@ -82,7 +82,7 @@ codex plugin add i-have-adhd@i-have-adhd
 
 ## 규칙
 
-10가지 규칙. 전문은 [SKILL.md](./skills/i-have-adhd/SKILL.md).
+11가지 규칙. 전문은 [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
 1. 다음 행동부터 말하기.
 2. 다단계 작업은 번호로.
@@ -94,6 +94,7 @@ codex plugin add i-have-adhd@i-have-adhd
 8. 오류는 담백하게.
 9. 목록은 최대 5개 항목.
 10. 서론, 요약, 마무리 인사 없음.
+11. 생략한 설명을 마지막에 압축해 덧붙인다.
 
 ## 커스터마이즈
 

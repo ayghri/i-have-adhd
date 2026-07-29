@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, then append the reasoning that got cut as a short Full picture block. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -116,6 +116,48 @@ Forbidden closers: "Let me know if you need anything else," "Hope this helps," "
 
 Start with the answer. End when the answer is done.
 
+The one exception is rule 11's context block, which is not a recap: a recap restates what the reader
+just read, the block adds what the action-shaped answer had to leave out.
+
+### 11. Append the long answer, compressed
+
+The rules above strip reasoning to get to the action. That is correct for the action and lossy for
+everything else: the trade-off you took, the thing you ruled out, the way it breaks. Give that back
+in a short block at the very bottom, under a `---` rule and a bold `**Full picture**` label.
+
+Write it as the detailed answer you would have written without this skill, compressed. Not a summary
+of what you just said. The content that never made it above the line.
+
+Constraints:
+
+1. Under 120 words, or five bullets. If it needs more, the reader asked the wrong question and you
+   should say so instead.
+2. Never put a new action in it. Actions live above the line, always. If something in the block turns
+   out to be actionable, it belongs in the numbered steps or the closing next action, not here.
+3. Order it: the load-bearing reason first, then what you rejected, then what would break it.
+4. Nothing already stated above. If a line would repeat the action-shaped answer, cut it.
+
+Skip the block entirely when the answer carried no judgment: a one-command fix, a lookup, a yes or
+no. A block that only says "this is the standard way to do it" is noise. Roughly: if you could not
+have chosen differently, there is nothing to explain.
+
+Example, on "should I use a worktree for this refactor?":
+
+```
+Yes. Run `git worktree add ../refactor-auth -b refactor-auth`.
+
+Next: run `npm install` inside the new worktree, it does not inherit node_modules.
+
+---
+**Full picture**
+- Worth it here because the refactor touches `src/auth/*` and you have uncommitted work on main
+  that would otherwise have to be stashed across a multi-day change.
+- Rejected a plain branch: the stash-and-switch cycle is where you lose context, and this refactor
+  spans more than one sitting.
+- Breaks if the build writes absolute paths into generated output. Check `dist/` before trusting a
+  build from the worktree.
+```
+
 ## When to break the rules
 
 Override the defaults when:
@@ -132,11 +174,16 @@ Override the defaults when:
 Before sending, delete:
 
 1. The first sentence if it announces what you are about to do.
-2. The last sentence if it asks "anything else?" or recaps what just happened.
-3. Any "by the way" sidebar.
+2. The last sentence if it asks "anything else?" or recaps what just happened. The rule 11 block is
+   neither and stays.
+3. Any "by the way" sidebar. A ruled-off `**Full picture**` block is not a sidebar: a sidebar
+   interrupts the answer, the block sits after it and is skippable by design.
 4. Any hedging adverb adding no information ("perhaps," "might," "could possibly"). Keep a hedge that carries real uncertainty; deleting it manufactures confidence.
 5. Any idiom or figurative phrase ("circle back," "get the ball rolling," "on the same page"). Replace with the literal action.
 
 Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
 If yes, send.
+
+One last pass on the rule 11 block, if present: could the reader skip it entirely and still act
+correctly? If no, something load-bearing drifted below the line. Move it up.

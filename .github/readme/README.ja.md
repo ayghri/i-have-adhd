@@ -84,7 +84,7 @@ codex plugin add i-have-adhd@i-have-adhd
 
 ## ルール
 
-ルールは 10 個です。全文は [SKILL.md](./skills/i-have-adhd/SKILL.md) にあります。
+ルールは 11 個です。全文は [SKILL.md](./skills/i-have-adhd/SKILL.md) にあります。
 
 1. 次に取る行動から始める。
 2. 複数手順のタスクには番号を付ける。
@@ -96,6 +96,7 @@ codex plugin add i-have-adhd@i-have-adhd
 8. エラーを淡々と伝える。
 9. リストは 5 項目までにする。
 10. 前置き、要約、締めの言葉を入れない。
+11. 省いた詳細を、最後に圧縮して添える。
 
 ## カスタマイズ
 

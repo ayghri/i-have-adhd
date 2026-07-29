@@ -84,7 +84,7 @@ Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng
 
 ## Các quy tắc
 
-10 quy tắc. Nội dung chi tiết tại [SKILL.md](./skills/i-have-adhd/SKILL.md).
+11 quy tắc. Nội dung chi tiết tại [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
 1. Bắt đầu ngay bằng hành động tiếp theo.
 2. Đánh số các công việc gồm nhiều bước.
@@ -96,6 +96,7 @@ Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng
 8. Báo lỗi một cách khách quan, thẳng thắn.
 9. Giới hạn danh sách tối đa 5 mục.
 10. Không lời mở đầu. Không tóm tắt. Không lời chào kết.
+11. Bổ sung phần lý giải đã lược bỏ, viết gọn, ở cuối.
 
 ## Tùy chỉnh
 
