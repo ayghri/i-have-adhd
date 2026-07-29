@@ -116,4 +116,4 @@ J. Russell Ramsay와 Anthony L. Rostain의 *The Adult ADHD Tool Kit*을 느슨�
 
 MIT.
 
-덕분에 "좋은 질문이네요!"를 스크롤로 건너뛸 일이 한 번이라도 줄었다면 Star ⭐ 부탁드립니다.
+"좋은 질문이네요!"를 한 번이라도 덜 보게 해줬다면 Star ⭐ 부탁드립니다.
