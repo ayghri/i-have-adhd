@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.sh\"",
+            "command": "node -e \"const p=require('path');require(p.join(process.env.CLAUDE_PLUGIN_ROOT,'hooks/always-on.cjs'))\"",
             "timeout": 5,
             "statusMessage": "Checking i-have-adhd always-on flag..."
           }
