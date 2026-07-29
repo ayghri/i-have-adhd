@@ -84,7 +84,7 @@ codex plugin add i-have-adhd@i-have-adhd
 
 ## 规则
 
-共 10 条规则。完整内容见 [SKILL.md](./skills/i-have-adhd/SKILL.md)。
+共 10 条规则。完整内容见 [SKILL.md](/skills/i-have-adhd/SKILL.md)。
 
 1. 先说下一步行动。
 2. 多步骤任务使用编号。

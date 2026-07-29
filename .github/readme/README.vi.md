@@ -84,7 +84,7 @@ Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng
 
 ## Các quy tắc
 
-10 quy tắc. Nội dung chi tiết tại [SKILL.md](./skills/i-have-adhd/SKILL.md).
+10 quy tắc. Nội dung chi tiết tại [SKILL.md](/skills/i-have-adhd/SKILL.md).
 
 1. Bắt đầu ngay bằng hành động tiếp theo.
 2. Đánh số các công việc gồm nhiều bước.
