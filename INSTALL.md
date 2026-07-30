@@ -235,15 +235,19 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Pi</strong></summary>
 
-Pi implements the Agent Skills standard, so the same `SKILL.md` loads directly, no conversion. Pi's invocation differs from the others: skills are called as `/skill:<name>`.
+Pi has two routes: a **native extension** (recommended — slash command, system-prompt injection, status bar, always-on) or a **plain skill** (manual invocation only).
 
-### Install
+### Install (extension, recommended)
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install git:github.com/ayghri/i-have-adhd
 ```
 
-Prefer the filesystem? Pi discovers skills in `~/.pi/agent/skills/` and `~/.agents/skills/` (global), and `.pi/skills/` and `.agents/skills/` (project):
+Start a new session and type `/i-have-adhd`. The rules stay on for the session. Say "stop adhd mode" or "normal mode" to turn them off.
+
+### Install (skill only)
+
+Pi discovers skills in `~/.pi/agent/skills/` and `~/.agents/skills/` (global), and `.pi/skills/` and `.agents/skills/` (project):
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd
@@ -262,49 +266,53 @@ Start a new session and type `/skill:i-have-adhd`.
 ### Verify
 
 ```bash
-npx skills list
+pi list | grep i-have-adhd
 ```
 
-Or type `/skill:` in a session and confirm `i-have-adhd` is listed.
+Or type `/i-have-adhd status` in a session.
 
 ### Update
 
 ```bash
-npx skills update i-have-adhd
+pi install git:github.com/ayghri/i-have-adhd
 ```
 
-Or re-copy the folder after `git pull`.
+Or re-copy the folder after `git pull` (skill route).
 
 ### Uninstall
 
-```bash
-npx skills remove i-have-adhd
-```
+Remove the entry from `~/.pi/agent/settings.json` (extension route), or delete `~/.pi/agent/skills/i-have-adhd` (skill route).
 
-Or delete `~/.pi/agent/skills/i-have-adhd`.
+### Commands
+
+| Command | Effect |
+|---------|--------|
+| `/i-have-adhd` | Turn on for this session |
+| `/i-have-adhd off` | Turn off for this session |
+| `/i-have-adhd status` | Show current state |
+| `stop adhd mode` / `normal mode` | Natural-language deactivation |
 
 ### Always-on (optional)
 
-Add to your project `AGENTS.md`:
+Create a flag file so the rules load from message one, every session:
 
-```markdown
-## Output style
-
-The reader has ADHD. Shape every response so it can be acted on:
-
-1. Lead with the answer or next action: command, path, or snippet first.
-2. Number multi-step work; one bounded action per step.
-3. End with one next action doable in under two minutes.
-4. Finish the current issue before raising a new one.
-5. Restate progress each turn ("step 3 of 5 done").
-6. Give time estimates in concrete units, never "a bit".
-7. After a change, show what now works.
-8. Errors: state location, cause, and fix. No drama.
-9. Cap lists at 5 items.
-10. No preamble, no recaps, no closers.
-
-Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
+```bash
+touch ~/.pi/.i-have-adhd-always
 ```
+
+Or set an environment variable:
+
+```bash
+export I_HAVE_ADHD_ALWAYS=1
+```
+
+Back to on-demand:
+
+```bash
+rm ~/.pi/.i-have-adhd-always
+```
+
+The flag only fires on session start; "stop adhd mode" still turns it off for the current session. Explicitly turning off persists for the session even with the flag file set.
 
 </details>
 

@@ -45,6 +45,19 @@ Then type `$i-have-adhd` to apply the output style explicitly. The skill can als
 
 </details>
 
+<details>
+<summary><strong>Pi</strong></summary>
+
+```bash
+pi install git:github.com/ayghri/i-have-adhd
+```
+
+Then type `/i-have-adhd`. The rules inject into every response for the session. Say "stop adhd mode" to turn them off.
+
+Want it on every session? `touch ~/.pi/.i-have-adhd-always` (see [INSTALL.md](./INSTALL.md)).
+
+</details>
+
 Install instructions for other coding agents live in [INSTALL.md](./INSTALL.md).
 
 ## What it does
