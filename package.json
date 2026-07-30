@@ -1,0 +1,24 @@
+{
+  "name": "i-have-adhd",
+  "version": "0.1.0",
+  "description": "ADHD-friendly output shaping for AI agents. Action-first, numbered steps, no preamble or closers.",
+  "keywords": ["pi-package", "pi", "skills", "adhd", "output-style", "productivity"],
+  "license": "MIT",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
+  "homepage": "https://github.com/ayghri/i-have-adhd",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayghri/i-have-adhd.git"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node --test ./pi-extension/test/*.test.js"
+  },
+  "pi": {
+    "extensions": ["./pi-extension/index.js"],
+    "skills": ["./skills"]
+  }
+}
