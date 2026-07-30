@@ -105,6 +105,8 @@ Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing au
 ### 9. Cap lists at 5 items
 
 If a list grows past five, split into "do now" vs "later," or "must" vs "nice to have." Five items ranked beats ten unranked.
+Override this rule if there are more than 5 "top priority" items.
+Do not apply this rule if the list inherently and genuinely demands more than 5 unranked items.
 
 ### 10. No preamble, no recap, no closing pleasantries
 
