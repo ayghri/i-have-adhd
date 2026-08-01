@@ -38,6 +38,16 @@ Isolation also drops the operator's saved model and effort settings, so the clau
 
 Runs are resumable: rerun the same command after a provider failure and completed `(case, trial, condition, runner)` rows are skipped. Each incomplete call is retried twice by default, and the final provider error is preserved.
 
+## Measure
+
+Aggregate token usage, reported cost, and response length from the completed responses file:
+
+```bash
+python3 scripts/run_evals.py measure evals/results/responses.jsonl
+```
+
+The command refuses to compare conditions produced by different runners or conditions with unequal `(case_id, trial)` coverage. This is the same comparability rule the release gate applies to judged scores.
+
 ## Judge and score
 
 Blind the `condition` field before judging. Write one JSON object per response with these fields:
@@ -52,4 +62,4 @@ Then apply the release gate:
 python3 scripts/run_evals.py score evals/results/scores.jsonl
 ```
 
-Record the exact CLI and model versions with published results. Do not compare conditions produced with different cases, models, trial counts, or rubrics.
+Record the exact CLI and model versions with published results, including measured token and cost numbers. Do not compare conditions produced with different cases, models, trial counts, or rubrics.
