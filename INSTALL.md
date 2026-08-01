@@ -285,7 +285,24 @@ Or delete `~/.pi/agent/skills/i-have-adhd`.
 
 ### Always-on (optional)
 
-Add to your project `AGENTS.md`:
+Pi has no hooks.json, so the Claude `SessionStart` hook has no direct equivalent — but an extension behaves the same way: it loads the full ruleset at the start of every session, no `/skill:i-have-adhd` needed. Install the extension once, then toggle it with a flag file:
+
+```bash
+cp extensions/i-have-adhd-always.ts ~/.pi/agent/extensions/
+touch ~/.pi/agent/.i-have-adhd-always     # always-on for every session
+```
+
+Restart pi (or `/reload`). The extension only fires when the flag file exists, so installing it changes nothing by itself. Honors `$PI_CODING_AGENT_DIR` if you've moved your config dir. "stop adhd mode" still turns it off for the current session.
+
+Back to on-demand:
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+The flag needs the installed SKILL.md: the extension looks in the repo layout first, then in `~/.pi/agent/skills/` (where the install above puts it). If it can't find either, it warns once and does nothing.
+
+No extensions? Paste the condensed rules into your project `AGENTS.md`:
 
 ```markdown
 ## Output style
@@ -560,7 +577,8 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 1. **Installed, not invoked.** In Claude Code, nothing happens: `SKILL.md` sets `disable-model-invocation: true`, so the model never sees the skill and never applies the rules on its own. That flag is Claude Code's own; Codex ships with implicit invocation allowed (see the README), and harnesses that implement the open Agent Skills spec load every skill's description at startup and may activate the skill themselves.
 2. **You type `/i-have-adhd`.** Rules on for that session. "stop adhd mode" or "normal mode" turns them off.
 3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code). A `SessionStart` hook loads the full ruleset from message one, every session.
-4. **You add the always-on snippet above** (other harnesses). Keeps the core rules in your agent's persistent context.
+4. **You touch `~/.pi/agent/.i-have-adhd-always`** (Pi). The always-on extension loads the full ruleset into the system prompt from message one, every session.
+5. **You add the always-on snippet above** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 In Claude Code, no middle ground: if you did not turn it on, it is off.
 
