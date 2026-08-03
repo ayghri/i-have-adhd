@@ -46,6 +46,17 @@ Then type `$i-have-adhd` to apply the output style explicitly. The skill can als
 
 </details>
 
+<details>
+<summary><strong>Pi</strong></summary>
+
+This repo is a pi extension, not just a skill: it's auto-discovered from `~/.pi/agent/extensions/`. Clone or symlink it there, then `/reload` in pi. The ADHD ruleset is always-on — injected at session start and re-injected after every `/compact`, so the AI never forgets the reader has ADHD.
+
+```bash
+git clone git@github.com:fyq163/i-have-adhd-pi-extension.git ~/.pi/agent/extensions/i-have-adhd-pi-extension
+```
+
+</details>
+
 Install instructions for other coding agents live in [INSTALL.md](./INSTALL.md).
 
 ## What it does

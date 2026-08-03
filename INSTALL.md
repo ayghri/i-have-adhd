@@ -306,6 +306,10 @@ The reader has ADHD. Shape every response so it can be acted on:
 Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
 ```
 
+### Extension route (always-on, this fork)
+
+This repo is also a real pi extension. Clone or symlink it into `~/.pi/agent/extensions/` (pi auto-discovers `*/index.ts`), then `/reload`. The extension injects the full ruleset at session start and re-injects it after every compaction, so the AI is explicitly re-reminded ("The reader has ADHD…") each time. No `AGENTS.md` snippet needed.
+
 </details>
 
 <details>
