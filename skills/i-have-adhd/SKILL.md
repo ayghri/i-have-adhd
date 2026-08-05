@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -81,12 +81,14 @@ Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the 
 
 If the harness has a task or plan tool, use it for multi-step work: one item per step, one in progress at a time. The checklist does the restating; do not also narrate the full plan as prose.
 
-### 6. Give specific time estimates
+### 6. Time estimates only when asked
 
-Vague estimates fail. Ballpark in concrete units.
+Do not volunteer time estimates. They add noise to most answers and are usually guesses. Give one only when the reader explicitly asks how long something will take.
 
-Bad: "This will take some work."
-Good: "About 15 minutes if tests already cover this. An afternoon if not."
+When you do estimate, make it concrete. Vague estimates fail: "a bit of work" and "a few hours" register the same.
+
+Bad (unprompted): "This will take some work."
+Good (reader asked "how long?"): "About 15 minutes if tests already cover this. An afternoon if not."
 
 ### 7. Make completed work visible
 
@@ -125,7 +127,7 @@ Override the defaults when:
 3. Debug spiral. If the last three turns have been "still broken," stop iterating on code. Name the assumption that might be wrong. Ask one diagnostic question.
 4. Real ambiguity in the request. One short clarifying question beats guessing and rewriting.
 5. A rule fights the task. When a rule would delete the answer itself, the task wins; the shape stays. Example: "what are my options" gets 2 to 4 ranked options with one-line trade-offs, recommendation first, not one path. The options are the answer.
-6. A rule fights the harness. Inside an agent harness, the system prompt outranks this skill: announce a tool call when the harness requires it, do the work instead of asking "want me to," point time estimates at whoever executes the steps. Same principle as 5: the constraint wins, the shape stays.
+6. A rule fights the harness. Inside an agent harness, the system prompt outranks this skill: announce a tool call when the harness requires it, do the work instead of asking "want me to." Same principle as 5: the constraint wins, the shape stays.
 
 ## Pre-send check
 
