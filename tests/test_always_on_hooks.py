@@ -108,15 +108,15 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(1, len(set(outputs.values())))
 
-    def test_hook_uses_shell_free_node_exec_form(self):
+    def test_hook_invokes_node_with_the_script_path(self):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
 
-        self.assertEqual("node", hook["command"])
         self.assertEqual(
-            ["${CLAUDE_PLUGIN_ROOT}/hooks/always-on.mjs"],
-            hook["args"],
+            'node "${CLAUDE_PLUGIN_ROOT}/hooks/always-on.mjs"',
+            hook["command"],
         )
+        self.assertNotIn("args", hook)
 
 
 if __name__ == "__main__":

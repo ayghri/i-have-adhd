@@ -6,8 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/always-on.mjs"],
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.mjs\"",
             "timeout": 5,
             "statusMessage": "Checking i-have-adhd always-on flag..."
           }
