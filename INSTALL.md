@@ -57,7 +57,7 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 ### Install
 
 ```bash
-codex plugin marketplace add fyq163/i-have-adhd-pi-extension --ref main
+codex plugin marketplace add fyq163/i-have-adhd-pi-extension --ref pi-extension
 codex plugin add i-have-adhd-pi-extension@i-have-adhd-pi-extension
 ```
 

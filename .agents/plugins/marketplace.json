@@ -9,7 +9,7 @@
       "source": {
         "source": "url",
         "url": "https://github.com/fyq163/i-have-adhd-pi-extension.git",
-        "ref": "main"
+        "ref": "pi-extension"
       },
       "policy": {
         "installation": "AVAILABLE",
