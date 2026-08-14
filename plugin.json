@@ -1,4 +1,4 @@
 {
-  "name": "i-have-adhd",
-  "description": "Shape Antigravity output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible."
+  "name": "i-have-adhd-pi-extension",
+  "description": "ADHD-friendly output shaping: action first, numbered steps, no tangents, and visible progress."
 }

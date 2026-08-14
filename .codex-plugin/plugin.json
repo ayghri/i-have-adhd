@@ -1,13 +1,13 @@
 {
-  "name": "i-have-adhd",
-  "version": "0.1.0",
+  "name": "i-have-adhd-pi-extension",
+  "version": "0.1.1",
   "description": "ADHD-friendly output shaping for Codex: action first, numbered steps, no tangents, and visible progress.",
   "author": {
-    "name": "Ayoub G.",
-    "url": "https://github.com/ayghri"
+    "name": "fyq163",
+    "url": "https://github.com/fyq163"
   },
-  "homepage": "https://github.com/ayghri/i-have-adhd",
-  "repository": "https://github.com/ayghri/i-have-adhd",
+  "homepage": "https://github.com/fyq163/i-have-adhd-pi-extension",
+  "repository": "https://github.com/fyq163/i-have-adhd-pi-extension",
   "license": "MIT",
   "keywords": [
     "adhd",
@@ -21,12 +21,12 @@
     "displayName": "I Have ADHD",
     "shortDescription": "Action-first output for ADHD readers",
     "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible.",
-    "developerName": "Ayoub G.",
+    "developerName": "fyq163",
     "category": "Productivity",
     "capabilities": [
       "Instructions"
     ],
-    "websiteURL": "https://github.com/ayghri/i-have-adhd",
+    "websiteURL": "https://github.com/fyq163/i-have-adhd-pi-extension",
     "defaultPrompt": [
       "Use i-have-adhd for this task.",
       "Make this answer action-first and easy to execute.",

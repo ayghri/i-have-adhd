@@ -38,8 +38,8 @@ Want it on every session? `touch ~/.claude/.i-have-adhd-always` (see [INSTALL.md
 <summary><strong>Codex</strong></summary>
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add fyq163/i-have-adhd-pi-extension --ref main
+codex plugin add i-have-adhd-pi-extension@i-have-adhd-pi-extension
 ```
 
 Then type `$i-have-adhd` to apply the output style explicitly. The skill can also be invoked implicitly when Codex sees a task that benefits from it.

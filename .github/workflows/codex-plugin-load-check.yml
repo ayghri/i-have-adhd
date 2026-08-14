@@ -1,0 +1,24 @@
+name: plugin loads in Codex
+
+on:
+  pull_request:
+    paths:
+      - .agents/plugins/**
+      - .codex-plugin/**
+      - plugin.json
+      - skills/**
+      - .github/workflows/codex-plugin-load-check.yml
+  push:
+    branches: [main]
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g @openai/codex
+      - run: |
+          export CODEX_HOME="$RUNNER_TEMP/codex-scratch"
+          codex plugin marketplace add "$GITHUB_WORKSPACE"
+          codex plugin add i-have-adhd-pi-extension@i-have-adhd-pi-extension
+          codex plugin list | grep -q 'i-have-adhd-pi-extension@i-have-adhd-pi-extension.*installed, enabled'

@@ -57,8 +57,8 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 ### Install
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add fyq163/i-have-adhd-pi-extension --ref main
+codex plugin add i-have-adhd-pi-extension@i-have-adhd-pi-extension
 ```
 
 Type `$i-have-adhd`.
@@ -72,16 +72,16 @@ codex plugin list
 ### Update
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
-codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace upgrade i-have-adhd-pi-extension
+codex plugin remove i-have-adhd-pi-extension@i-have-adhd-pi-extension
+codex plugin add i-have-adhd-pi-extension@i-have-adhd-pi-extension
 ```
 
 ### Uninstall
 
 ```bash
-codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin remove i-have-adhd-pi-extension@i-have-adhd-pi-extension
+codex plugin marketplace remove i-have-adhd-pi-extension
 ```
 
 ### Always-on (optional)

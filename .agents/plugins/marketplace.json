@@ -1,14 +1,14 @@
 {
-  "name": "i-have-adhd",
+  "name": "i-have-adhd-pi-extension",
   "interface": {
     "displayName": "I Have ADHD"
   },
   "plugins": [
     {
-      "name": "i-have-adhd",
+      "name": "i-have-adhd-pi-extension",
       "source": {
         "source": "url",
-        "url": "https://github.com/ayghri/i-have-adhd.git",
+        "url": "https://github.com/fyq163/i-have-adhd-pi-extension.git",
         "ref": "main"
       },
       "policy": {
