@@ -7,9 +7,8 @@
     {
       "name": "i-have-adhd",
       "source": {
-        "source": "url",
-        "url": "https://github.com/ayghri/i-have-adhd.git",
-        "ref": "main"
+        "source": "local",
+        "path": "."
       },
       "policy": {
         "installation": "AVAILABLE",
