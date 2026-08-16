@@ -86,12 +86,29 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
 function rulesAreInContext(ctx: ExtensionContext): boolean {
   let active = false;
 
-  for (const entry of ctx.sessionManager.buildContextEntries()) {
-    if (entry.type !== "custom_message") continue;
+  // Upstream pi exposes buildContextEntries(); omp (@oh-my-pi/pi-coding-agent)
+  // names the compaction-aware equivalent buildSessionContext() and returns
+  // messages (role "custom") instead of entries (type "custom_message").
+  const sessionManager = ctx.sessionManager as {
+    buildContextEntries?: () => Array<{ type: string; customType?: string }>;
+    buildSessionContext?: () => {
+      messages: Array<{ role: string; customType?: string }>;
+    };
+  };
 
-    if (entry.customType === RULES_MESSAGE_TYPE) {
+  const markers =
+    typeof sessionManager.buildContextEntries === "function"
+      ? sessionManager
+          .buildContextEntries()
+          .filter((entry) => entry.type === "custom_message")
+      : sessionManager
+          .buildSessionContext!()
+          .messages.filter((message) => message.role === "custom");
+
+  for (const marker of markers) {
+    if (marker.customType === RULES_MESSAGE_TYPE) {
       active = true;
-    } else if (entry.customType === DISABLED_MESSAGE_TYPE) {
+    } else if (marker.customType === DISABLED_MESSAGE_TYPE) {
       active = false;
     }
   }
