@@ -77,6 +77,52 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
 }
 
 /**
+ * Entries or messages the model actually receives, carrying the custom-message
+ * markers the ruleset uses.
+ *
+ * Upstream Pi exposes `sessionManager.buildContextEntries()` — the session
+ * tree after the compaction transform, where custom messages appear as
+ * `{ type: "custom_message", customType, ... }`. The oh-my-pi fork
+ * (can1357/oh-my-pi) dropped that method; its session manager exposes
+ * `buildSessionContext()` instead, whose `.messages` carry custom messages as
+ * `{ role: "custom", customType, ... }`. Feature-detect so the extension runs
+ * on both.
+ */
+type CustomMessageLike = {
+  type?: string;
+  role?: string;
+  customType?: string;
+};
+
+function getContextEntries(ctx: ExtensionContext): readonly CustomMessageLike[] {
+  const sessionManager = ctx.sessionManager as unknown as {
+    buildContextEntries?: () => unknown;
+    buildSessionContext?: () => { messages?: readonly CustomMessageLike[] };
+  };
+
+  if (typeof sessionManager.buildContextEntries === "function") {
+    try {
+      const entries = sessionManager.buildContextEntries();
+      if (
+        entries != null &&
+        typeof (entries as { [Symbol.iterator]: unknown })[Symbol.iterator] ===
+          "function"
+      ) {
+        return entries as readonly CustomMessageLike[];
+      }
+    } catch {
+      // Fall through to buildSessionContext (a stub that throws, for example).
+    }
+  }
+
+  if (typeof sessionManager.buildSessionContext === "function") {
+    return sessionManager.buildSessionContext().messages ?? [];
+  }
+
+  return [];
+}
+
+/**
  * Whether the rules are still live in the context the model actually receives.
  *
  * Only the newest marker counts: a later "disabled" notice cancels an earlier
@@ -86,8 +132,8 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
 function rulesAreInContext(ctx: ExtensionContext): boolean {
   let active = false;
 
-  for (const entry of ctx.sessionManager.buildContextEntries()) {
-    if (entry.type !== "custom_message") continue;
+  for (const entry of getContextEntries(ctx)) {
+    if (entry.type !== "custom_message" && entry.role !== "custom") continue;
 
     if (entry.customType === RULES_MESSAGE_TYPE) {
       active = true;
