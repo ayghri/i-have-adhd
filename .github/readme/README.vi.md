@@ -79,7 +79,7 @@ Fork repo, chỉnh sửa `skills/i-have-adhd/SKILL.md`, sau đó chuyển sang d
 ```bash
 claude plugin uninstall i-have-adhd            # gỡ bản chính trước:
 claude plugin marketplace remove i-have-adhd   # bản fork và bản chính dùng chung tên
-claude plugin marketplace add <username-của-bạn>/i-have-adhd
+claude plugin marketplace add <your-username>/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
 

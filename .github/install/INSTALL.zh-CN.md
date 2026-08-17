@@ -379,76 +379,81 @@ hermes skills uninstall i-have-adhd
 <details>
 <summary><strong>Pi</strong></summary>
 
-Pi 实现了 Agent Skills 标准，因此可直接加载同一个 `SKILL.md`，无需转换。Pi 的调用方式不同：使用 `/skill:<name>` 调用技能。
+Pi 会将此仓库识别为原生软件包：`extensions/` 提供会话持久模式，`skills/` 继续提供 Agent Skills 入口。
 
 ### 安装
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install https://github.com/ayghri/i-have-adhd
 ```
 
-偏好文件系统方式？Pi 会在 `~/.pi/agent/skills/` 和 `~/.agents/skills/`（全局），以及 `.pi/skills/` 和 `.agents/skills/`（项目）中发现技能：
+启动新的 Pi 会话。为当前会话切换 ADHD 友好输出：
+
+```text
+/i-have-adhd
+```
+
+模式启用期间，页脚会显示 `● ADHD ON`。再次运行该命令即可关闭，也可以显式指定：
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+与 Claude Code 的钩子类似，该扩展只在会话中添加一次规则，而不是每次请求都重写系统提示词，并在压缩（compaction）导致规则丢失后重新添加。
+
+现有的 Agent Skills 命令仍可作为别名使用：
+
+```text
+/skill:i-have-adhd
+```
+
+以默认启用该模式的方式启动新的 Pi 会话：
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+pi --adhd
 ```
-
-在 Pi 的 `settings.json` 中启用技能斜杠命令：
-
-```json
-{ "enableSkillCommands": true }
-```
-
-开始新会话并输入 `/skill:i-have-adhd`。
 
 ### 验证
 
 ```bash
-npx skills list
+pi list
 ```
 
-也可以在会话中输入 `/skill:`，确认列表中有 `i-have-adhd`。
+确认列表中包含该 GitHub 软件包，然后输入 `/i-have-adhd` 并检查页脚是否显示 `● ADHD ON`。
 
 ### 更新
 
 ```bash
-npx skills update i-have-adhd
+pi update https://github.com/ayghri/i-have-adhd
 ```
 
-也可以在 `git pull` 后重新复制该文件夹。
+也可以用 `pi update --extensions` 更新所有未锁定版本的 Pi 软件包。
 
 ### 卸载
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-也可以删除 `~/.pi/agent/skills/i-have-adhd`。
 
 ### 始终启用（可选）
 
-添加到项目的 `AGENTS.md`：
+在 Pi 的代理配置目录中创建一个标志文件：
 
-```markdown
-## 输出风格
-
-读者有 ADHD。请让每条回复都便于立即执行：
-
-1. 先给出答案或下一步行动：命令、路径或代码片段优先。
-2. 为多步骤工作编号；每一步只包含一个明确的行动。
-3. 最后给出一个能在两分钟内完成的下一步行动。
-4. 先解决当前问题，再提出新问题。
-5. 每轮重述进度（“5 步中的第 3 步已完成”）。
-6. 用具体单位估算时间，绝不说“一会儿”。
-7. 修改后说明现在可以正常工作的内容。
-8. 出错时说明位置、原因和修复方法，不夸大。
-9. 列表最多包含 5 项。
-10. 不要前言、回顾或结束语。
-
-例外：用户要求解释时应充分说明。执行破坏性操作前先确认。连续三次修复失败后停止，并指出可疑的假设。请求含糊时只问一个简短问题。
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
 ```
+
+该扩展会在每次新建、恢复、分叉或重新加载的会话中检查此标志。当前会话中已保存的选择优先于此默认值，因此 "stop adhd mode" 仍会让该会话保持关闭。
+
+恢复为按需启用：
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+如果设置了 `PI_CODING_AGENT_DIR`，请改为将 `.i-have-adhd-always` 放在该目录下。更改标志后，请运行 `/reload` 或开始新会话。
 
 </details>
 

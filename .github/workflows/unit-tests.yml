@@ -1,0 +1,42 @@
+name: unit tests
+
+# Runs the full Python unittest suite. Each drift-check workflow runs only
+# the module for its own artifact (manifest-sync.yml runs test_manifests,
+# plugin-load-check.yml runs test_always_on_hooks), which left
+# test_generate_rules.py and test_run_evals.py running nowhere. This
+# workflow is the guarantee that no test module is dead in CI, so a new
+# tests/test_*.py must be added to the module list below.
+on:
+  pull_request:
+    paths:
+      - scripts/**
+      - tests/**
+      - evals/**
+      - hooks/**
+      - skills/**
+      - package.json
+      - .github/workflows/unit-tests.yml
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      # test_generate_rules.py shells out to generate_rules.mjs, so node is
+      # part of the test environment, not just the drift-check workflows.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run the unit test suite
+        run: python -m unittest tests.test_always_on_hooks tests.test_manifests tests.test_generate_rules tests.test_run_evals -v

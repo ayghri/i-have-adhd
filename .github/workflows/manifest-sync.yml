@@ -1,0 +1,33 @@
+name: manifests in sync
+
+# Fails if any harness manifest drifts from the shared fields in
+# package.json (name, version, description, license, homepage, author).
+# No CLI install required: this is a plain Python check.
+on:
+  pull_request:
+    paths:
+      - package.json
+      - kimi.plugin.json
+      - plugin.json
+      - .claude-plugin/plugin.json
+      - .claude-plugin/marketplace.json
+      - .codex-plugin/plugin.json
+      - .agents/plugins/marketplace.json
+      - gemini-extension.json
+      - qwen-extension.json
+      - scripts/render_manifests.py
+      - tests/test_manifests.py
+      - .github/workflows/manifest-sync.yml
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Fail if any manifest is out of sync with package.json
+        run: python -m unittest tests.test_manifests -v

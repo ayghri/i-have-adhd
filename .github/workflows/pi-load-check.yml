@@ -5,6 +5,7 @@ on:
     paths:
       - extensions/**
       - skills/**
+      - tests/**
       - package.json
       - scripts/check_pi_extension.py
       - .github/workflows/pi-load-check.yml
@@ -25,6 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Run in-process state machine tests
+        run: node --experimental-strip-types --test tests/state-machine.test.ts
       - name: Install Pi
         run: npm install -g --ignore-scripts @earendil-works/pi-coding-agent
       - name: Verify the Pi package, commands, status, and persisted mode

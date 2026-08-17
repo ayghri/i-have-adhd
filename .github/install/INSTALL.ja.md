@@ -379,76 +379,81 @@ Kimi Code セッションで `/plugins` を実行し、**I Have ADHD** にカー
 <details>
 <summary><strong>Pi</strong></summary>
 
-Pi は Agent Skills 標準を実装しているため、同じ `SKILL.md` を変換なしで直接読み込めます。呼び出し方法は他と異なり、スキルは `/skill:<name>` で呼び出します。
+Pi はこのリポジトリをネイティブパッケージとして検出します。`extensions/` がセッション永続モードを提供し、`skills/` が Agent Skills のエントリーポイントを提供します。
 
 ### インストール
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install https://github.com/ayghri/i-have-adhd
 ```
 
-ファイルシステムを使う場合、Pi は `~/.pi/agent/skills/` と `~/.agents/skills/`（グローバル）、`.pi/skills/` と `.agents/skills/`（プロジェクト）からスキルを検出します：
+新しい Pi セッションを開始します。現在のセッションで ADHD 向け出力を切り替えます：
+
+```text
+/i-have-adhd
+```
+
+モードが有効な間、フッターに `● ADHD ON` と表示されます。もう一度コマンドを実行するとオフになります。明示的に指定することもできます：
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+Claude Code のフックと同様、この拡張はルールセットをリクエストごとにシステムプロンプトへ書き込む代わりに、会話に一度だけ追加し、コンパクションでルールセットが失われた後も再度追加します。
+
+既存の Agent Skills コマンドはエイリアスとして引き続き使えます：
+
+```text
+/skill:i-have-adhd
+```
+
+デフォルトでモードを有効にした状態で新しい Pi セッションを開始します：
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+pi --adhd
 ```
-
-Pi の `settings.json` でスキルのスラッシュコマンドを有効にします：
-
-```json
-{ "enableSkillCommands": true }
-```
-
-新しいセッションを開始して `/skill:i-have-adhd` と入力します。
 
 ### 確認
 
 ```bash
-npx skills list
+pi list
 ```
 
-または、セッションで `/skill:` と入力し、`i-have-adhd` が一覧にあることを確認します。
+GitHub パッケージが一覧にあることを確認し、`/i-have-adhd` と入力してフッターに `● ADHD ON` が表示されることを確認します。
 
 ### 更新
 
 ```bash
-npx skills update i-have-adhd
+pi update https://github.com/ayghri/i-have-adhd
 ```
 
-または、`git pull` の後にフォルダーを再度コピーします。
+または、`pi update --extensions` で固定されていないすべての Pi パッケージを更新します。
 
 ### アンインストール
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-または、`~/.pi/agent/skills/i-have-adhd` を削除します。
 
 ### 常時有効（任意）
 
-プロジェクトの `AGENTS.md` に追加します：
+Pi のエージェント設定ディレクトリにフラグファイルを作成します：
 
-```markdown
-## 出力スタイル
-
-読み手には ADHD があります。すぐ行動に移せるよう、すべての回答を次のように構成してください：
-
-1. 回答または次の行動から始める。コマンド、パス、スニペットを先に示す。
-2. 複数手順の作業には番号を付け、1 ステップにつき 1 つの明確な行動にする。
-3. 2 分以内にできる次の行動を 1 つ示して終える。
-4. 新しい問題を挙げる前に、現在の問題を終わらせる。
-5. 各ターンで進捗を言い直す（「5 ステップ中 3 ステップ完了」）。
-6. 所要時間は具体的な単位で示し、「少し」とは言わない。
-7. 変更後は、何が動くようになったかを示す。
-8. エラーは場所、原因、修正方法を淡々と示す。
-9. リストは最大 5 項目にする。
-10. 前置き、要約、締めの言葉を入れない。
-
-例外：説明を求められた場合は十分に説明する。破壊的な操作の前には確認する。修正に 3 回失敗したら止まり、疑わしい前提を明示する。依頼が曖昧なら短い質問を 1 つする。
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
 ```
+
+この拡張は、新規・再開・フォーク・再読み込みのいずれのセッションでもこのフラグを確認します。現在のセッションで保存された選択はこのデフォルトより優先されるため、「stop adhd mode」を実行すればそのセッションでは無効のままになります。
+
+オンデマンドに戻す場合：
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+`PI_CODING_AGENT_DIR` が設定されている場合は、代わりにそのディレクトリに `.i-have-adhd-always` を置いてください。フラグを変更した後は `/reload` を実行するか、新しいセッションを開始してください。
 
 </details>
 

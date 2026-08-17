@@ -379,76 +379,81 @@ Kimi Code 세션에서 `/plugins`를 실행하고 **I Have ADHD**에 커서를 �
 <details>
 <summary><strong>Pi</strong></summary>
 
-Pi는 Agent Skills 표준을 구현하므로 같은 `SKILL.md`를 변환 없이 직접 불러옵니다. 호출 방식은 다른 도구와 달리 `/skill:<name>` 형식입니다.
+Pi는 이 저장소를 네이티브 패키지로 인식합니다. `extensions/`가 세션 지속 모드를 제공하고, `skills/`가 Agent Skills 진입점을 계속 제공합니다.
 
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install https://github.com/ayghri/i-have-adhd
 ```
 
-파일 시스템 방식을 선호한다면 Pi는 `~/.pi/agent/skills/`와 `~/.agents/skills/`(전역), `.pi/skills/`와 `.agents/skills/`(프로젝트)에서 스킬을 찾습니다:
+새 Pi 세션을 시작하세요. 현재 세션에서 ADHD 친화적 출력을 켜고 끕니다:
+
+```text
+/i-have-adhd
+```
+
+모드가 활성화된 동안 하단에 `● ADHD ON`이 표시됩니다. 명령을 다시 실행하면 꺼지며, 명시적으로 지정할 수도 있습니다:
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+Claude Code 훅과 마찬가지로, 이 확장은 매 요청마다 시스템 프롬프트를 다시 쓰는 대신 대화에 규칙을 한 번만 추가하고, 컴팩션으로 규칙이 사라지면 다시 추가합니다.
+
+기존 Agent Skills 명령도 별칭으로 계속 사용할 수 있습니다:
+
+```text
+/skill:i-have-adhd
+```
+
+기본적으로 모드가 켜진 상태로 새 Pi 세션을 시작합니다:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+pi --adhd
 ```
-
-Pi의 `settings.json`에서 스킬 슬래시 명령을 활성화하세요:
-
-```json
-{ "enableSkillCommands": true }
-```
-
-새 세션을 시작하고 `/skill:i-have-adhd`를 입력하세요.
 
 ### 확인
 
 ```bash
-npx skills list
+pi list
 ```
 
-또는 세션에서 `/skill:`을 입력하고 `i-have-adhd`가 목록에 있는지 확인하세요.
+GitHub 패키지가 목록에 있는지 확인한 다음 `/i-have-adhd`를 입력하고 하단에 `● ADHD ON`이 표시되는지 확인하세요.
 
 ### 업데이트
 
 ```bash
-npx skills update i-have-adhd
+pi update https://github.com/ayghri/i-have-adhd
 ```
 
-또는 `git pull` 후 폴더를 다시 복사하세요.
+또는 `pi update --extensions`로 버전 고정이 없는 모든 Pi 패키지를 업데이트하세요.
 
 ### 제거
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-또는 `~/.pi/agent/skills/i-have-adhd`를 삭제하세요.
 
 ### 항상 활성화(선택 사항)
 
-프로젝트의 `AGENTS.md`에 추가하세요:
+Pi의 에이전트 설정 디렉터리에 플래그 파일을 만드세요:
 
-```markdown
-## 출력 스타일
-
-읽는 사람은 ADHD가 있습니다. 모든 답변을 바로 실행할 수 있도록 구성하세요:
-
-1. 답이나 다음 행동부터 제시하세요. 명령어, 경로 또는 코드 조각을 먼저 보여 주세요.
-2. 여러 단계의 작업에는 번호를 붙이고, 단계마다 범위가 명확한 행동 하나만 두세요.
-3. 2분 안에 할 수 있는 다음 행동 하나로 끝내세요.
-4. 새 문제를 꺼내기 전에 현재 문제를 마무리하세요.
-5. 매 턴마다 진행 상황을 다시 알려 주세요("5단계 중 3단계 완료").
-6. 시간은 구체적인 단위로 예상하고 "조금"이라고 하지 마세요.
-7. 변경 후에는 이제 무엇이 작동하는지 보여 주세요.
-8. 오류는 위치, 원인, 해결 방법을 담담하게 알려 주세요.
-9. 목록은 최대 5개 항목으로 제한하세요.
-10. 서론, 요약, 마무리 인사를 넣지 마세요.
-
-예외: 설명을 요청받으면 충분히 설명하세요. 파괴적인 작업 전에는 확인하세요. 세 번의 수정이 실패하면 멈추고 의심되는 가정을 밝히세요. 요청이 모호하면 짧은 질문 하나를 하세요.
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
 ```
+
+이 확장은 새로 시작, 재개, 포크, 다시 불러온 모든 세션에서 이 플래그를 확인합니다. 현재 세션에서 저장된 선택은 이 기본값보다 우선하므로, "stop adhd mode"를 실행하면 해당 세션에서는 계속 비활성화됩니다.
+
+필요할 때만 켜는 방식으로 돌아가려면:
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+`PI_CODING_AGENT_DIR`가 설정되어 있다면 `.i-have-adhd-always`를 그 디렉터리에 대신 두세요. 플래그를 변경한 후에는 `/reload`를 실행하거나 새 세션을 시작하세요.
 
 </details>
 

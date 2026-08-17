@@ -379,76 +379,81 @@ Em uma sessão do Kimi Code, execute `/plugins`, posicione o cursor em **I Have 
 <details>
 <summary><strong>Pi</strong></summary>
 
-O Pi implementa o padrão Agent Skills, portanto o mesmo `SKILL.md` é carregado diretamente, sem conversão. A invocação no Pi é diferente: as skills são chamadas como `/skill:<name>`.
+O Pi identifica este repositório como um pacote nativo: `extensions/` fornece o modo persistente de sessão e `skills/` mantém o ponto de entrada do Agent Skills disponível.
 
 ### Instalar
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install https://github.com/ayghri/i-have-adhd
 ```
 
-Prefere usar o sistema de arquivos? O Pi encontra skills em `~/.pi/agent/skills/` e `~/.agents/skills/` (global), e em `.pi/skills/` e `.agents/skills/` (projeto):
+Inicie uma nova sessão do Pi. Ative ou desative a saída amigável para TDAH na sessão atual:
+
+```text
+/i-have-adhd
+```
+
+O rodapé mostra `● ADHD ON` enquanto o modo está ativo. Execute o comando novamente para desativar, ou seja explícito:
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+Assim como o hook do Claude Code, a extensão adiciona o conjunto de regras à conversa uma única vez, em vez de reescrever o prompt do sistema a cada solicitação, e o adiciona novamente depois que a compactação o descarta.
+
+O comando Agent Skills existente continua disponível como alias:
+
+```text
+/skill:i-have-adhd
+```
+
+Inicie uma nova sessão do Pi com o modo ativado por padrão:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+pi --adhd
 ```
-
-Ative os comandos de barra de skills no `settings.json` do Pi:
-
-```json
-{ "enableSkillCommands": true }
-```
-
-Inicie uma nova sessão e digite `/skill:i-have-adhd`.
 
 ### Verificar
 
 ```bash
-npx skills list
+pi list
 ```
 
-Ou digite `/skill:` em uma sessão e confirme que `i-have-adhd` aparece na lista.
+Confirme que o pacote do GitHub aparece na lista, digite `/i-have-adhd` e verifique se `● ADHD ON` aparece no rodapé.
 
 ### Atualizar
 
 ```bash
-npx skills update i-have-adhd
+pi update https://github.com/ayghri/i-have-adhd
 ```
 
-Ou copie a pasta novamente após `git pull`.
+Ou atualize todos os pacotes Pi sem versão fixada com `pi update --extensions`.
 
 ### Desinstalar
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-Ou exclua `~/.pi/agent/skills/i-have-adhd`.
 
 ### Sempre ativo (opcional)
 
-Adicione ao `AGENTS.md` do projeto:
+Crie um arquivo de sinalização no diretório de configuração do agente do Pi:
 
-```markdown
-## Estilo de resposta
-
-A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
-
-1. Comece pela resposta ou próxima ação: comando, caminho ou trecho de código primeiro.
-2. Numere trabalhos com várias etapas; uma ação bem delimitada por etapa.
-3. Termine com uma próxima ação que possa ser feita em menos de dois minutos.
-4. Conclua o problema atual antes de levantar outro.
-5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
-6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
-7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
-9. Limite listas a 5 itens.
-10. Sem preâmbulo, recapitulação ou despedida.
-
-Exceções: explique por completo quando pedirem. Confirme antes de ações destrutivas. Após três tentativas de correção sem sucesso, pare e identifique a suposição duvidosa. Se o pedido for ambíguo, faça uma pergunta curta.
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
 ```
+
+A extensão verifica esse arquivo em toda sessão nova, retomada, bifurcada ou recarregada. Uma escolha salva para a sessão atual tem prioridade sobre esse padrão, então "stop adhd mode" mantém essa sessão desativada.
+
+Para voltar ao modo sob demanda:
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+Se `PI_CODING_AGENT_DIR` estiver definida, coloque `.i-have-adhd-always` nesse diretório. Execute `/reload` ou inicie uma nova sessão após alterar o arquivo de sinalização.
 
 </details>
 

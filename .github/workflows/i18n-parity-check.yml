@@ -1,0 +1,30 @@
+name: install/readme translations in sync
+
+# Fails if a translated INSTALL.*.md or README.*.md drifts in structure from
+# the English source: different heading levels, different code blocks, or
+# code blocks whose commands (not just comments) differ.
+on:
+  pull_request:
+    paths:
+      - INSTALL.md
+      - README.md
+      - .github/install/**
+      - .github/readme/**
+      - scripts/check_i18n_parity.py
+      - .github/workflows/i18n-parity-check.yml
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check translated INSTALL.md and README.md match the English structure
+        run: python3 scripts/check_i18n_parity.py

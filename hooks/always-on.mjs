@@ -6,6 +6,13 @@
 // Code/Codex hook launches this module from the plugin-root environment rather
 // than relying on platform-specific shell expansion for the script path.
 // Native sh and PowerShell implementations remain available as fallbacks.
+//
+// Reads skills/i-have-adhd/rules.md verbatim: frontmatter parsing happens
+// once, at build time, in scripts/generate_rules.mjs.
+//
+// The banner text is shared with the other two runtimes via banner.txt
+// (line 1 = prefix, line 2 = suffix) instead of being hand-authored three
+// times, once per runtime's string-escaping dialect.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -19,25 +26,22 @@ try {
   // Only fire when the user has opted in.
   if (!fs.existsSync(flagPath)) process.exit(0);
 
-  // Resolve SKILL.md relative to this script's own location, not a trusted env var.
+  // Resolve rules.md and banner.txt relative to this script's own location,
+  // not a trusted env var.
   const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-  const skillPath = path.join(scriptDir, "..", "skills", "i-have-adhd", "SKILL.md");
-  if (!fs.existsSync(skillPath)) process.exit(0);
+  const rulesPath = path.join(scriptDir, "..", "skills", "i-have-adhd", "rules.md");
+  if (!fs.existsSync(rulesPath)) process.exit(0);
 
-  // Strip a leading YAML frontmatter block (--- ... --- at the very top of file).
-  const body = fs
-    .readFileSync(skillPath, "utf8")
-    .replace(
-      /^---[^\S\r\n]*\r?\n[\s\S]*?\r?\n---[^\S\r\n]*(?:\r?\n|$)/,
-      "",
-    )
+  const body = fs.readFileSync(rulesPath, "utf8").replace(/(?:\r?\n)+$/, "");
+  const bannerTemplate = fs
+    .readFileSync(path.join(scriptDir, "banner.txt"), "utf8")
     .replace(/(?:\r?\n)+$/, "");
+  const token = "{{FLAG_PATH}}";
+  const tokenIndex = bannerTemplate.indexOf(token);
+  const banner =
+    bannerTemplate.slice(0, tokenIndex) + flagPath + bannerTemplate.slice(tokenIndex + token.length);
 
-  process.stdout.write(
-    "ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. " +
-      '"stop adhd mode" turns it off for this session; ' +
-      `delete ${flagPath} to turn always-on off for good.\n\n${body}\n`,
-  );
+  process.stdout.write(`${banner}\n\n${body}\n`);
 } catch {
   // Never block session start.
   process.exit(0);

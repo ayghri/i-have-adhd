@@ -1,9 +1,10 @@
-import argparse
+import dataclasses
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -136,7 +137,7 @@ class EvaluationHarnessTest(unittest.TestCase):
                     }
                 )
             )
-            args = argparse.Namespace(
+            config = run_evals.RunConfig(
                 cases=ROOT / "evals" / "cases.jsonl",
                 runner_config=runner_config,
                 runner="stub",
@@ -151,14 +152,75 @@ class EvaluationHarnessTest(unittest.TestCase):
             )
 
             with self.assertRaisesRegex(RuntimeError, "never reports dollar cost"):
-                run_evals.run_evaluations(args)
+                run_evals.build_runner(config)
 
             self.assertFalse(marker.exists(), "runner was invoked before the rejection")
             self.assertFalse((tmp_path / "out.jsonl").exists())
 
-            args.allow_unmetered = True
-            self.assertEqual(0, run_evals.run_evaluations(args))
+            config = dataclasses.replace(config, allow_unmetered=True)
+            runner = run_evals.build_runner(config)
+            self.assertEqual(0, run_evals.run_evaluations(config, runner))
             self.assertTrue(marker.exists())
+
+    def test_run_evaluations_skips_completed_and_records_new_via_recorded_runner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            output = tmp_path / "out.jsonl"
+            output.write_text(
+                json.dumps(
+                    {
+                        "case_id": "direct-answer",
+                        "trial": 1,
+                        "condition": "baseline",
+                        "runner": "recorded",
+                        "response": "prior",
+                        "usage": {},
+                        "cost_usd": 0.5,
+                    }
+                )
+                + "\n"
+            )
+            config = run_evals.RunConfig(
+                cases=ROOT / "evals" / "cases.jsonl",
+                runner_config=None,
+                runner="recorded",
+                condition="baseline",
+                condition_skill=None,
+                case=["direct-answer", "casual-message"],
+                trials=1,
+                retries=0,
+                budget_usd=1.0,
+                allow_unmetered=True,
+                output=output,
+            )
+            runner = self._RecordedRunner(
+                [run_evals.Response(text="hi", usage={}, cost_usd=0.1)]
+            )
+
+            result = run_evals.run_evaluations(config, runner=runner)
+
+            self.assertEqual(0, result)
+            self.assertEqual(1, len(runner.calls))
+            prompt, remaining_budget = runner.calls[0]
+            self.assertEqual("Thanks, that solved it.", prompt)
+            self.assertAlmostEqual(0.5, remaining_budget)
+
+            rows = run_evals.read_jsonl(output)
+            self.assertEqual(2, len(rows))
+            self.assertEqual("prior", rows[0]["response"])
+            self.assertEqual("casual-message", rows[1]["case_id"])
+            self.assertEqual("hi", rows[1]["response"])
+
+    class _RecordedRunner(run_evals.Runner):
+        """A canned Runner for tests: no subprocess, just plays back responses in order."""
+
+        def __init__(self, responses):
+            self._responses = list(responses)
+            self.calls = []
+
+        def invoke(self, prompt, *, remaining_budget):
+            self.calls.append((prompt, remaining_budget))
+            return self._responses.pop(0)
 
     def test_completed_keys_support_resuming_partial_runs(self):
         rows = [
@@ -174,6 +236,107 @@ class EvaluationHarnessTest(unittest.TestCase):
             {("direct-answer", 1, "baseline", "claude")},
             run_evals.completed_keys(rows),
         )
+
+
+class ParseResponseTest(unittest.TestCase):
+    def test_extracts_claude_json_fields(self):
+        output = json.dumps({"result": "  hi  ", "usage": {"foo": 1}, "total_cost_usd": 0.02})
+
+        text, usage, cost = run_evals._parse_response(output, "claude-json")
+
+        self.assertEqual("hi", text)
+        self.assertEqual({"foo": 1}, usage)
+        self.assertEqual(0.02, cost)
+
+    def test_extracts_codex_jsonl_fields(self):
+        events = [
+            {"type": "item.completed", "item": {"type": "agent_message", "text": "  hello  "}},
+            {"type": "turn.completed", "usage": {"tokens": 42}},
+        ]
+        output = "\n".join(json.dumps(event) for event in events)
+
+        text, usage, cost = run_evals._parse_response(output, "codex-jsonl")
+
+        self.assertEqual("hello", text)
+        self.assertEqual({"tokens": 42}, usage)
+        self.assertIsNone(cost)
+
+    def test_codex_jsonl_ignores_incomplete_events(self):
+        events = [
+            {"type": "item.completed", "item": {"type": "reasoning", "text": "skip me"}},
+            {"type": "item.completed", "item": {"type": "agent_message", "text": "final"}},
+        ]
+        output = "\n".join(json.dumps(event) for event in events)
+
+        text, usage, cost = run_evals._parse_response(output, "codex-jsonl")
+
+        self.assertEqual("final", text)
+        self.assertEqual({}, usage)
+
+
+class SubprocessRunnerTest(unittest.TestCase):
+    """Exercises the runner directly instead of only through run_evaluations,
+    so retry/backoff and response parsing are covered without a live provider CLI."""
+
+    def test_retries_until_success_and_sleeps_with_backoff(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            counter = Path(tmp) / "attempts"
+            script = (
+                f'n=$(cat {counter} 2>/dev/null || echo 0); n=$((n + 1)); echo "$n" > {counter}; '
+                f'if [ "$n" -lt 3 ]; then exit 1; fi; '
+                'echo \'{"result": "ok", "total_cost_usd": 0.01}\''
+            )
+            runner = run_evals.SubprocessRunner(
+                {"command": ["sh", "-c", script], "response_format": "claude-json"},
+                retries=2,
+                allow_unmetered=False,
+            )
+
+            with mock.patch("run_evals.time.sleep") as sleep:
+                response = runner.invoke("prompt", remaining_budget=1.0)
+
+            self.assertEqual("ok", response.text)
+            self.assertEqual(0.01, response.cost_usd)
+            self.assertEqual(3, int(counter.read_text().strip()))
+            self.assertEqual([mock.call(1), mock.call(2)], sleep.call_args_list)
+
+    def test_raises_after_exhausting_retries(self):
+        runner = run_evals.SubprocessRunner(
+            {"command": ["sh", "-c", "echo boom 1>&2; exit 1"], "response_format": "text"},
+            retries=1,
+            allow_unmetered=True,
+        )
+
+        with mock.patch("run_evals.time.sleep") as sleep:
+            with self.assertRaisesRegex(RuntimeError, "failed after 2 attempts"):
+                runner.invoke("prompt", remaining_budget=1.0)
+
+        self.assertEqual(1, sleep.call_count)
+
+    def test_failure_detail_prefers_parsed_response_over_raw_stdout(self):
+        output = json.dumps({"result": "explained failure"})
+        runner = run_evals.SubprocessRunner(
+            {
+                "command": ["sh", "-c", f"echo '{output}'; exit 1"],
+                "response_format": "claude-json",
+            },
+            retries=0,
+            allow_unmetered=True,
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "explained failure"):
+            runner.invoke("prompt", remaining_budget=1.0)
+
+    def test_raises_when_claude_json_omits_cost_and_unmetered_not_allowed(self):
+        output = json.dumps({"result": "ok"})
+        runner = run_evals.SubprocessRunner(
+            {"command": ["sh", "-c", f"echo '{output}'"], "response_format": "claude-json"},
+            retries=0,
+            allow_unmetered=False,
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "did not report dollar cost"):
+            runner.invoke("prompt", remaining_budget=1.0)
 
 
 if __name__ == "__main__":

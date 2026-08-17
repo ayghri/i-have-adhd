@@ -95,9 +95,13 @@ class AlwaysOnHookTest(unittest.TestCase):
                 self.assertEqual("", result.stdout)
                 self.assertEqual("", result.stderr)
 
-    def test_runtimes_strip_frontmatter_with_trailing_whitespace(self):
-        skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
-        skill_path.write_text("---   \nname: fixture\n--- \t\nFixture body.\n")
+    def test_runtimes_emit_rules_file_verbatim(self):
+        # Frontmatter parsing happens once, at build time, in
+        # scripts/generate_rules.mjs (see tests/test_generate_rules.py). The
+        # hooks themselves just read rules.md and print it, so this only
+        # checks that all three runtimes do that identically.
+        rules_path = self.plugin_root / "skills" / "i-have-adhd" / "rules.md"
+        rules_path.write_text("Fixture body.\n\nSecond paragraph.\n")
         (self.config_dir / ".i-have-adhd-always").touch()
         outputs = {}
 
@@ -107,31 +111,46 @@ class AlwaysOnHookTest(unittest.TestCase):
                 self.assertEqual(0, result.returncode)
                 self.assertEqual("", result.stderr)
                 normalized = self.normalize(result.stdout)
-                self.assertNotIn("name: fixture", normalized)
-                self.assertIn("\n\nFixture body.\n", normalized)
+                self.assertIn("\n\nFixture body.\n\nSecond paragraph.\n", normalized)
                 outputs[name] = normalized
 
         self.assertEqual(1, len(set(outputs.values())))
 
-    def test_runtimes_keep_content_when_frontmatter_is_unclosed(self):
-        # An opening --- with no closing delimiter is not frontmatter. Keeping
-        # the whole file beats injecting a banner that promises "the ruleset
-        # below" followed by nothing.
-        skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
-        skill_path.write_text("---\nname: fixture\nFixture body, fence never closed.\n")
+    def test_banner_comes_from_banner_file_verbatim(self):
+        # The banner is single-sourced in hooks/banner.txt with a
+        # {{FLAG_PATH}} placeholder. Each runtime must splice its own flag
+        # path into that file's text verbatim rather than embedding its own
+        # copy, so the test reads the real banner file and asserts the
+        # output equals it (with the token replaced).
         (self.config_dir / ".i-have-adhd-always").touch()
-        outputs = {}
+        banner_template = (
+            (ROOT / "hooks" / "banner.txt").read_text().rstrip("\r\n")
+        )
+        expected_flag = (self.config_dir / ".i-have-adhd-always").as_posix()
+        expected_banner = banner_template.replace("{{FLAG_PATH}}", expected_flag)
 
         for name, command in self.runtimes():
             with self.subTest(runtime=name):
                 result = self.run_hook(command)
                 self.assertEqual(0, result.returncode)
                 self.assertEqual("", result.stderr)
-                normalized = self.normalize(result.stdout)
-                self.assertIn("Fixture body, fence never closed.", normalized)
-                outputs[name] = normalized
+                self.assertTrue(
+                    self.normalize(result.stdout).startswith(
+                        expected_banner + "\n\n"
+                    ),
+                    f"{name} did not emit the banner.txt text verbatim",
+                )
 
-        self.assertEqual(1, len(set(outputs.values())))
+    def test_hook_is_silent_when_rules_file_is_missing(self):
+        (self.plugin_root / "skills" / "i-have-adhd" / "rules.md").unlink()
+        (self.config_dir / ".i-have-adhd-always").touch()
+
+        for name, command in self.runtimes():
+            with self.subTest(runtime=name):
+                result = self.run_hook(command)
+                self.assertEqual(0, result.returncode)
+                self.assertEqual("", result.stdout)
+                self.assertEqual("", result.stderr)
 
     def test_codex_command_runs_the_hook_instead_of_parsing_session_json(self):
         (self.config_dir / ".i-have-adhd-always").touch()

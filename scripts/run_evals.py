@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import abc
 import argparse
 import json
 import shlex
@@ -10,6 +11,7 @@ import subprocess
 import sys
 import time
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -206,100 +208,186 @@ def _parse_response(output: str, response_format: str) -> tuple[str, dict[str, A
     raise ValueError(f"Unsupported response format: {response_format}")
 
 
-def run_evaluations(args: argparse.Namespace) -> int:
-    cases = load_cases(args.cases)
+@dataclass
+class Response:
+    text: str
+    usage: dict[str, Any]
+    cost_usd: float | None
+
+
+@dataclass(frozen=True)
+class RunConfig:
+    """Typed parameters for one evaluation-condition run, decoupled from argparse."""
+
+    cases: Path
+    runner_config: Path
+    runner: str
+    condition: str
+    condition_skill: Path | None
+    case: list[str] | None
+    trials: int
+    retries: int
+    budget_usd: float
+    allow_unmetered: bool
+    output: Path
+
+
+class Runner(abc.ABC):
+    """Invokes one provider's CLI recipe in isolation from the operator's own configuration."""
+
+    @abc.abstractmethod
+    def invoke(self, prompt: str, *, remaining_budget: float) -> Response:
+        """Run one trial and return its response, raising if the trial ultimately fails."""
+
+
+class SubprocessRunner(Runner):
+    """Shells out to a runner's command, hiding budget-flag injection, retries, backoff, and format parsing."""
+
+    def __init__(self, config: dict[str, Any], *, retries: int, allow_unmetered: bool):
+        self._command = list(config["command"])
+        self._budget_flag = config.get("budget_flag")
+        self._response_format = config.get("response_format", "text")
+        self._retries = retries
+        self._allow_unmetered = allow_unmetered
+        if self._response_format != "claude-json" and not allow_unmetered:
+            raise RuntimeError(
+                f"The {self._response_format!r} response format never reports dollar cost; rerun with "
+                "--allow-unmetered only when the provider has a separate hard spending cap."
+            )
+
+    def invoke(self, prompt: str, *, remaining_budget: float) -> Response:
+        invocation = [*self._command]
+        if self._budget_flag:
+            invocation.extend([self._budget_flag, f"{remaining_budget:.4f}"])
+        invocation.append(prompt)
+
+        completed = None
+        for attempt in range(self._retries + 1):
+            completed = subprocess.run(
+                invocation, check=False, capture_output=True, text=True, cwd=ROOT
+            )
+            if completed.returncode == 0:
+                break
+            if attempt < self._retries:
+                time.sleep(min(2**attempt, 5))
+        assert completed is not None
+
+        if completed.returncode:
+            detail = completed.stderr.strip() or completed.stdout.strip()
+            if completed.stdout.strip():
+                try:
+                    parsed_text, _, _ = _parse_response(completed.stdout, self._response_format)
+                    detail = parsed_text or detail
+                except (ValueError, json.JSONDecodeError):
+                    pass
+            raise RuntimeError(
+                f"Runner failed after {self._retries + 1} attempts "
+                f"({shlex.join(invocation[:-1])}):\n{detail}"
+            )
+
+        text, usage, cost = _parse_response(completed.stdout, self._response_format)
+        if cost is None and not self._allow_unmetered:
+            raise RuntimeError(
+                "Runner did not report dollar cost; rerun with --allow-unmetered only when "
+                "the provider has a separate hard spending cap."
+            )
+        return Response(text=text, usage=usage, cost_usd=cost)
+
+
+class Ledger:
+    """Tracks which rows are already recorded and how much budget remains, and appends new rows durably."""
+
+    def __init__(self, path: Path, *, condition: str, runner: str, budget_usd: float):
+        if budget_usd <= 0 or budget_usd > 25:
+            raise ValueError("--budget-usd must be greater than 0 and no more than 25")
+        prior_rows = read_jsonl(path) if path.exists() else []
+        self._done = completed_keys(prior_rows)
+        self._budget = budget_usd
+        self._spent = sum(
+            float(row.get("cost_usd") or 0)
+            for row in prior_rows
+            if row.get("condition") == condition and row.get("runner") == runner
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._file = path.open("a", encoding="utf-8")
+
+    def __enter__(self) -> "Ledger":
+        return self
+
+    def __exit__(self, *exc_info: object) -> None:
+        self._file.close()
+
+    def done(self, key: tuple[str, int, str, str]) -> bool:
+        return key in self._done
+
+    def remaining(self) -> float:
+        return self._budget - self._spent
+
+    @property
+    def spent(self) -> float:
+        return self._spent
+
+    def record(self, row: dict[str, Any]) -> None:
+        self._spent += float(row.get("cost_usd") or 0)
+        self._file.write(json.dumps(row, ensure_ascii=False) + "\n")
+        self._file.flush()
+
+
+def build_runner(config: RunConfig) -> Runner:
+    """Build the provider runner the config describes.
+
+    Kept as its own function so the wiring - which JSON file, which runner
+    entry, which flags - is visible at the call site instead of hiding behind
+    a default parameter in run_evaluations.
+    """
+
+    runner_config = json.loads(config.runner_config.read_text(encoding="utf-8"))
+    return SubprocessRunner(
+        runner_config[config.runner],
+        retries=config.retries,
+        allow_unmetered=config.allow_unmetered,
+    )
+
+
+def run_evaluations(config: RunConfig, runner: Runner) -> int:
+    cases = load_cases(config.cases)
     errors = validate_cases(cases)
     if errors:
         raise ValueError("\n".join(errors))
-    unknown = sorted(set(args.case or []) - {case["id"] for case in cases})
+    unknown = sorted(set(config.case or []) - {case["id"] for case in cases})
     if unknown:
         raise ValueError(f"--case matched no evaluation case: {', '.join(unknown)}")
-    config = json.loads(args.runner_config.read_text(encoding="utf-8"))
-    runner = config[args.runner]
-    command = list(runner["command"])
-    response_format = runner.get("response_format", "text")
-    if response_format != "claude-json" and not args.allow_unmetered:
-        raise RuntimeError(
-            f"The {response_format!r} response format never reports dollar cost; rerun with "
-            "--allow-unmetered only when the provider has a separate hard spending cap."
-        )
-    reported_cost = 0.0
-    prior_rows = read_jsonl(args.output) if args.output.exists() else []
-    done = completed_keys(prior_rows)
-    reported_cost = sum(
-        float(row.get("cost_usd") or 0)
-        for row in prior_rows
-        if row.get("condition") == args.condition and row.get("runner") == args.runner
-    )
 
-    if args.budget_usd <= 0 or args.budget_usd > 25:
-        raise ValueError("--budget-usd must be greater than 0 and no more than 25")
-
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("a", encoding="utf-8") as destination:
-        for trial in range(1, args.trials + 1):
+    with Ledger(
+        config.output, condition=config.condition, runner=config.runner, budget_usd=config.budget_usd
+    ) as ledger:
+        for trial in range(1, config.trials + 1):
             for case in cases:
-                if args.case and case["id"] not in args.case:
+                if config.case and case["id"] not in config.case:
                     continue
-                key = (case["id"], trial, args.condition, args.runner)
-                if key in done:
-                    print(f"skip completed {args.condition} trial {trial}: {case['id']}")
+                key = (case["id"], trial, config.condition, config.runner)
+                if ledger.done(key):
+                    print(f"skip completed {config.condition} trial {trial}: {case['id']}")
                     continue
-                remaining = args.budget_usd - reported_cost
+                remaining = ledger.remaining()
                 if remaining <= 0:
                     print("Budget exhausted; stopping.", file=sys.stderr)
                     return 2
-                prompt = _condition_prompt(case["prompt"], args.condition, args.condition_skill)
-                invocation = [*command]
-                if runner.get("budget_flag"):
-                    invocation.extend([runner["budget_flag"], f"{remaining:.4f}"])
-                invocation.append(prompt)
-                completed = None
-                for attempt in range(args.retries + 1):
-                    completed = subprocess.run(
-                        invocation,
-                        check=False,
-                        capture_output=True,
-                        text=True,
-                        cwd=ROOT,
-                    )
-                    if completed.returncode == 0:
-                        break
-                    if attempt < args.retries:
-                        time.sleep(min(2**attempt, 5))
-                assert completed is not None
-                if completed.returncode:
-                    detail = completed.stderr.strip() or completed.stdout.strip()
-                    if completed.stdout.strip():
-                        try:
-                            parsed_text, _, _ = _parse_response(completed.stdout, response_format)
-                            detail = parsed_text or detail
-                        except (ValueError, json.JSONDecodeError):
-                            pass
-                    raise RuntimeError(
-                        f"Runner failed after {args.retries + 1} attempts "
-                        f"({shlex.join(invocation[:-1])}):\n{detail}"
-                    )
-                text, usage, cost = _parse_response(completed.stdout, response_format)
-                if cost is None and not args.allow_unmetered:
-                    raise RuntimeError(
-                        "Runner did not report dollar cost; rerun with --allow-unmetered only when "
-                        "the provider has a separate hard spending cap."
-                    )
-                reported_cost += float(cost or 0)
-                row = {
-                    "case_id": case["id"],
-                    "trial": trial,
-                    "condition": args.condition,
-                    "runner": args.runner,
-                    "response": text,
-                    "usage": usage,
-                    "cost_usd": cost,
-                }
-                destination.write(json.dumps(row, ensure_ascii=False) + "\n")
-                destination.flush()
-                print(f"{args.condition} trial {trial}: {case['id']}")
-    print(f"Reported cost: ${reported_cost:.4f}")
+                prompt = _condition_prompt(case["prompt"], config.condition, config.condition_skill)
+                response = runner.invoke(prompt, remaining_budget=remaining)
+                ledger.record(
+                    {
+                        "case_id": case["id"],
+                        "trial": trial,
+                        "condition": config.condition,
+                        "runner": config.runner,
+                        "response": response.text,
+                        "usage": response.usage,
+                        "cost_usd": response.cost_usd,
+                    }
+                )
+                print(f"{config.condition} trial {trial}: {case['id']}")
+        print(f"Reported cost: ${ledger.spent:.4f}")
     return 0
 
 
@@ -330,15 +418,27 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--budget-usd", type=float, default=25.0)
     run.add_argument("--allow-unmetered", action="store_true")
     run.add_argument("--output", type=Path, required=True)
-    run.set_defaults(handler=run_evaluations)
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
-    if hasattr(args, "handler"):
-        return args.handler(args)
+    if args.command == "run":
+        config = RunConfig(
+            cases=args.cases,
+            runner_config=args.runner_config,
+            runner=args.runner,
+            condition=args.condition,
+            condition_skill=args.condition_skill,
+            case=args.case,
+            trials=args.trials,
+            retries=args.retries,
+            budget_usd=args.budget_usd,
+            allow_unmetered=args.allow_unmetered,
+            output=args.output,
+        )
+        return run_evaluations(config, build_runner(config))
     if args.command == "validate":
         errors = validate_cases(load_cases(args.cases))
         if errors:

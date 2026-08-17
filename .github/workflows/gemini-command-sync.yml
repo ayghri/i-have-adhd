@@ -1,0 +1,21 @@
+name: gemini command in sync
+
+# Fails if skills/i-have-adhd/agents/gemini.toml drifts from
+# skills/i-have-adhd/rules.md, the parsed ruleset it is rendered from.
+on:
+  pull_request:
+    paths:
+      - skills/i-have-adhd/rules.md
+      - skills/i-have-adhd/agents/gemini.toml
+      - scripts/render_gemini_command.py
+      - .github/workflows/gemini-command-sync.yml
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if gemini.toml is out of sync with rules.md
+        run: python3 scripts/render_gemini_command.py --check

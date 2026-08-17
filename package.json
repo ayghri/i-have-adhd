@@ -4,8 +4,16 @@
   "description": "Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible.",
   "license": "MIT",
   "homepage": "https://github.com/ayghri/i-have-adhd",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
   "private": true,
   "keywords": ["pi-package"],
+  "scripts": {
+    "generate:rules": "node scripts/generate_rules.mjs",
+    "test": "node --test tests/state-machine.test.ts"
+  },
   "pi": {
     "extensions": ["./extensions/i-have-adhd.ts"],
     "skills": ["./skills"]

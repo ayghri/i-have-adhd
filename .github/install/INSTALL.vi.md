@@ -379,76 +379,81 @@ Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD*
 <details>
 <summary><strong>Pi</strong></summary>
 
-Pi triển khai chuẩn Agent Skills nên tải trực tiếp cùng một `SKILL.md`, không cần chuyển đổi. Cách gọi của Pi khác các công cụ khác: skill được gọi bằng `/skill:<name>`.
+Pi nhận diện repository này như một gói gốc: `extensions/` cung cấp chế độ tồn tại xuyên phiên, còn `skills/` vẫn giữ điểm vào Agent Skills.
 
 ### Cài đặt
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+pi install https://github.com/ayghri/i-have-adhd
 ```
 
-Muốn dùng hệ thống tệp? Pi tìm skill trong `~/.pi/agent/skills/` và `~/.agents/skills/` (toàn cục), cùng `.pi/skills/` và `.agents/skills/` (dự án):
+Bắt đầu phiên Pi mới. Bật/tắt đầu ra thân thiện với ADHD cho phiên hiện tại:
+
+```text
+/i-have-adhd
+```
+
+Thanh chân trang hiển thị `● ADHD ON` khi chế độ đang bật. Chạy lại lệnh để tắt, hoặc chỉ định rõ:
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+Giống như hook của Claude Code, tiện ích này thêm bộ quy tắc vào cuộc hội thoại một lần thay vì viết lại system prompt ở mỗi yêu cầu, và thêm lại sau khi việc nén (compaction) làm mất nó.
+
+Lệnh Agent Skills hiện có vẫn dùng được như một bí danh:
+
+```text
+/skill:i-have-adhd
+```
+
+Bắt đầu phiên Pi mới với chế độ bật theo mặc định:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+pi --adhd
 ```
-
-Bật lệnh gạch chéo cho skill trong `settings.json` của Pi:
-
-```json
-{ "enableSkillCommands": true }
-```
-
-Bắt đầu phiên mới và gõ `/skill:i-have-adhd`.
 
 ### Xác minh
 
 ```bash
-npx skills list
+pi list
 ```
 
-Hoặc gõ `/skill:` trong một phiên và xác nhận `i-have-adhd` có trong danh sách.
+Xác nhận gói GitHub có trong danh sách, sau đó gõ `/i-have-adhd` và kiểm tra `● ADHD ON` xuất hiện ở thanh chân trang.
 
 ### Cập nhật
 
 ```bash
-npx skills update i-have-adhd
+pi update https://github.com/ayghri/i-have-adhd
 ```
 
-Hoặc sao chép lại thư mục sau `git pull`.
+Hoặc cập nhật mọi gói Pi chưa ghim phiên bản bằng `pi update --extensions`.
 
 ### Gỡ cài đặt
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-Hoặc xóa `~/.pi/agent/skills/i-have-adhd`.
 
 ### Luôn bật (không bắt buộc)
 
-Thêm vào `AGENTS.md` của dự án:
+Tạo một tệp cờ trong thư mục cấu hình agent của Pi:
 
-```markdown
-## Phong cách đầu ra
-
-Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có thể hành động ngay:
-
-1. Bắt đầu bằng câu trả lời hoặc hành động tiếp theo: ưu tiên lệnh, đường dẫn hoặc đoạn mã.
-2. Đánh số công việc nhiều bước; mỗi bước chỉ có một hành động rõ ràng.
-3. Kết thúc bằng một hành động tiếp theo có thể làm trong chưa đến hai phút.
-4. Hoàn tất vấn đề hiện tại trước khi nêu vấn đề mới.
-5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
-6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
-7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
-9. Giới hạn danh sách ở 5 mục.
-10. Không mở đầu, không tóm tắt lại, không lời kết.
-
-Ngoại lệ: giải thích đầy đủ khi được yêu cầu. Xác nhận trước thao tác phá hủy dữ liệu. Sau ba lần sửa thất bại, dừng lại và nêu giả định đáng ngờ. Nếu yêu cầu mơ hồ, hãy hỏi một câu ngắn.
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
 ```
+
+Tiện ích kiểm tra tệp cờ này ở mọi phiên mới, tiếp tục, phân nhánh hoặc tải lại. Lựa chọn đã lưu cho phiên hiện tại được ưu tiên hơn giá trị mặc định này, nên "stop adhd mode" vẫn giữ phiên đó ở trạng thái tắt.
+
+Để trở lại chế độ bật khi cần:
+
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+Nếu đã đặt `PI_CODING_AGENT_DIR`, hãy đặt `.i-have-adhd-always` trong thư mục đó thay thế. Chạy `/reload` hoặc bắt đầu phiên mới sau khi thay đổi tệp cờ.
 
 </details>
 
