@@ -14,7 +14,8 @@
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <strong title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</strong> ·
-  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a>
+  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a>
 </p>
 
 
