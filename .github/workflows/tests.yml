@@ -1,0 +1,29 @@
+name: tests
+
+# Runs the Python suite in tests/. Until this existed the suite only ran
+# locally, so the scoring math, the release gate, and the pairing checks could
+# regress without any workflow noticing. Uses stdlib unittest so CI needs no
+# dependencies, matching the scripts themselves.
+on:
+  pull_request:
+    paths:
+      - scripts/**
+      - tests/**
+      - evals/**
+      - .github/workflows/tests.yml
+  push:
+    branches: [main]
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -v

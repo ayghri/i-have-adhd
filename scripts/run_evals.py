@@ -8,6 +8,7 @@ import json
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -24,6 +25,27 @@ WEIGHTS = {
     "concision": 0.10,
 }
 CONDITIONS = {"baseline", "candidate", "comparator"}
+
+
+_NEUTRAL_CWD: str | None = None
+
+
+def _neutral_cwd() -> str:
+    """An empty scratch directory to run a runner in.
+
+    Agent CLIs adopt their working directory as project context: run one inside
+    this checkout and it answers prompts by inspecting the harness instead of
+    the task. That contamination is not symmetric across conditions -- a
+    response style that discourages exploration wanders less -- so it shows up
+    as a score difference that has nothing to do with the skill under test.
+    Isolation is the same reason the runners pass `--setting-sources ""`; the
+    working directory is simply another channel the operator's world leaks in
+    through.
+    """
+    global _NEUTRAL_CWD
+    if _NEUTRAL_CWD is None:
+        _NEUTRAL_CWD = tempfile.mkdtemp(prefix="eval-neutral-cwd-")
+    return _NEUTRAL_CWD
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -168,12 +190,28 @@ def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _strip_frontmatter(text: str) -> str:
+    """Drop a leading YAML frontmatter block, mirroring hooks/always-on.sh.
+
+    The hook injects the ruleset without frontmatter, so the eval has to grade
+    the same text. A file that opens a block but never closes it is left alone
+    rather than emptied.
+    """
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        if lines[index].strip() == "---":
+            return "\n".join(lines[index + 1 :]).lstrip("\n")
+    return text
+
+
 def _condition_prompt(task: str, condition: str, skill_path: Path | None) -> str:
     if condition == "baseline":
         return task
     if skill_path is None:
         raise ValueError(f"--condition-skill is required for the {condition} condition")
-    instructions = skill_path.read_text(encoding="utf-8")
+    instructions = _strip_frontmatter(skill_path.read_text(encoding="utf-8"))
     return (
         "Follow the response-style skill below while completing the task. "
         "Do not discuss or quote the skill.\n\n"
@@ -261,7 +299,7 @@ def run_evaluations(args: argparse.Namespace) -> int:
                         check=False,
                         capture_output=True,
                         text=True,
-                        cwd=ROOT,
+                        cwd=_neutral_cwd(),
                     )
                     if completed.returncode == 0:
                         break
