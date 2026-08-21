@@ -186,7 +186,7 @@ def _parse_response(output: str, response_format: str) -> tuple[str, dict[str, A
     if response_format == "text":
         return output.strip(), {}, None
     if response_format == "claude-json":
-        payload = json.loads(output)
+        payload, _ = json.JSONDecoder().raw_decode(output.lstrip())
         return (
             str(payload.get("result", "")).strip(),
             payload.get("usage", {}) or {},
@@ -262,6 +262,7 @@ def run_evaluations(args: argparse.Namespace) -> int:
                         capture_output=True,
                         text=True,
                         cwd=ROOT,
+                        stdin=subprocess.DEVNULL,
                     )
                     if completed.returncode == 0:
                         break

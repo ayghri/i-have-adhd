@@ -1,9 +1,11 @@
 import argparse
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,6 +22,79 @@ class EvaluationHarnessTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertGreaterEqual(len(cases), 12)
         self.assertGreaterEqual(len({case["category"] for case in cases}), 8)
+
+
+    def test_parse_response_tolerates_output_after_the_json_document(self):
+        """The CLI can emit a notice after its JSON result; the first document still wins."""
+        payload = json.dumps(
+            {"result": "102", "usage": {"input_tokens": 2}, "total_cost_usd": 0.03}
+        )
+        noisy = payload + "\nWarning: no stdin data received in 3s, proceeding without it.\n"
+
+        text, usage, cost = run_evals._parse_response(noisy, "claude-json")
+
+        self.assertEqual("102", text)
+        self.assertEqual({"input_tokens": 2}, usage)
+        self.assertAlmostEqual(0.03, cost)
+
+    def test_runner_invocation_closes_child_stdin(self):
+        """A runner that inherits stdin can read unrelated bytes into the prompt."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = root / "cases.jsonl"
+            cases.write_text(
+                json.dumps(
+                    {
+                        "id": "probe",
+                        "category": "direct-answer",
+                        "prompt": "What is 17 multiplied by 6?",
+                        "risk": "low",
+                        "criteria": ["Answers 102."],
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            runners = root / "runners.json"
+            runners.write_text(
+                json.dumps(
+                    {
+                        "stub": {
+                            "command": ["stub-runner"],
+                            "response_format": "claude-json",
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = root / "responses.jsonl"
+            args = argparse.Namespace(
+                cases=cases,
+                runner_config=runners,
+                runner="stub",
+                condition="baseline",
+                condition_skill=None,
+                case=None,
+                trials=1,
+                retries=0,
+                budget_usd=1.0,
+                allow_unmetered=False,
+                output=output,
+            )
+            completed = subprocess.CompletedProcess(
+                args=["stub-runner"],
+                returncode=0,
+                stdout=json.dumps({"result": "102", "usage": {}, "total_cost_usd": 0.01}),
+                stderr="",
+            )
+
+            with mock.patch.object(
+                run_evals.subprocess, "run", return_value=completed
+            ) as runner:
+                run_evals.run_evaluations(args)
+
+            self.assertEqual(1, runner.call_count)
+            self.assertIs(subprocess.DEVNULL, runner.call_args.kwargs.get("stdin"))
 
     def test_score_summary_applies_weights_and_release_gates(self):
         scores = []
