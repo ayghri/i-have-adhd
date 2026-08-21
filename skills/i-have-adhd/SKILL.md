@@ -100,9 +100,9 @@ Never use "Uh oh," "Oh no," or "There seems to be a problem." State cause and fi
 Bad: "Uh oh, the test is failing. There seems to be an issue..."
 Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing auth header. Fix: add `Authorization: Bearer ${token}` to the request."
 
-### 9. Cap lists at 5 items
+### 9. Cap task lists at 5
 
-If a list grows past five, split into "do now" vs "later," or "must" vs "nice to have." Five items ranked beats ten unranked.
+For task lists, show up to five items most relevant to the current request. Retain other relevant items in reserve instead of discarding them, and surface reserved items as context changes. If the reader requests an exhaustive list, show all items grouped for readability.
 
 ### 10. No preamble, no recap, no closing pleasantries
 
