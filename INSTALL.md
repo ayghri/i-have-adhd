@@ -513,6 +513,22 @@ Back to on-demand:
 rm ~/.pi/agent/.i-have-adhd-always
 ```
 
+### Config file (optional)
+
+Create `~/.pi/agent/i-have-adhd.json` in Pi's agent configuration directory:
+
+```json
+{
+  "alwaysOn": true,
+  "hideStatus": true
+}
+```
+
+- `alwaysOn`: start every session with the rules active — same as the `.i-have-adhd-always` flag file, which still works
+- `hideStatus`: keep the `● ADHD ON` status-bar entry hidden; the rules and the `/i-have-adhd` command still work
+
+Read once at extension startup, so restart Pi after changing it. A saved choice for the current session wins over `alwaysOn`, so `stop adhd mode` keeps that session disabled.
+
 If `PI_CODING_AGENT_DIR` is set, put `.i-have-adhd-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
 
 </details>
