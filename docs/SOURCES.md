@@ -27,8 +27,24 @@ Rule-level `Source:` lines cite the short names below. Policy: ADR 0003 (strict 
 
 - **Yale** — Yale Medicine, *Long COVID Brain Fog: What It Is and How to Manage It*. Grounds: affected-domain cluster (language, working memory, declarative memory, processing).
   https://www.yalemedicine.org/news/how-to-manage-long-covid-brain-fog
-- **Cleveland** — Cleveland Clinic neurodivergent overview (also in DOMAINS.md).
+- **Cleveland** — Cleveland Clinic neurodivergent overview (also in DOMAINS.md); *Dyscalculia* page grounds the dyscalculia facts (number-processing trough, tool accommodation).
+  https://my.clevelandclinic.org/health/diseases/23949-dyscalculia
 - **AIFS** — Australian Institute of Family Studies, *Supporting children with neurodiversity* (also in DOMAINS.md).
+
+## Wave 2 sources (2026-08-24)
+
+- **AlzSoc** — Alzheimer's Society (UK), *How to communicate with a person with dementia*. Grounds: one instruction at a time, short simple sentences, allowing response time, avoiding overload.
+  https://www.alzheimers.org.uk/about-dementia/stages-and-symptoms/dementia-symptoms/how-to-communicate-dementia
+- **NHS** — NHS (UK), *Dementia — living with: communication*. Grounds: familiar routines hold while new-sequence memory weakens; clear concrete language.
+  https://www.nhs.uk/conditions/dementia/living-with-dementia/communication/
+- **NIA** — US National Institute on Aging, *Communicating with someone who has Alzheimer's*. Grounds: concrete named things over pronouns/abstractions; tone carries.
+  https://www.nia.nih.gov/health/alzheimers-changes-behavior-and-communication/communicating-someone-who-has-alzheimers
+- **Uphoff2019** — Uphoff et al., 2019, *Behavioural activation therapies for depression in adults* (Cochrane review; BA is NICE-recommended). Grounds: steps broken down until doable on a hard day; specific scheduled activities; momentum from small wins.
+  https://pmc.ncbi.nlm.nih.gov/articles/PMC6461437/
+- **LDA** — Learning Disabilities Association of America, *What Is Dyscalculia?*. Grounds: digit/number transcription and memory difficulty (IDs, logins, dates).
+  https://ldaamerica.org/what-is-dyscalculia/
+- **Understood** — Understood.org, *Classroom accommodations for dyscalculia*. Grounds: math-anxiety tax from on-the-spot calculation; concrete/computed alternatives.
+  https://www.understood.org/en/articles/classroom-accommodations-for-dyscalculia
 
 ## Excluded tiers
 

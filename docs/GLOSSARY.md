@@ -13,3 +13,6 @@ These words carry precise meanings in this repo. Use them, don't paraphrase them
 - **trough** — a domain where the profile runs low; the thing a rule exists for. **peak** — where it runs high; the thing rules must never fight (don't simplify reasoning because decoding is slow).
 - **synthesis** — the honest label for a rule with no published basis: the fork's own judgment, citable to the authors, never dressed as a source it doesn't have.
 - **mode** — the per-skill session state. Each skill turns on by invocation and off only by `"stop <condition> mode"` or `"normal mode"` (core Persistence section).
+- **domain skill** — `metadata.type: domain`: a pure trough, invocable without any condition label (ADR 0006). Stacks; conditions don't.
+- **stack** — the active mode set: at most one condition skill plus any number of domain skills. `"normal mode"` clears the whole stack; each stop phrase clears only its own skill.
+- **stricter wins** — the merge rule when two active rules conflict: the tighter constraint on output overrides the looser ("one instruction per message" beats "number the steps").
