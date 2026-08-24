@@ -32,6 +32,24 @@ Or 🔗 [check the installation instructions](INSTALL.md).
 
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"
 
+## The family (this fork)
+
+This fork expands the single ADHD skill into a **family of output-style skills**, one per cognitive profile. Each skill shapes output to the reader's **profile** — the spiky shape of their abilities across cognitive domains — not a deficit to be fixed. A profile is *spiky*: peaks beside troughs. The rules exist for the troughs; they never fight the peaks.
+
+One mode at a time: invoke the skill that matches the reader, turn it off with the stop phrase.
+
+| Skill | Invoke | Stop phrase | Troughs it covers |
+|---|---|---|---|
+| `i-have-adhd` *(upstream, unchanged)* | `/i-have-adhd` | "stop adhd mode" | attention, task initiation, time perception |
+| `i-have-dyslexia` | `/i-have-dyslexia` | "stop dyslexia mode" | reading fluency, decoding |
+| `i-have-autism` | `/i-have-autism` | "stop autism mode" | literal language, predictability, implicit context |
+| `i-have-anxiety` | `/i-have-anxiety` | "stop anxiety mode" | uncertainty tolerance, decision paralysis |
+| `i-have-brain-fog` | `/i-have-brain-fog` | "stop brain-fog mode" | working memory, processing speed, fatigue |
+
+Design docs live in [`docs/`](./docs): the spiky-profile taxonomy ([DOMAINS.md](./docs/DOMAINS.md)), the family's fixed vocabulary ([GLOSSARY.md](./docs/GLOSSARY.md)), the citation list behind every rule ([SOURCES.md](./docs/SOURCES.md)), and the decision records ([docs/adr](./docs/adr)).
+
+`skills/i-have-adhd/SKILL.md` stays byte-identical to upstream. The new skills share its core sections; `scripts/check_shared_core.py` (wired into the test suite) fails the build if they drift.
+
 
 ## What changes
 
