@@ -36,15 +36,21 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 This fork expands the single ADHD skill into a **family of output-style skills**, one per cognitive profile. Each skill shapes output to the reader's **profile** — the spiky shape of their abilities across cognitive domains — not a deficit to be fixed. A profile is *spiky*: peaks beside troughs. The rules exist for the troughs; they never fight the peaks.
 
-One mode at a time: invoke the skill that matches the reader, turn it off with the stop phrase.
+One condition at a time — plus any number of domain skills **stacked on top** (ADR 0006): rules union, the stricter one wins, each mode turns off by its own stop phrase, and "normal mode" clears the whole stack.
 
-| Skill | Invoke | Stop phrase | Troughs it covers |
-|---|---|---|---|
-| `i-have-adhd` *(upstream, unchanged)* | `/i-have-adhd` | "stop adhd mode" | attention, task initiation, time perception |
-| `i-have-dyslexia` | `/i-have-dyslexia` | "stop dyslexia mode" | reading fluency, decoding |
-| `i-have-autism` | `/i-have-autism` | "stop autism mode" | literal language, predictability, implicit context |
-| `i-have-anxiety` | `/i-have-anxiety` | "stop anxiety mode" | uncertainty tolerance, decision paralysis |
-| `i-have-brain-fog` | `/i-have-brain-fog` | "stop brain-fog mode" | working memory, processing speed, fatigue |
+| Skill | Type | Invoke | Stop phrase | Troughs it covers |
+|---|---|---|---|---|
+| `i-have-adhd` *(upstream, unchanged)* | condition | `/i-have-adhd` | "stop adhd mode" | attention, task initiation, time perception |
+| `i-have-dyslexia` | condition | `/i-have-dyslexia` | "stop dyslexia mode" | reading fluency, decoding |
+| `i-have-autism` | condition | `/i-have-autism` | "stop autism mode" | literal language, predictability, implicit context |
+| `i-have-anxiety` | condition | `/i-have-anxiety` | "stop anxiety mode" | uncertainty tolerance, decision paralysis |
+| `i-have-brain-fog` | condition | `/i-have-brain-fog` | "stop brain-fog mode" | working memory, processing speed, fatigue |
+| `i-have-dyscalculia` | condition | `/i-have-dyscalculia` | "stop dyscalculia mode" | numeracy — mental arithmetic, quantity comparison |
+| `i-have-low-energy` | condition | `/i-have-low-energy` | "stop low-energy mode" | motivation, initiation, energy budgeting |
+| `i-have-cognitive-aging` | condition | `/i-have-cognitive-aging` | "stop cognitive-aging mode" | processing speed, place-keeping, familiarity |
+| `i-have-low-working-memory` | **domain** | `/i-have-low-working-memory` | "stop low-working-memory mode" | working memory, pure and composable |
+
+Example stack: `/i-have-adhd` + `/i-have-low-working-memory` — ADHD's structure plus working memory's one-instruction-per-message, the stricter rule winning where they meet.
 
 Design docs live in [`docs/`](./docs): the spiky-profile taxonomy ([DOMAINS.md](./docs/DOMAINS.md)), the family's fixed vocabulary ([GLOSSARY.md](./docs/GLOSSARY.md)), the citation list behind every rule ([SOURCES.md](./docs/SOURCES.md)), and the decision records ([docs/adr](./docs/adr)).
 

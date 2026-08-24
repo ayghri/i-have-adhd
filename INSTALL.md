@@ -1,6 +1,6 @@
 # How to install
 
-> **This fork ships five skills** under `skills/` (`i-have-adhd`, `i-have-dyslexia`, `i-have-autism`, `i-have-anxiety`, `i-have-brain-fog`). The per-platform recipes below were written for the upstream ADHD skill. For any other member: swap the skill path segment (`skills/i-have-dyslexia`), the slash command (`/i-have-dyslexia`), and the stop phrase ("stop dyslexia mode") — and where a URL names `ayghri/i-have-adhd`, use this fork's `vortexvis/i-have-adhd`. Platform manifests point at the whole `skills/` directory, so plugin-style installs pick up the entire family with no manifest changes.
+> **This fork ships nine skills** under `skills/` — eight **condition** skills (`i-have-adhd`, `i-have-dyslexia`, `i-have-autism`, `i-have-anxiety`, `i-have-brain-fog`, `i-have-dyscalculia`, `i-have-low-energy`, `i-have-cognitive-aging`) and one **domain** skill (`i-have-low-working-memory`) that stacks on top of any condition skill (ADR 0006). The per-platform recipes below were written for the upstream ADHD skill. For any other member: swap the skill path segment (`skills/i-have-dyslexia`), the slash command (`/i-have-dyslexia`), and the stop phrase ("stop dyslexia mode") — and where a URL names `ayghri/i-have-adhd`, use this fork's `vortexvis/i-have-adhd`. Platform manifests point at the whole `skills/` directory, so plugin-style installs pick up the entire family with no manifest changes.
 
 <details>
 <summary><strong>Antigravity (<code>agy</code>)</strong></summary>
