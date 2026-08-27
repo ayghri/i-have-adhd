@@ -98,16 +98,12 @@ def _describe_rows(keys: list[tuple[str, Any]]) -> str:
     return ", ".join(f"{case_id}/trial {trial}" for case_id, trial in keys)
 
 
-def _check_pairing(grouped: dict[str, list[dict[str, Any]]]) -> None:
-    """Conditions are only comparable when judged on identical rows."""
-    coverage = {
-        condition: Counter((row["case_id"], row["trial"]) for row in rows)
-        for condition, rows in grouped.items()
-    }
+def _coverage_errors(coverage: dict[str, Counter[tuple[str, Any]]]) -> list[str]:
+    errors: list[str] = []
     for condition, counts in sorted(coverage.items()):
         repeated = sorted(key for key, count in counts.items() if count > 1)
         if repeated:
-            raise ValueError(
+            errors.append(
                 f"{condition}: duplicate score rows for {_describe_rows(repeated)}"
             )
     baseline = coverage["baseline"]
@@ -121,10 +117,22 @@ def _check_pairing(grouped: dict[str, list[dict[str, Any]]]) -> None:
         unmatched = sorted(set(counts) - set(baseline))
         if unmatched:
             details.append(f"unmatched {_describe_rows(unmatched)}")
-        raise ValueError(
+        errors.append(
             f"{condition} was not judged on the same rows as baseline: "
             + "; ".join(details)
         )
+    return errors
+
+
+def _check_pairing(grouped: dict[str, list[dict[str, Any]]]) -> None:
+    """Conditions are only comparable when judged on identical rows."""
+    coverage = {
+        condition: Counter((row["case_id"], row["trial"]) for row in rows)
+        for condition, rows in grouped.items()
+    }
+    errors = _coverage_errors(coverage)
+    if errors:
+        raise ValueError(errors[0])
 
 
 def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
@@ -168,6 +176,102 @@ def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarize_usage(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[row["condition"]].append(row)
+    if "baseline" not in grouped or "candidate" not in grouped:
+        raise ValueError("Responses must include baseline and candidate conditions")
+
+    runners = {row["runner"] for row in rows}
+    if len(runners) > 1:
+        names = ", ".join(sorted(str(runner) for runner in runners))
+        raise ValueError(f"Responses must use the same runner; found: {names}")
+    _check_pairing(grouped)
+
+    conditions: dict[str, dict[str, Any]] = {}
+    for condition, condition_rows in sorted(grouped.items()):
+        tokens = [_usage_tokens(row.get("usage", {})) for row in condition_rows]
+        input_counts = [counts[0] for counts in tokens]
+        output_counts = [counts[1] for counts in tokens]
+        input_total = _reported_token_total(input_counts)
+        output_total = _reported_token_total(output_counts)
+        response_chars = sum(len(row["response"]) for row in condition_rows)
+        reported_costs = [row.get("cost_usd") for row in condition_rows]
+        unreported_costs = sum(
+            not isinstance(cost, (int, float)) for cost in reported_costs
+        )
+        cost_total = (
+            None
+            if unreported_costs
+            else sum(float(cost) for cost in reported_costs)
+        )
+        summary = {
+            "rows": len(condition_rows),
+            "input_tokens": input_total,
+            "mean_input_tokens": (
+                None if input_total is None else input_total / len(condition_rows)
+            ),
+            "output_tokens": output_total,
+            "mean_output_tokens": (
+                None if output_total is None else output_total / len(condition_rows)
+            ),
+            "cost_usd": cost_total,
+            "response_chars": response_chars,
+            "mean_response_chars": response_chars / len(condition_rows),
+        }
+        if unreported_costs:
+            summary["cost_usd_unreported_rows"] = unreported_costs
+        conditions[condition] = summary
+
+    baseline = conditions["baseline"]
+    deltas: dict[str, dict[str, Any]] = {}
+    for condition, summary in sorted(conditions.items()):
+        if condition == "baseline":
+            continue
+        output_delta = _difference(summary["output_tokens"], baseline["output_tokens"])
+        cost_delta = _difference(summary["cost_usd"], baseline["cost_usd"])
+        response_chars_delta = _difference(
+            summary["mean_response_chars"], baseline["mean_response_chars"]
+        )
+        deltas[condition] = {
+            "output_tokens": output_delta,
+            "output_tokens_pct": _percent_change(
+                output_delta, baseline["output_tokens"]
+            ),
+            "cost_usd": cost_delta,
+            "cost_usd_pct": _percent_change(cost_delta, baseline["cost_usd"]),
+            "mean_response_chars": response_chars_delta,
+            "mean_response_chars_pct": _percent_change(
+                response_chars_delta, baseline["mean_response_chars"]
+            ),
+        }
+
+    return {"runner": next(iter(runners)), "conditions": conditions, "delta": deltas}
+
+
+def _reported_token_total(values: list[int | None]) -> int | None:
+    if any(value is None for value in values):
+        return None
+    return sum(value for value in values if value is not None)
+
+
+def _difference(
+    value: int | float | None, baseline: int | float | None
+) -> int | float | None:
+    if value is None or baseline is None:
+        return None
+    return value - baseline
+
+
+def _percent_change(
+    delta: int | float | None, baseline: int | float | None
+) -> float | None:
+    if delta is None or baseline in (None, 0):
+        return None
+    return delta / baseline * 100
+
+
 def _condition_prompt(task: str, condition: str, skill_path: Path | None) -> str:
     if condition == "baseline":
         return task
@@ -204,6 +308,21 @@ def _parse_response(output: str, response_format: str) -> tuple[str, dict[str, A
                 usage = event.get("usage", usage)
         return str(text).strip(), usage, None
     raise ValueError(f"Unsupported response format: {response_format}")
+
+
+_INPUT_TOKEN_KEYS = (
+    "input_tokens",
+    "cache_creation_input_tokens",
+    "cache_read_input_tokens",
+)
+
+
+def _usage_tokens(usage: dict[str, Any]) -> tuple[int | None, int | None]:
+    """Return (input, output) token counts, or None where they were not reported."""
+    input_values = [usage[key] for key in _INPUT_TOKEN_KEYS if key in usage]
+    input_tokens = sum(input_values) if input_values else None
+    output_tokens = usage["output_tokens"] if "output_tokens" in usage else None
+    return input_tokens, output_tokens
 
 
 def run_evaluations(args: argparse.Namespace) -> int:
@@ -318,6 +437,11 @@ def _build_parser() -> argparse.ArgumentParser:
     score = subparsers.add_parser("score", help="Aggregate manually judged score rows")
     score.add_argument("scores", type=Path)
 
+    measure = subparsers.add_parser(
+        "measure", help="Aggregate token and cost usage from recorded responses"
+    )
+    measure.add_argument("responses", type=Path)
+
     run = subparsers.add_parser("run", help="Run one evaluation condition")
     run.add_argument("--cases", type=Path, default=DEFAULT_CASES)
     run.add_argument("--runner-config", type=Path, default=ROOT / "evals" / "runners.example.json")
@@ -362,6 +486,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "score":
         print(json.dumps(summarize_scores(read_jsonl(args.scores)), indent=2))
+        return 0
+    if args.command == "measure":
+        print(json.dumps(summarize_usage(read_jsonl(args.responses)), indent=2))
         return 0
     parser.error("unknown command")
     return 2

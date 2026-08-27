@@ -88,6 +88,112 @@ class EvaluationHarnessTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate score rows"):
             run_evals.summarize_scores(rows)
 
+    def test_usage_summary_reports_token_and_cost_deltas(self):
+        rows = [
+            self._usage_row(
+                "direct-answer",
+                "baseline",
+                "abcdefghij",
+                1.0,
+                {
+                    "input_tokens": 100,
+                    "cache_creation_input_tokens": 20,
+                    "cache_read_input_tokens": 10,
+                    "output_tokens": 80,
+                },
+            ),
+            self._usage_row(
+                "medical-boundary",
+                "baseline",
+                "abcdef",
+                0.5,
+                {"input_tokens": 50, "output_tokens": 20},
+            ),
+            self._usage_row(
+                "direct-answer",
+                "candidate",
+                "abcd",
+                0.6,
+                {"input_tokens": 110, "cached_input_tokens": 10, "output_tokens": 40},
+            ),
+            self._usage_row(
+                "medical-boundary",
+                "candidate",
+                "wxyz",
+                0.3,
+                {"input_tokens": 40, "output_tokens": 10},
+            ),
+        ]
+
+        summary = run_evals.summarize_usage(rows)
+
+        self.assertEqual("claude", summary["runner"])
+        self.assertEqual(180, summary["conditions"]["baseline"]["input_tokens"])
+        self.assertEqual(50, summary["conditions"]["candidate"]["output_tokens"])
+        self.assertAlmostEqual(25.0, summary["conditions"]["candidate"]["mean_output_tokens"])
+        self.assertEqual(-50, summary["delta"]["candidate"]["output_tokens"])
+        self.assertAlmostEqual(-50.0, summary["delta"]["candidate"]["output_tokens_pct"])
+        self.assertAlmostEqual(-0.6, summary["delta"]["candidate"]["cost_usd"])
+        self.assertAlmostEqual(-40.0, summary["delta"]["candidate"]["cost_usd_pct"])
+        self.assertAlmostEqual(
+            -50.0, summary["delta"]["candidate"]["mean_response_chars_pct"]
+        )
+
+    def test_usage_summary_rejects_mixed_runners(self):
+        rows = [
+            self._usage_row("direct-answer", "baseline", "a", 0.1, {}, runner="claude"),
+            self._usage_row("direct-answer", "candidate", "b", None, {}, runner="codex"),
+        ]
+
+        with self.assertRaisesRegex(ValueError, "claude.*codex"):
+            run_evals.summarize_usage(rows)
+
+    def test_usage_summary_rejects_unpaired_conditions(self):
+        rows = [
+            self._usage_row("direct-answer", "baseline", "a", 0.1, {}),
+            self._usage_row("medical-boundary", "baseline", "b", 0.1, {}),
+            self._usage_row("direct-answer", "candidate", "c", 0.1, {}),
+        ]
+
+        with self.assertRaisesRegex(ValueError, "not judged on the same rows"):
+            run_evals.summarize_usage(rows)
+
+    def test_usage_summary_marks_unreported_cost(self):
+        rows = [
+            self._usage_row("direct-answer", "baseline", "a", 0.1, {}),
+            self._usage_row("direct-answer", "candidate", "b", None, {}),
+        ]
+
+        summary = run_evals.summarize_usage(rows)
+
+        candidate = summary["conditions"]["candidate"]
+        self.assertIsNone(candidate["input_tokens"])
+        self.assertIsNone(candidate["output_tokens"])
+        self.assertIsNone(candidate["cost_usd"])
+        self.assertEqual(1, candidate["cost_usd_unreported_rows"])
+        self.assertIsNone(summary["delta"]["candidate"]["cost_usd"])
+        self.assertIsNone(summary["delta"]["candidate"]["cost_usd_pct"])
+
+    def test_usage_tokens_handles_both_runner_shapes(self):
+        self.assertEqual(
+            (15, 4),
+            run_evals._usage_tokens(
+                {
+                    "input_tokens": 10,
+                    "cache_creation_input_tokens": 2,
+                    "cache_read_input_tokens": 3,
+                    "output_tokens": 4,
+                }
+            ),
+        )
+        self.assertEqual(
+            (12, 7),
+            run_evals._usage_tokens(
+                {"input_tokens": 12, "cached_input_tokens": 5, "output_tokens": 7}
+            ),
+        )
+        self.assertEqual((None, None), run_evals._usage_tokens({}))
+
     @staticmethod
     def _score_row(case_id, condition, value, trial=1):
         return {
@@ -101,6 +207,18 @@ class EvaluationHarnessTest(unittest.TestCase):
             "concision": value,
             "blocker": False,
             "notes": "fixture",
+        }
+
+    @staticmethod
+    def _usage_row(case_id, condition, response, cost, usage, runner="claude", trial=1):
+        return {
+            "case_id": case_id,
+            "trial": trial,
+            "condition": condition,
+            "runner": runner,
+            "response": response,
+            "usage": usage,
+            "cost_usd": cost,
         }
 
     def test_duplicate_case_ids_are_rejected(self):
