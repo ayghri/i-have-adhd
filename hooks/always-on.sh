@@ -6,11 +6,24 @@
 # POSIX fallback for environments where the default Node hook cannot run. It
 # works with sh on macOS/Linux and Git Bash on Windows without a Node install.
 
-claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-flag_path="$claude_dir/.i-have-adhd-always"
+# ⚠ Look in every config dir the user could have created it in, not just one.
+# Claude Code supports a per-project CLAUDE_CONFIG_DIR, and a common setup
+# points it at a directory that symlinks settings.json/hooks/commands back to
+# ~/.claude without mirroring everything else. The flag then stays a real file
+# in ~/.claude, is never found, and this hook exits 0 — indistinguishable from
+# a deliberate opt-out. Measured on one such setup: 2,061 invocations of this
+# plugin, every one emitting zero bytes.
+flag_path=""
+for candidate_dir in "$CLAUDE_CONFIG_DIR" "$HOME/.claude" "$XDG_CONFIG_HOME/claude"; do
+  [ -n "$candidate_dir" ] || continue
+  if [ -f "$candidate_dir/.i-have-adhd-always" ]; then
+    flag_path="$candidate_dir/.i-have-adhd-always"
+    break
+  fi
+done
 
 # Only fire when the user has opted in.
-[ -f "$flag_path" ] || exit 0
+[ -n "$flag_path" ] || exit 0
 
 # $0 is the absolute script path substituted into hooks.json by Claude Code,
 # so resolve SKILL.md relative to it instead of trusting an exported env var.

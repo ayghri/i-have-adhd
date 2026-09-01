@@ -13,11 +13,25 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 try {
-  const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
-  const flagPath = path.join(claudeDir, ".i-have-adhd-always");
+  // Look in every config dir the user could have created it in, not just one.
+  // Claude Code supports a per-project CLAUDE_CONFIG_DIR, and a common setup
+  // points it at a directory that symlinks settings.json/hooks/commands back to
+  // ~/.claude without mirroring everything else. The flag then stays a real file
+  // in ~/.claude, is never found, and this hook exits 0 — indistinguishable from
+  // a deliberate opt-out. Measured on one such setup: 2,061 invocations of this
+  // plugin, every one emitting zero bytes.
+  const candidateDirs = [
+    process.env.CLAUDE_CONFIG_DIR,
+    path.join(os.homedir(), ".claude"),
+    process.env.XDG_CONFIG_HOME && path.join(process.env.XDG_CONFIG_HOME, "claude"),
+  ].filter(Boolean);
+
+  const flagPath = candidateDirs
+    .map((dir) => path.join(dir, ".i-have-adhd-always"))
+    .find((candidate) => fs.existsSync(candidate));
 
   // Only fire when the user has opted in.
-  if (!fs.existsSync(flagPath)) process.exit(0);
+  if (!flagPath) process.exit(0);
 
   // Resolve SKILL.md relative to this script's own location, not a trusted env var.
   const scriptDir = path.dirname(fileURLToPath(import.meta.url));

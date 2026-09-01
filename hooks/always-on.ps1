@@ -4,14 +4,28 @@
 # Never blocks session start: any failure exits 0.
 
 try {
-  $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
-    $env:CLAUDE_CONFIG_DIR
-  } else {
-    Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
-  }
-  $flagPath = Join-Path $claudeDir ".i-have-adhd-always"
+  # Look in every config dir the user could have created it in, not just one.
+  # Claude Code supports a per-project CLAUDE_CONFIG_DIR, and a common setup
+  # points it at a directory that symlinks settings.json/hooks/commands back to
+  # ~/.claude without mirroring everything else. The flag then stays a real file
+  # in ~/.claude, is never found, and this hook exits 0 — indistinguishable from
+  # a deliberate opt-out. Measured on one such setup: 2,061 invocations of this
+  # plugin, every one emitting zero bytes.
+  $candidateDirs = New-Object System.Collections.Generic.List[string]
+  if ($env:CLAUDE_CONFIG_DIR) { $candidateDirs.Add($env:CLAUDE_CONFIG_DIR) }
+  $candidateDirs.Add((Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"))
+  if ($env:XDG_CONFIG_HOME) { $candidateDirs.Add((Join-Path $env:XDG_CONFIG_HOME "claude")) }
 
-  if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
+  $flagPath = $null
+  foreach ($candidateDir in $candidateDirs) {
+    $candidate = Join-Path $candidateDir ".i-have-adhd-always"
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+      $flagPath = $candidate
+      break
+    }
+  }
+
+  if (-not $flagPath) {
     exit 0
   }
 
