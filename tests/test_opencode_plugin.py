@@ -45,6 +45,15 @@ class OpenCodePluginTest(unittest.TestCase):
     def write_skill(self, text):
         (self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md").write_text(text)
 
+    def test_imports_plugin_from_path_with_url_characters(self):
+        renamed_root = self.plugin_root.with_name("plugin #1")
+        self.plugin_root.rename(renamed_root)
+        self.plugin_root = renamed_root
+        self.opt_in()
+        result = self.run_plugin()
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertTrue(result.stdout)
+
     def test_silent_without_opt_in_flag(self):
         result = self.run_plugin()
         self.assertEqual(0, result.returncode, result.stderr)
