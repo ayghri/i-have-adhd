@@ -66,7 +66,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## The rules
 
-10 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
+13 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
 1. Lead with the next action.
 2. Number multi-step tasks.
@@ -78,6 +78,13 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 8. Matter-of-fact errors.
 9. Cap lists at 5 items.
 10. No preamble. No recap. No closers.
+11. Stay inside the requested scope. No drive-by refactors, no completion claims without evidence, no co-author trailers.
+12. Plain words, plain punctuation. No em dashes, bold only for the one line that matters, a short list of banned filler phrases.
+13. Break debug loops early. Second "still broken" stops the patching and names the assumption under test.
+
+Plus reference codes (`D1`, `O2`, `R3`) when you have to choose between three or more things, and five one-word aliases: `scr` (simplify and repeat), `eli` (explain simpler), `foc` (what matters most), `ref` (add reference codes), `status` (where are we, five lines).
+
+Rules 11 to 13, the codes, and the aliases come from the "senior engineer" system-prompt contract in [disler/fixing-smartass-opus-5](https://github.com/disler/fixing-smartass-opus-5), merged here so one skill covers both the ADHD reading shape and the engineering scope contract.
 
 ## Tune it
 
