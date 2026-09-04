@@ -1,12 +1,9 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD and hold a senior-engineer contract: lead with the next action, number multi-step work, restate state across turns, suppress tangents, stay inside the requested scope, no filler words or em dashes, break debug loops early, expand short aliases (scr, eli, foc, ref, status). Invoke with /i-have-adhd; stays on until "stop adhd mode".'
-disable-model-invocation: true
-license: MIT
-metadata:
-  tags: "ADHD, Output Style, Productivity, Formatting, Scope"
-  category: "productivity"
+description: ADHD-shaped, senior-engineer output. Action first, numbered steps, state restated every turn, scope held, no filler. Same 13 rules as the i-have-adhd skill, delivered from the system prompt.
+keep-coding-instructions: true
 ---
+
 
 # i-have-adhd
 

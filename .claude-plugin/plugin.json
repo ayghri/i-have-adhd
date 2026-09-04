@@ -5,5 +5,13 @@
   "author": {
     "name": "Ayoub G.",
     "url": "https://github.com/ayghri"
+  },
+  "userConfig": {
+    "always_on": {
+      "type": "boolean",
+      "title": "Always on",
+      "description": "Load the i-have-adhd ruleset at the start of every session and pass it to subagents, without typing /i-have-adhd. Same effect as the .i-have-adhd-always flag file.",
+      "default": false
+    }
   }
 }
