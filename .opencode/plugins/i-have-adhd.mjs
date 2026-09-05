@@ -23,6 +23,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const skillsDir = path.resolve(__dirname, '../../skills');
 const skillPath = path.join(skillsDir, 'i-have-adhd', 'SKILL.md');
+const commandPath = path.join(__dirname, '..', 'command', 'i-have-adhd.md');
 
 // Always-on opt-in flag, mirroring Claude Code's ~/.claude/.i-have-adhd-always
 // but under OpenCode's config dir so the two tools stay independent.
@@ -42,6 +43,36 @@ function rulesetBody() {
     .replace(/(?:\r?\n)+$/, '');
 }
 
+// OpenCode only auto-discovers `.opencode/command/*.md` in project scope.
+// A global plugin install never sees that file, and skills registered via
+// `skills.paths` are omitted from the TUI `/` menu (source === "skill").
+// Registering through `config.command` makes the loader treat it as
+// source "command", which the menu shows. Keep the markdown file as the
+// source of truth so checkout-local and plugin-registered copies match.
+function slashCommand() {
+  const text = fs.readFileSync(commandPath, 'utf8');
+  const fence = '---';
+  if (!text.startsWith(fence)) {
+    return { description: '', template: text.trim() };
+  }
+  const rest = text.slice(fence.length).replace(/^[\r\n]+/, '');
+  const marker = '\n' + fence;
+  const idx = rest.indexOf(marker);
+  if (idx < 0) {
+    return { description: '', template: text.trim() };
+  }
+  const fm = rest.slice(0, idx);
+  const body = rest.slice(idx + marker.length);
+  let description = '';
+  for (const line of fm.split(/\r?\n/)) {
+    if (line.startsWith('description:')) {
+      description = line.slice('description:'.length).trim();
+      break;
+    }
+  }
+  return { description, template: body.trim() };
+}
+
 export default async () => {
   return {
     // Make the skill discoverable (so the `skill` tool and the /i-have-adhd
@@ -50,6 +81,17 @@ export default async () => {
       config.skills = config.skills || {};
       config.skills.paths = config.skills.paths || [];
       if (!config.skills.paths.includes(skillsDir)) config.skills.paths.push(skillsDir);
+
+      let command;
+      try {
+        command = slashCommand();
+      } catch (e) {
+        command = null;
+      }
+      if (command) {
+        config.command = config.command || {};
+        config.command['i-have-adhd'] = command;
+      }
     },
 
     // Always-on: append the ruleset to the system prompt every turn while the
