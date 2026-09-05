@@ -118,6 +118,13 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertEqual("keep me", config["command"]["other"]["template"])
         self.assertIn("i-have-adhd", config["command"])
 
+    def test_config_hook_tolerates_missing_command_file(self):
+        (self.plugin_root / ".opencode" / "command" / "i-have-adhd.md").unlink()
+        result = self.run_config_hook({})
+        self.assertEqual(0, result.returncode, result.stderr)
+        config = json.loads(result.stdout)
+        self.assertNotIn("i-have-adhd", config.get("command", {}))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -86,6 +86,7 @@ export default async () => {
       try {
         command = slashCommand();
       } catch (e) {
+        // Missing or unreadable command markdown must not fail plugin load.
         command = null;
       }
       if (command) {
