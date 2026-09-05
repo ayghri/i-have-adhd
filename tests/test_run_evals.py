@@ -121,6 +121,41 @@ class EvaluationHarnessTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "line 2"):
                 run_evals.read_jsonl(path)
 
+    def test_condition_prompt_injects_the_skill_body_without_frontmatter(self):
+        # hooks/always-on.sh strips the YAML frontmatter before injecting the
+        # ruleset, so the eval must grade the same text that actually ships.
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "SKILL.md"
+            skill.write_text(
+                "---\n"
+                "name: i-have-adhd\n"
+                "disable-model-invocation: true\n"
+                "metadata:\n"
+                "  hermes:\n"
+                "    tags: [ADHD]\n"
+                "---\n"
+                "\n"
+                "# i-have-adhd\n"
+                "\n"
+                "Lead with the next action.\n"
+            )
+
+            prompt = run_evals._condition_prompt("Fix the bug.", "candidate", skill)
+
+            self.assertIn("Lead with the next action.", prompt)
+            self.assertIn("Fix the bug.", prompt)
+            self.assertNotIn("disable-model-invocation", prompt)
+            self.assertNotIn("hermes", prompt)
+
+    def test_condition_prompt_keeps_a_skill_body_that_has_no_frontmatter(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "SKILL.md"
+            skill.write_text("# No frontmatter here\n\nLead with the next action.\n")
+
+            prompt = run_evals._condition_prompt("Fix the bug.", "candidate", skill)
+
+            self.assertIn("# No frontmatter here", prompt)
+
     def test_unmetered_runner_is_rejected_before_any_call(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -163,6 +198,37 @@ class EvaluationHarnessTest(unittest.TestCase):
             args.allow_unmetered = True
             self.assertEqual(0, run_evals.run_evaluations(args))
             self.assertTrue(marker.exists())
+
+    def test_generation_runs_outside_the_repository(self):
+        # An agent CLI adopts its working directory as project context. Run it
+        # in this checkout and it answers prompts by inspecting the harness,
+        # which contaminates the responses being compared.
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            runner_config = tmp_path / "runners.json"
+            runner_config.write_text(
+                json.dumps({"pwd": {"command": ["sh", "-c", "pwd"], "response_format": "text"}})
+            )
+            output = tmp_path / "out.jsonl"
+            args = argparse.Namespace(
+                cases=ROOT / "evals" / "cases.jsonl",
+                runner_config=runner_config,
+                runner="pwd",
+                condition="baseline",
+                condition_skill=None,
+                case=["direct-answer"],
+                trials=1,
+                retries=0,
+                budget_usd=1.0,
+                allow_unmetered=True,
+                output=output,
+            )
+
+            self.assertEqual(0, run_evals.run_evaluations(args))
+
+            where = Path(run_evals.read_jsonl(output)[0]["response"].strip()).resolve()
+            self.assertNotEqual(ROOT.resolve(), where)
+            self.assertFalse(str(where).startswith(str(ROOT.resolve())))
 
     def test_completed_keys_support_resuming_partial_runs(self):
         rows = [
