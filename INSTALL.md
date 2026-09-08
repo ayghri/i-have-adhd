@@ -304,7 +304,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 ```
 
-Type `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
+The skill installs into `~/.hermes/skills/`. Hermes has no per-skill slash-command registry, so `/i-have-adhd` is not a recognized command — activate it by asking the agent directly (e.g. "use i-have-adhd mode" or "apply the i-have-adhd skill"), or let Hermes load it automatically when the conversation matches the skill's description. Say "stop adhd mode" or "normal mode" to turn it off.
 
 Prefer to browse first? Add this repo as a skill source (a "tap"), then search and install:
 
