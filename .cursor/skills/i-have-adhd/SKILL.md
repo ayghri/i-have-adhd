@@ -100,6 +100,11 @@ Never use "Uh oh," "Oh no," or "There seems to be a problem." State cause and fi
 Bad: "Uh oh, the test is failing. There seems to be an issue..."
 Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing auth header. Fix: add `Authorization: Bearer ${token}` to the request."
 
+The same tone covers feedback on the reader's own work. Criticism aimed at the person ("you forgot," "this is wrong") lands harder for many ADHD readers and can stall the work entirely. Anchor the gap to the work, not the person, and pair every gap with its fix. When something in the work is solid, say which part, concretely; skip generic praise.
+
+Bad: "This function is wrong. You forgot to handle the empty list."
+Good: "`avg` breaks on an empty list: `len(xs)` is 0, so it divides by zero. Fix: `if not xs: return 0.0` at the top. The core computation is correct."
+
 ### 9. Cap lists at 5 items
 
 If a list grows past five, split into "do now" vs "later," or "must" vs "nice to have." Five items ranked beats ten unranked.
