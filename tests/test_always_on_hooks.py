@@ -53,14 +53,21 @@ class AlwaysOnHookTest(unittest.TestCase):
             env=env,
         )
 
-    def run_codex_hook(self, plugin_root=None):
+    def run_codex_hook(self, plugin_root=None, unset_plugin_root=False):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
         env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
-        plugin_root = plugin_root or self.plugin_root
-        env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
-        env["PLUGIN_ROOT"] = str(plugin_root)
+        if unset_plugin_root:
+            # Simulates the Claude Code desktop app (#129): it substitutes
+            # ${CLAUDE_PLUGIN_ROOT} into hook args but does not export either
+            # variable into the hook's process environment.
+            env.pop("CLAUDE_PLUGIN_ROOT", None)
+            env.pop("PLUGIN_ROOT", None)
+        else:
+            plugin_root = plugin_root or self.plugin_root
+            env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
+            env["PLUGIN_ROOT"] = str(plugin_root)
         return subprocess.run(
             hook["command"],
             check=False,
@@ -155,6 +162,28 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stderr)
         self.assertEqual("", result.stdout)
+
+    def test_codex_command_stays_silent_when_plugin_root_missing_and_not_opted_in(self):
+        # No opt-in flag and no plugin-root env var: most users on a host
+        # that never exports it (#129). Nothing to report, so stay silent.
+        result = self.run_codex_hook(unset_plugin_root=True)
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("", result.stdout)
+        self.assertEqual("", result.stderr)
+
+    def test_codex_command_warns_on_stderr_when_opted_in_but_plugin_root_missing(self):
+        # Regression test for #129: previously this combination failed
+        # completely silently (exit 0, no stdout, no stderr), indistinguishable
+        # from "always-on is off". Opted-in users now get a diagnostic.
+        (self.config_dir / ".i-have-adhd-always").touch()
+
+        result = self.run_codex_hook(unset_plugin_root=True)
+
+        self.assertEqual(0, result.returncode, result.stdout)
+        self.assertEqual("", result.stdout)
+        self.assertIn("CLAUDE_PLUGIN_ROOT", result.stderr)
+        self.assertIn("issues/129", result.stderr)
 
     def test_hook_uses_a_shared_claude_and_codex_launcher(self):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
