@@ -96,13 +96,19 @@ claude plugin marketplace remove i-have-adhd
 touch ~/.claude/.i-have-adhd-always
 ```
 
+اگر از دایرکتوری تنظیمات سفارشی Claude استفاده می‌کنید، پرچم را به‌جای آن مسیر ایجاد کنید:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 بازگشت به حالت فقط در صورت درخواست (on-demand):
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-این هوک تنها در صورتی اجرا می‌شود که فایل پرچم (flag) وجود داشته باشد، بنابراین نصب پلاگین به تنهایی چیزی را تغییر نمی‌دهد. اگر مسیر تنظیمات خود را تغییر داده باشید، از `$CLAUDE_CONFIG_DIR` پشتیبانی می‌کند. عبارت "stop adhd mode" همچنان آن را برای نشست فعلی غیرفعال می‌کند.
+این هوک تنها در صورتی اجرا می‌شود که فایل پرچم (flag) وجود داشته باشد، بنابراین نصب پلاگین به تنهایی چیزی را تغییر نمی‌دهد. عبارت "stop adhd mode" همچنان آن را برای نشست فعلی غیرفعال می‌کند.
 
 </details>
 
@@ -378,6 +384,64 @@ hermes skills uninstall i-have-adhd
 </details>
 
 <details>
+<summary><strong>OpenCode</strong></summary>
+
+ابزار OpenCode این مخزن را به‌عنوان یک پلاگین سرور بارگذاری می‌کند: فایل `.opencode/plugins/i-have-adhd.mjs` نقطه ورود `skills/` و دستور `/i-have-adhd` را ثبت می‌کند و در صورت فعال بودن حالت همیشه فعال، مجموعه قوانین را تزریق می‌نماید. OpenCode مسیر `skills/` را به‌صورت بومی نیز می‌خواند، بنابراین مهارت حتی بدون پلاگین هم کار می‌کند — پلاگین دستور `/i-have-adhd` و پرچم همیشه فعال را اضافه می‌کند.
+
+### نصب
+
+مخزن را کلون کرده و OpenCode را به پلاگین اشاره دهید. یک مسیر مطلق، یک checkout را بین همه پروژه‌ها به اشتراک می‌گذارد:
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+```
+
+به فایل `opencode.json` اضافه کنید (سراسری: `~/.config/opencode/opencode.json`):
+
+```json
+{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
+```
+
+یا OpenCode را از همان checkout اجرا کنید — فایل `opencode.json` ریشه مخزن از قبل پلاگین را وصل کرده است.
+
+یک نشست جدید شروع کرده و خروجی سازگار با ADHD را برای آن نشست روشن کنید:
+
+```text
+/i-have-adhd
+```
+
+قوانین تا زمان عبارت `stop adhd mode` یا `normal mode` فعال می‌مانند.
+
+### تایید نصب
+
+OpenCode را شروع کنید، `/` را تایپ کنید، و تایید کنید که `i-have-adhd` در فهرست دستورات ظاهر می‌شود.
+
+### به‌روزرسانی
+
+```bash
+git -C ~/.config/opencode/vendor/i-have-adhd pull
+```
+
+### حذف
+
+ورودی `plugin` را از `opencode.json` حذف کنید.
+
+### همیشه فعال (اختیاری)
+
+```bash
+touch ~/.config/opencode/.i-have-adhd-always
+```
+
+تا وقتی پرچم وجود دارد، پلاگین در هر نوبت مجموعه کامل قوانین را به انتهای دستورالعمل سیستم اضافه می‌کند — معادل هوک `SessionStart` در Claude Code. عبارت `stop adhd mode` یا `normal mode` آن را برای نشست فعلی غیرفعال می‌کند؛ برای خاموش کردن دائمی حالت همیشه فعال، پرچم را حذف کنید:
+
+```bash
+rm ~/.config/opencode/.i-have-adhd-always
+```
+
+</details>
+
+
+<details>
 <summary><strong>Pi</strong></summary>
 
 ابزار Pi این مخزن را به عنوان یک پکیج بومی شناسایی می‌کند: `extensions/` حالت پایدار در نشست را ارائه می‌دهد و `skills/` نقطه ورود Agent Skills را در دسترس نگه می‌دارد.
@@ -454,7 +518,52 @@ touch ~/.pi/agent/.i-have-adhd-always
 rm ~/.pi/agent/.i-have-adhd-always
 ```
 
+### فایل پیکربندی (اختیاری)
+
+فایل `~/.pi/agent/i-have-adhd.json` را در دایرکتوری تنظیمات دستیار Pi ایجاد کنید:
+
+```json
+{
+  "alwaysOn": true,
+  "hideStatus": true
+}
+```
+
+- `alwaysOn`: هر نشست را با قوانین فعال شروع می‌کند — همان پرچم `.i-have-adhd-always` که همچنان کار می‌کند
+- `hideStatus`: ورودی `● ADHD ON` در نوار وضعیت را پنهان می‌کند؛ قوانین و دستور `/i-have-adhd` همچنان کار می‌کنند
+
+این فایل یک‌بار در شروع افزونه خوانده می‌شود، بنابراین پس از تغییر آن Pi را مجدداً راه‌اندازی کنید. انتخاب ذخیره‌شده برای نشست فعلی بر `alwaysOn` اولویت دارد، بنابراین عبارت `stop adhd mode` آن نشست را غیرفعال نگه می‌دارد.
+
 اگر `PI_CODING_AGENT_DIR` تنظیم شده است، فایل `.i-have-adhd-always` را در آن دایرکتوری قرار دهید. پس از تغییر پرچم، دستور `/reload` را اجرا کرده یا یک نشست جدید شروع کنید.
+
+</details>
+
+
+<details>
+<summary><strong>Oh My Pi (OMP)</strong></summary>
+
+### نصب
+
+```bash
+omp plugin marketplace add ayghri/i-have-adhd
+omp plugin install --scope user i-have-adhd@i-have-adhd
+```
+
+یک نشست جدید OMP شروع کرده و برای تغییر حالت، `/i-have-adhd` را اجرا کنید.
+
+### به‌روزرسانی
+
+```bash
+omp plugin marketplace update i-have-adhd
+omp plugin upgrade --scope user i-have-adhd@i-have-adhd
+```
+
+### حذف
+
+```bash
+omp plugin uninstall --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace remove i-have-adhd
+```
 
 </details>
 
@@ -560,7 +669,7 @@ cp -R i-have-adhd/skills/i-have-adhd ~/.config/zed/skills/
 </details>
 
 <details>
-<summary><strong>Cursor, OpenCode, Amp, and any other agent-skills harness</strong></summary>
+<summary><strong>Cursor, Amp, and any other agent-skills harness</strong></summary>
 
 با هر محیطی که مهارت‌های دستیار (agent skills) را می‌خواند کار می‌کند. عبارت `-a <agent>` را با دستیار خود جایگزین کنید.
 
