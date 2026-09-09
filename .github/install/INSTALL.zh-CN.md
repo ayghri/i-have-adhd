@@ -96,13 +96,19 @@ claude plugin marketplace remove i-have-adhd
 touch ~/.claude/.i-have-adhd-always
 ```
 
+如果你使用自定义 Claude 配置目录，请改为在其中创建标志文件：
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 恢复为按需启用：
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-该钩子只在标志文件存在时触发，因此仅安装插件不会改变任何行为。如果移动了配置目录，它会遵循 `$CLAUDE_CONFIG_DIR`。“stop adhd mode”仍可在当前会话中将其关闭。
+该钩子只在标志文件存在时触发，因此仅安装插件不会改变任何行为。“stop adhd mode”仍可在当前会话中将其关闭。
 
 </details>
 

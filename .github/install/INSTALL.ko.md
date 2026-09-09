@@ -96,13 +96,19 @@ claude plugin marketplace remove i-have-adhd
 touch ~/.claude/.i-have-adhd-always
 ```
 
+사용자 지정 Claude 설정 디렉터리를 사용한다면, 대신 그곳에 플래그 파일을 만드세요:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 필요할 때만 켜는 방식으로 돌아가려면:
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-훅은 플래그 파일이 있을 때만 실행되므로 플러그인 설치만으로는 아무것도 바뀌지 않습니다. 설정 디렉터리를 옮겼다면 `$CLAUDE_CONFIG_DIR`를 따릅니다. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
+훅은 플래그 파일이 있을 때만 실행되므로 플러그인 설치만으로는 아무것도 바뀌지 않습니다. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
 
 </details>
 

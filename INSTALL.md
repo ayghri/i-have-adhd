@@ -96,13 +96,19 @@ A `SessionStart` hook loads the full ruleset at the start of every session, no `
 touch ~/.claude/.i-have-adhd-always
 ```
 
+If you use a custom Claude configuration directory, create the flag there instead:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 Back to on-demand:
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. Honors `$CLAUDE_CONFIG_DIR` if you've moved your config dir. "stop adhd mode" still turns it off for the current session.
+The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop adhd mode" still turns it off for the current session.
 
 </details>
 
@@ -379,6 +385,64 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 </details>
 
 <details>
+<summary><strong>OpenCode</strong></summary>
+
+OpenCode loads this repository as a server plugin: `.opencode/plugins/i-have-adhd.mjs` registers the `skills/` entry point and the `/i-have-adhd` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin — the plugin adds the `/i-have-adhd` command and the always-on flag.
+
+### Install
+
+Clone the repo and point OpenCode at the plugin. An absolute path shares one checkout across every project:
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+```
+
+Add to your `opencode.json` (global: `~/.config/opencode/opencode.json`):
+
+```json
+{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
+```
+
+Or run OpenCode from the checkout — it ships a root `opencode.json` with the plugin already wired up.
+
+Start a new session and turn on ADHD-friendly output for the session:
+
+```text
+/i-have-adhd
+```
+
+Rules stay on until `stop adhd mode` or `normal mode`.
+
+### Verify
+
+Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
+
+### Update
+
+```bash
+git -C ~/.config/opencode/vendor/i-have-adhd pull
+```
+
+### Uninstall
+
+Remove the `plugin` entry from `opencode.json`.
+
+### Always-on (optional)
+
+```bash
+touch ~/.config/opencode/.i-have-adhd-always
+```
+
+While the flag exists, the plugin appends the full ruleset to the system prompt every turn — the OpenCode equivalent of the Claude Code `SessionStart` hook. `stop adhd mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+
+```bash
+rm ~/.config/opencode/.i-have-adhd-always
+```
+
+</details>
+
+
+<details>
 <summary><strong>Pi</strong></summary>
 
 Pi discovers this repository as a native package: `extensions/` provides the session-persistent mode and `skills/` keeps the Agent Skills entry point available.
@@ -455,7 +519,52 @@ Back to on-demand:
 rm ~/.pi/agent/.i-have-adhd-always
 ```
 
+### Config file (optional)
+
+Create `~/.pi/agent/i-have-adhd.json` in Pi's agent configuration directory:
+
+```json
+{
+  "alwaysOn": true,
+  "hideStatus": true
+}
+```
+
+- `alwaysOn`: start every session with the rules active — same as the `.i-have-adhd-always` flag file, which still works
+- `hideStatus`: keep the `● ADHD ON` status-bar entry hidden; the rules and the `/i-have-adhd` command still work
+
+Read once at extension startup, so restart Pi after changing it. A saved choice for the current session wins over `alwaysOn`, so `stop adhd mode` keeps that session disabled.
+
 If `PI_CODING_AGENT_DIR` is set, put `.i-have-adhd-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
+
+</details>
+
+
+<details>
+<summary><strong>Oh My Pi (OMP)</strong></summary>
+
+### Install
+
+```bash
+omp plugin marketplace add ayghri/i-have-adhd
+omp plugin install --scope user i-have-adhd@i-have-adhd
+```
+
+Start a new OMP session and run `/i-have-adhd` to toggle the mode.
+
+### Update
+
+```bash
+omp plugin marketplace update i-have-adhd
+omp plugin upgrade --scope user i-have-adhd@i-have-adhd
+```
+
+### Uninstall
+
+```bash
+omp plugin uninstall --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace remove i-have-adhd
+```
 
 </details>
 
@@ -563,7 +672,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 </details>
 
 <details>
-<summary><strong>Cursor, OpenCode, Amp, and any other agent-skills harness</strong></summary>
+<summary><strong>Cursor, Amp, and any other agent-skills harness</strong></summary>
 
 Works with any harness that reads agent skills. Swap `-a <agent>` for yours.
 

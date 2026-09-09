@@ -2,9 +2,9 @@
 // opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
 // Never blocks session start: any failure exits 0.
 //
-// Runs under Node so it works on macOS, Linux, and Windows without depending on
-// a POSIX shell (`sh`) being on PATH. The hook uses exec form, so Claude Code
-// passes the script path directly without PowerShell or POSIX-shell parsing.
+// Runs under Node so it works on macOS, Linux, and Windows. The shared Claude
+// Code/Codex hook launches this module from the plugin-root environment rather
+// than relying on platform-specific shell expansion for the script path.
 // Native sh and PowerShell implementations remain available as fallbacks.
 
 import fs from "node:fs";

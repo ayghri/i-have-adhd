@@ -6,6 +6,10 @@ import {
   type ExtensionAPI,
   type ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
+import {
+  contextMessages,
+  latestMarkerIsActive,
+} from "./context-compat";
 
 const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
 const SKILL_PATH = join(
@@ -29,6 +33,21 @@ const DISABLED_NOTICE =
 type AdhdModeState = {
   enabled: boolean;
 };
+
+type AdhdConfig = {
+  alwaysOn?: boolean;
+  hideStatus?: boolean;
+};
+
+function loadConfig(): AdhdConfig {
+  try {
+    return JSON.parse(
+      readFileSync(join(getAgentDir(), "i-have-adhd.json"), "utf8"),
+    );
+  } catch {
+    return {};
+  }
+}
 
 function stripFrontmatter(content: string): string {
   return content
@@ -84,28 +103,21 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
  * injected again.
  */
 function rulesAreInContext(ctx: ExtensionContext): boolean {
-  let active = false;
-
-  for (const entry of ctx.sessionManager.buildContextEntries()) {
-    if (entry.type !== "custom_message") continue;
-
-    if (entry.customType === RULES_MESSAGE_TYPE) {
-      active = true;
-    } else if (entry.customType === DISABLED_MESSAGE_TYPE) {
-      active = false;
-    }
-  }
-
-  return active;
+  return latestMarkerIsActive(
+    contextMessages(ctx.sessionManager),
+    RULES_MESSAGE_TYPE,
+    DISABLED_MESSAGE_TYPE,
+  );
 }
 
 export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const rules = loadRules();
   const alwaysOnFlag = join(getAgentDir(), ".i-have-adhd-always");
+  const config = loadConfig();
   let enabled = false;
 
   const updateStatus = (ctx: ExtensionContext): void => {
-    if (!enabled) {
+    if (!enabled || config.hideStatus) {
       ctx.ui.setStatus(STATUS_KEY, undefined);
       return;
     }
@@ -149,7 +161,9 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const restoreState = (ctx: ExtensionContext): void => {
     const savedState = getSavedState(ctx);
     const enabledByDefault =
-      pi.getFlag("adhd") === true || existsSync(alwaysOnFlag);
+      pi.getFlag("adhd") === true ||
+      config.alwaysOn === true ||
+      existsSync(alwaysOnFlag);
 
     enabled = savedState ?? enabledByDefault;
     updateStatus(ctx);

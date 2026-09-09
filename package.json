@@ -1,11 +1,14 @@
 {
   "name": "i-have-adhd",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible.",
   "license": "MIT",
   "homepage": "https://github.com/ayghri/i-have-adhd",
   "private": true,
   "keywords": ["pi-package"],
+  "omp": {
+    "extensions": ["./extensions/i-have-adhd.ts"]
+  },
   "pi": {
     "extensions": ["./extensions/i-have-adhd.ts"],
     "skills": ["./skills"]

@@ -16,12 +16,19 @@
   <a href=".github/readme/README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href=".github/readme/README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a>
+  <a href=".github/readme/README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
 </p>
 
 
 ## Install
 
-🔗 [Installation Instructions](INSTALL.md)
+Copy/paste into your CLI prompt:
+
+```text
+Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+```
+
+Or 🔗 [check the installation instructions](INSTALL.md).
 
 ## What it does
 

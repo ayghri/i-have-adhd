@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""Smoke-test the Pi package without making a model request."""
+"""Smoke-test the Pi or OMP package without making a model request."""
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import queue
+import shutil
 import subprocess
 import tempfile
 import threading
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,13 +33,21 @@ def validate_package_manifest() -> None:
         "extensions": ["./extensions/i-have-adhd.ts"],
         "skills": ["./skills"],
     }
+    assert package.get("omp") == {
+        "extensions": ["./extensions/i-have-adhd.ts"],
+    }
 
 
 class RpcClient:
-    def __init__(self, env: dict[str, str], *args: str) -> None:
+    def __init__(
+        self,
+        executable: str,
+        env: dict[str, str],
+        *args: str,
+    ) -> None:
         self.stderr_file = tempfile.TemporaryFile(mode="w+t")
         self.process = subprocess.Popen(
-            ["pi", "--mode", "rpc", *args],
+            [executable, "--mode", "rpc", *args],
             cwd=ROOT,
             env=env,
             stdin=subprocess.PIPE,
@@ -46,7 +56,7 @@ class RpcClient:
             text=True,
         )
         if self.process.stdout is None:
-            raise RuntimeError("Pi RPC stdout is unavailable")
+            raise RuntimeError("Agent RPC stdout is unavailable")
 
         self.stdout_lines: queue.Queue[str | None] = queue.Queue()
         self.stdout_thread = threading.Thread(
@@ -75,7 +85,7 @@ class RpcClient:
         command: dict[str, Any],
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         if self.process.stdin is None:
-            raise RuntimeError("Pi RPC stdin is unavailable")
+            raise RuntimeError("Agent RPC stdin is unavailable")
 
         payload = {"id": request_id, **command}
         self.process.stdin.write(json.dumps(payload) + "\n")
@@ -87,18 +97,43 @@ class RpcClient:
                 line = self.stdout_lines.get(timeout=RPC_TIMEOUT_SECONDS)
             except queue.Empty as error:
                 raise TimeoutError(
-                    f"Pi RPC did not respond within {RPC_TIMEOUT_SECONDS} seconds",
+                    f"Agent RPC did not respond within {RPC_TIMEOUT_SECONDS} seconds",
                 ) from error
 
             if line is None:
                 raise RuntimeError(
-                    f"Pi RPC exited before responding: {self._read_stderr()}",
+                    f"Agent RPC exited before responding: {self._read_stderr()}",
                 )
 
             event = json.loads(line)
             events.append(event)
             if event.get("type") == "response" and event.get("id") == request_id:
                 return event, events
+
+    def events_until(
+        self,
+        predicate: Callable[[dict[str, Any]], bool],
+    ) -> list[dict[str, Any]]:
+        events: list[dict[str, Any]] = []
+        while True:
+            try:
+                line = self.stdout_lines.get(timeout=RPC_TIMEOUT_SECONDS)
+            except queue.Empty as error:
+                raise TimeoutError(
+                    f"Agent RPC did not emit the expected event within "
+                    f"{RPC_TIMEOUT_SECONDS} seconds",
+                ) from error
+
+            if line is None:
+                raise RuntimeError(
+                    f"Agent RPC exited before emitting the expected event: "
+                    f"{self._read_stderr()}",
+                )
+
+            event = json.loads(line)
+            events.append(event)
+            if predicate(event):
+                return events
 
     def close(self) -> None:
         if self.process.stdin is not None:
@@ -115,7 +150,7 @@ class RpcClient:
         self.stderr_file.close()
 
         if return_code not in (0, -15):
-            raise RuntimeError(f"Pi RPC exited with {return_code}: {stderr}")
+            raise RuntimeError(f"Agent RPC exited with {return_code}: {stderr}")
 
 
 def build_isolated_env(agent_dir: str) -> dict[str, str]:
@@ -166,18 +201,45 @@ def latest_enabled(entries_response: dict[str, Any]) -> bool:
     return states[-1]
 
 
-def main() -> None:
-    validate_package_manifest()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Smoke-test the i-have-adhd extension without a model request."
+    )
+    parser.add_argument(
+        "--runtime",
+        choices=("pi", "omp"),
+        default="pi",
+        help="Agent runtime to exercise (default: pi)",
+    )
+    return parser.parse_args()
 
-    with tempfile.TemporaryDirectory(prefix="i-have-adhd-pi-") as agent_dir:
+
+def main() -> None:
+    args = parse_args()
+    validate_package_manifest()
+    executable = shutil.which(args.runtime)
+    if executable is None:
+        raise RuntimeError(f"{args.runtime} executable is not available")
+
+    with tempfile.TemporaryDirectory(
+        prefix=f"i-have-adhd-{args.runtime}-"
+    ) as agent_dir:
         env = build_isolated_env(agent_dir)
-        subprocess.run(
-            ["pi", "install", str(ROOT)],
-            cwd=ROOT,
-            env=env,
-            check=True,
-            capture_output=True,
-            text=True,
+        if args.runtime == "omp":
+            env.pop("PI_CODING_AGENT_DIR", None)
+        if args.runtime == "pi":
+            subprocess.run(
+                [executable, "install", str(ROOT)],
+                cwd=ROOT,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        extension_args = (
+            []
+            if args.runtime == "pi"
+            else ["--no-extensions", "-e", str(ROOT)]
         )
 
         reload_probe = Path(agent_dir, "reload-probe.ts")
@@ -208,12 +270,37 @@ export default function (pi: ExtensionAPI) {
         )
 
         client = RpcClient(
+            executable,
             env,
             "--no-session",
+            *extension_args,
             "-e",
             str(reload_probe),
             "--adhd",
         )
+        if args.runtime == "omp":
+            try:
+                startup_events = client.events_until(
+                    lambda event: event.get("type")
+                    == "available_commands_update",
+                )
+                command_event = startup_events[-1]
+                command_names = {
+                    command["name"]
+                    for command in command_event["commands"]
+                }
+                assert "i-have-adhd" in command_names
+                assert "skill:i-have-adhd" in command_names
+                assert any(
+                    "ADHD ON" in (text or "")
+                    for text in status_texts(startup_events)
+                )
+            finally:
+                client.close()
+
+            print("omp extension smoke test passed")
+            return
+
         try:
             commands, startup_events = client.request("commands", {"type": "get_commands"})
             command_names = {command["name"] for command in commands["data"]["commands"]}
@@ -314,21 +401,27 @@ export default function (pi: ExtensionAPI) {
         finally:
             client.close()
 
-        Path(agent_dir, ".i-have-adhd-always").touch()
-        always_on = RpcClient(env, "--no-session")
-        try:
-            _, always_on_events = always_on.request(
-                "always-on",
-                {"type": "get_state"},
+        if args.runtime == "pi":
+            Path(agent_dir, ".i-have-adhd-always").touch()
+            always_on = RpcClient(
+                executable,
+                env,
+                "--no-session",
+                *extension_args,
             )
-            assert any(
-                "ADHD ON" in (text or "")
-                for text in status_texts(always_on_events)
-            )
-        finally:
-            always_on.close()
+            try:
+                _, always_on_events = always_on.request(
+                    "always-on",
+                    {"type": "get_state"},
+                )
+                assert any(
+                    "ADHD ON" in (text or "")
+                    for text in status_texts(always_on_events)
+                )
+            finally:
+                always_on.close()
 
-    print("Pi extension smoke test passed")
+    print(f"{args.runtime} extension smoke test passed")
 
 
 if __name__ == "__main__":

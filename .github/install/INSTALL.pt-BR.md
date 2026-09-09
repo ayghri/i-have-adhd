@@ -96,13 +96,19 @@ Um hook `SessionStart` carrega todas as regras no início de cada sessão; não 
 touch ~/.claude/.i-have-adhd-always
 ```
 
+Se você usa um diretório de configuração personalizado do Claude, crie o arquivo de sinalização nele:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 Para voltar ao modo sob demanda:
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-O hook só é executado quando o arquivo de sinalização existe, portanto instalar o plugin não muda nada por si só. Ele respeita `$CLAUDE_CONFIG_DIR` caso você tenha movido o diretório de configuração. "stop adhd mode" ainda o desativa na sessão atual.
+O hook só é executado quando o arquivo de sinalização existe, portanto instalar o plugin não muda nada por si só. "stop adhd mode" ainda o desativa na sessão atual.
 
 </details>
 
