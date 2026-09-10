@@ -58,6 +58,43 @@ class GroupingTest(unittest.TestCase):
         self.assertEqual([("direct-answer", 1)], sorted(complete))
         self.assertEqual([("casual-message", 1)], sorted(incomplete))
 
+    def test_two_responses_for_one_condition_are_rejected_not_overwritten(self):
+        # run_evals.py keys its own resume on (case, trial, condition, runner),
+        # so one responses file legitimately holds several runners. Collapsing
+        # them into one dict would grade the last runner's answers under the
+        # condition name and report success.
+        rows = [
+            {
+                "case_id": "direct-answer",
+                "trial": 1,
+                "condition": condition,
+                "runner": runner,
+                "response": f"{condition}-from-{runner}",
+            }
+            for runner in ("claude", "codex")
+            for condition in ("baseline", "candidate")
+        ]
+
+        with self.assertRaisesRegex(ValueError, "two responses for the baseline condition"):
+            judge.group_responses(rows)
+
+    def test_the_same_condition_from_one_runner_still_groups(self):
+        rows = [
+            {
+                "case_id": "direct-answer",
+                "trial": 1,
+                "condition": condition,
+                "runner": "claude",
+                "response": condition,
+            }
+            for condition in ("baseline", "candidate")
+        ]
+
+        self.assertEqual(
+            {"baseline": "baseline", "candidate": "candidate"},
+            judge.group_responses(rows)[("direct-answer", 1)],
+        )
+
 
 class ParseJudgeScoresTest(unittest.TestCase):
     @staticmethod
@@ -410,6 +447,99 @@ class EndToEndTest(unittest.TestCase):
             self.assertEqual({"casual-message"}, {row["case_id"] for row in rows})
             self.assertEqual(2, len(rows))
             self.assertNotEqual(0, exit_code, "skipped groups must not report success")
+
+    def test_a_group_judged_under_narrower_conditions_is_not_silently_skipped(self):
+        # run_evals.py writes one condition per invocation, so judging
+        # baseline+candidate and appending comparator responses afterwards is
+        # the documented flow. Skipping on (case_id, trial) alone would drop the
+        # comparator with exit 0, and `run_evals.py score` would then gate on
+        # the two conditions that happen to be present.
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            responses = tmp_path / "responses.jsonl"
+            responses.write_text(
+                "".join(
+                    json.dumps(
+                        {
+                            "case_id": "direct-answer",
+                            "trial": 1,
+                            "condition": condition,
+                            "runner": "stub",
+                            "response": f"{condition} answer",
+                        }
+                    )
+                    + "\n"
+                    for condition in ("baseline", "candidate")
+                )
+            )
+            verdict = tmp_path / "verdict.json"
+            verdict.write_text(
+                json.dumps({"A": self.VERDICT, "B": self.VERDICT, "C": self.VERDICT})
+            )
+            runner_config = tmp_path / "runners.json"
+            runner_config.write_text(
+                json.dumps(
+                    {
+                        "stub": {
+                            "command": ["sh", "-c", f"cat >/dev/null; cat {verdict}"],
+                            "response_format": "text",
+                        }
+                    }
+                )
+            )
+            output = tmp_path / "scores.jsonl"
+            common = [
+                "--responses",
+                str(responses),
+                "--cases",
+                str(ROOT / "evals" / "cases.jsonl"),
+                "--rubric",
+                str(ROOT / "evals" / "rubric.md"),
+                "--runner-config",
+                str(runner_config),
+                "--runner",
+                "stub",
+                "--output",
+                str(output),
+            ]
+
+            self.assertEqual(0, judge.main(common))
+
+            with responses.open("a") as handle:
+                handle.write(
+                    json.dumps(
+                        {
+                            "case_id": "direct-answer",
+                            "trial": 1,
+                            "condition": "comparator",
+                            "runner": "stub",
+                            "response": "comparator answer",
+                        }
+                    )
+                    + "\n"
+                )
+
+            with self.assertRaisesRegex(ValueError, "without comparator"):
+                judge.main(
+                    [
+                        "--responses",
+                        str(responses),
+                        "--cases",
+                        str(ROOT / "evals" / "cases.jsonl"),
+                        "--rubric",
+                        str(ROOT / "evals" / "rubric.md"),
+                        "--runner-config",
+                        str(runner_config),
+                        "--runner",
+                        "stub",
+                        "--conditions",
+                        "baseline",
+                        "candidate",
+                        "comparator",
+                        "--output",
+                        str(output),
+                    ]
+                )
 
 
 if __name__ == "__main__":
