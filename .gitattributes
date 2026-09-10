@@ -1,0 +1,13 @@
+# Force LF on checkout for POSIX shell scripts.
+#
+# hooks/always-on.sh ships inside the plugin and is the fallback for
+# environments without Node. With no attribute set, a Windows checkout with the
+# default core.autocrlf=true rewrites it to CRLF, and /bin/sh then fails on
+# every line -- the carriage return is part of the token, so it is read as a
+# command and the script dies with exit 255 instead of injecting the ruleset:
+#
+#   hooks/always-on.sh: line 8: \r: command not found
+#   hooks/always-on.sh: line 13: exit: 0\r: numeric argument required
+#
+# The Node and PowerShell hooks tolerate CRLF; the shell one cannot.
+*.sh text eol=lf
