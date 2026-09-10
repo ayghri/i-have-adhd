@@ -110,6 +110,24 @@ rm ~/.claude/.i-have-adhd-always
 
 该钩子只在标志文件存在时触发，因此仅安装插件不会改变任何行为。“stop adhd mode”仍可在当前会话中将其关闭。
 
+### 始终启用（无需插件）
+
+本仓库的 [`CLAUDE.md`](../../CLAUDE.md) 内联了完整规则。把它复制到你的记忆文件中，无需插件、无需市场、也无需标志文件，规则即可生效。
+
+所有项目：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ~/.claude/CLAUDE.md
+```
+
+单个项目（在该项目根目录执行）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ./CLAUDE.md
+```
+
+这种方式与上面的标志文件方式**二选一**，不要同时使用：上下文里放两份规则没有任何好处。要撤销，删除追加进去的那段内容即可。“stop adhd mode”仍可在当前会话中将其关闭。
+
 </details>
 
 

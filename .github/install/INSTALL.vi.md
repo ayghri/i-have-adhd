@@ -110,6 +110,24 @@ rm ~/.claude/.i-have-adhd-always
 
 Hook chỉ chạy khi tệp cờ tồn tại, vì vậy chỉ cài plugin sẽ không tự thay đổi gì. "stop adhd mode" vẫn tắt chế độ này cho phiên hiện tại.
 
+### Luôn bật (không cần plugin)
+
+Tệp [`CLAUDE.md`](../../CLAUDE.md) trong kho này chứa sẵn toàn bộ bộ quy tắc. Chép nó vào tệp bộ nhớ của bạn là quy tắc có hiệu lực, không cần plugin, không cần marketplace và không cần tệp cờ.
+
+Mọi dự án:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ~/.claude/CLAUDE.md
+```
+
+Một dự án, chạy từ thư mục gốc của dự án đó:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ./CLAUDE.md
+```
+
+Hãy chọn cách này **hoặc** cách dùng tệp cờ ở trên, đừng dùng cả hai: hai bản quy tắc trong ngữ cảnh không đem lại lợi ích gì. Để hoàn tác, hãy xóa phần vừa được nối thêm. "stop adhd mode" vẫn tắt chế độ này cho phiên hiện tại.
+
 </details>
 
 

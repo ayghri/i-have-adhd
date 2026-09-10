@@ -110,6 +110,24 @@ rm ~/.claude/.i-have-adhd-always
 
 훅은 플래그 파일이 있을 때만 실행되므로 플러그인 설치만으로는 아무것도 바뀌지 않습니다. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
 
+### 항상 활성화(플러그인 없이)
+
+이 저장소의 [`CLAUDE.md`](../../CLAUDE.md)에는 전체 규칙이 그대로 담겨 있습니다. 메모리 파일에 복사하면 플러그인도, 마켓플레이스도, 플래그 파일도 없이 규칙이 적용됩니다.
+
+모든 프로젝트:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ~/.claude/CLAUDE.md
+```
+
+특정 프로젝트만, 해당 루트에서:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ./CLAUDE.md
+```
+
+이 방법과 위의 플래그 파일 방법 중 **하나만** 선택하세요. 컨텍스트에 규칙이 두 벌 들어가도 얻는 것은 없습니다. 되돌리려면 추가된 부분을 삭제하세요. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
+
 </details>
 
 

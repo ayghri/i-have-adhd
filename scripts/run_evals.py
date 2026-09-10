@@ -272,7 +272,15 @@ def run_evaluations(args: argparse.Namespace) -> int:
         raise ValueError("--budget-usd must be greater than 0 and no more than 25")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("a", encoding="utf-8") as destination:
+    # Every provider call runs from an empty scratch directory. Agents load memory
+    # files (CLAUDE.md, GEMINI.md, AGENTS.md) from their working directory, and
+    # --setting-sources "" does not suppress those, so invoking from the repo root
+    # would inject this repo's own ruleset into every condition -- including
+    # baseline -- and make the comparison measure the skill against itself. Safe to
+    # move: `invocation` holds only the runner command and the prompt, and the
+    # condition skill is read by this script, not by the runner.
+    with tempfile.TemporaryDirectory(prefix="i-have-adhd-eval-") as scratch, \
+            args.output.open("a", encoding="utf-8") as destination:
         for trial in range(1, args.trials + 1):
             for case in cases:
                 if args.case and case["id"] not in args.case:
@@ -292,6 +300,13 @@ def run_evaluations(args: argparse.Namespace) -> int:
                 invocation.append(prompt)
                 completed = None
                 for attempt in range(args.retries + 1):
+                    completed = subprocess.run(
+                        invocation,
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                        cwd=scratch,
+                    )
                     with _neutral_cwd() as cwd:
                         completed = subprocess.run(
                             invocation,

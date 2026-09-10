@@ -110,6 +110,24 @@ rm ~/.claude/.i-have-adhd-always
 
 The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop adhd mode" still turns it off for the current session.
 
+### Always-on (no plugin)
+
+[`CLAUDE.md`](CLAUDE.md) in this repo carries the full ruleset inline. Copy it into your memory file and the rules apply with no plugin, no marketplace, and no flag file.
+
+Every project:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ~/.claude/CLAUDE.md
+```
+
+One project, from its root:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ./CLAUDE.md
+```
+
+Pick this route **or** the flag-file route above, not both: two copies of the ruleset in context buy nothing. To undo, delete the appended block. "stop adhd mode" still turns it off for the current session.
+
 </details>
 
 

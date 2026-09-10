@@ -1,0 +1,34 @@
+name: CLAUDE.md in sync
+
+# Fails if the committed CLAUDE.md drifts from what scripts/build_claude_md.sh
+# generates out of the canonical skills/i-have-adhd/SKILL.md. CLAUDE.md inlines
+# the full ruleset rather than @-importing it, so the file stays portable --
+# copyable into any project root or into ~/.claude/CLAUDE.md -- at the cost of
+# being a real duplicate that this check keeps honest.
+on:
+  pull_request:
+    paths:
+      - skills/i-have-adhd/SKILL.md
+      - CLAUDE.md
+      - scripts/build_claude_md.sh
+      - tests/test_build_claude_md.py
+      - .github/workflows/claude-md-sync.yml
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Fail if CLAUDE.md differs from the generated output
+        run: |
+          sh scripts/build_claude_md.sh | diff -u CLAUDE.md - || {
+            echo "::error::CLAUDE.md is stale. Run: sh scripts/build_claude_md.sh > CLAUDE.md"
+            exit 1
+          }
+      - name: Test the generator
+        run: python -m unittest tests.test_build_claude_md -v

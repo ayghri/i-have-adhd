@@ -1,0 +1,174 @@
+name: upstream sync
+
+# Merges ayghri/i-have-adhd into this fork's main once a day.
+#
+# Runs here rather than in a scheduled Claude session because this job has to
+# WRITE: it pushes to main, or pushes a branch and opens a PR. A workflow gets
+# repo-native credentials from GITHUB_TOKEN, so it never depends on a session
+# carrying push rights.
+#
+# The guards below are the point. A clean auto-merge is not a correct merge:
+# upstream edits to skills/i-have-adhd/SKILL.md silently stale the generated
+# CLAUDE.md, and upstream edits to hooks/always-on.* can silently diverge from
+# the frontmatter parser scripts/build_claude_md.sh shares with them.
+#
+# Clean merge + all guards green -> pushed straight to main.
+# Conflicts or any guard failure -> pushed to a branch with a draft PR; main is
+# left untouched.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/ayghri/i-have-adhd.git
+          git fetch upstream main
+
+      - name: Is upstream already merged?
+        id: check
+        run: |
+          if git merge-base --is-ancestor upstream/main origin/main; then
+            echo "behind=false" >> "$GITHUB_OUTPUT"
+            echo "Already current with upstream at $(git rev-parse --short upstream/main)." \
+              >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "behind=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Upstream commits to merge"
+              echo '```'
+              git log --oneline origin/main..upstream/main
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Merge upstream
+        id: merge
+        if: steps.check.outputs.behind == 'true'
+        run: |
+          set +e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge upstream/main --no-edit -m "Merge upstream ayghri/i-have-adhd into main"
+          if [ $? -eq 0 ]; then
+            echo "conflicts=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "conflicts=true" >> "$GITHUB_OUTPUT"
+            # Keep the conflicted tree and commit it, markers and all, so the
+            # branch below gives a human somewhere to resolve. Never reaches main.
+            conflicted=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
+            echo "conflicted_files=$conflicted" >> "$GITHUB_OUTPUT"
+            git add -A
+            git commit -m "Merge upstream ayghri/i-have-adhd into main (CONFLICTS)"
+            {
+              echo "### Merge conflicts"
+              echo "\`$conflicted\`"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Guards
+        id: guards
+        if: steps.check.outputs.behind == 'true' && steps.merge.outputs.conflicts == 'false'
+        run: |
+          set +e
+          failed=0
+          notes=""
+          fail() { notes="$notes\n- FAILED: $1"; failed=1; }
+
+          # a. CLAUDE.md is generated from SKILL.md; an upstream SKILL.md edit
+          #    stales it. Regenerating is deterministic, so fix it rather than
+          #    failing -- but say so loudly, the ruleset text itself changed.
+          if ! sh scripts/build_claude_md.sh | diff -q CLAUDE.md - >/dev/null 2>&1; then
+            sh scripts/build_claude_md.sh > CLAUDE.md
+            git add CLAUDE.md
+            git commit -m "Regenerate CLAUDE.md after upstream SKILL.md change"
+            notes="$notes\n- NOTE: upstream changed SKILL.md; CLAUDE.md regenerated (ruleset text changed)"
+            echo "ruleset_changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          # b. Full test suite.
+          python3 -m unittest discover -s tests
+          [ $? -eq 0 ] || fail "test suite"
+
+          # c. The Claude Code block must keep all 6 headings in all 6 languages.
+          for f in INSTALL.md \
+                   .github/install/INSTALL.zh-CN.md \
+                   .github/install/INSTALL.pt-BR.md \
+                   .github/install/INSTALL.ja.md \
+                   .github/install/INSTALL.vi.md \
+                   .github/install/INSTALL.ko.md; do
+            n=$(awk '/<summary><strong>Claude Code/,/<\/details>/' "$f" | grep -c '^### ')
+            [ "$n" = "6" ] || fail "INSTALL heading parity in $f (found $n, want 6)"
+          done
+
+          # d. Eval isolation: runners must not execute from the repo root, or
+          #    this repo's own CLAUDE.md lands in the baseline condition.
+          grep -q 'cwd=scratch' scripts/run_evals.py || fail "run_evals.py no longer uses cwd=scratch"
+
+          # e. The generator shares its frontmatter parser with the hooks. A
+          #    single-pass read swallows the ruleset on an unclosed fence.
+          grep -q 'NR == FNR' scripts/build_claude_md.sh || fail "build_claude_md.sh lost the two-pass frontmatter read"
+
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+          printf "### Guards%b\n" "${notes:-\n- all passed}" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Push to main
+        if: |
+          steps.check.outputs.behind == 'true' &&
+          steps.merge.outputs.conflicts == 'false' &&
+          steps.guards.outputs.failed == '0'
+        run: |
+          git push origin main
+          echo "Merged upstream and pushed to main." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Push branch and open a draft PR
+        if: |
+          steps.check.outputs.behind == 'true' &&
+          (steps.merge.outputs.conflicts == 'true' || steps.guards.outputs.failed != '0')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="claude/upstream-sync-$(date +%Y%m%d-%H%M)"
+          git checkout -b "$branch"
+          git push -u origin "$branch"
+
+          if [ "${{ steps.merge.outputs.conflicts }}" = "true" ]; then
+            title="Upstream sync: merge conflicts need resolving"
+            reason="The merge conflicted. The conflicted tree is committed on this branch **with conflict markers still in it** so the resolution has somewhere to live. Conflicted files: \`${{ steps.merge.outputs.conflicted_files }}\`"
+          else
+            title="Upstream sync: a guard failed"
+            reason="The merge itself was clean, but a guard failed — which is exactly the case a clean merge hides. See the job summary for which one."
+          fi
+
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          {
+            printf '%s\n\n' "$reason"
+            printf '`main` was left untouched.\n\n'
+            printf 'Opened automatically by `.github/workflows/upstream-sync.yml`. Run: %s\n' "$run_url"
+          } > /tmp/pr-body.md
+
+          gh pr create --draft --base main --head "$branch" \
+            --title "$title" --body-file /tmp/pr-body.md
+
+          echo "Opened a draft PR from \`$branch\`; main untouched." >> "$GITHUB_STEP_SUMMARY"

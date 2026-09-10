@@ -110,6 +110,24 @@ rm ~/.claude/.i-have-adhd-always
 
 O hook só é executado quando o arquivo de sinalização existe, portanto instalar o plugin não muda nada por si só. "stop adhd mode" ainda o desativa na sessão atual.
 
+### Sempre ativo (sem plugin)
+
+O [`CLAUDE.md`](../../CLAUDE.md) deste repositório traz todas as regras embutidas. Copie-o para o seu arquivo de memória e elas passam a valer sem plugin, sem marketplace e sem arquivo de sinalização.
+
+Para todos os projetos:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ~/.claude/CLAUDE.md
+```
+
+Para um único projeto, a partir da raiz dele:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/CLAUDE.md >> ./CLAUDE.md
+```
+
+Escolha este caminho **ou** o do arquivo de sinalização acima, nunca os dois: duas cópias das regras no contexto não trazem ganho nenhum. Para desfazer, apague o bloco que foi acrescentado. "stop adhd mode" ainda o desativa na sessão atual.
+
 </details>
 
 
