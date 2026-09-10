@@ -123,6 +123,18 @@ codex plugin marketplace add ayghri/i-have-adhd --ref main
 codex plugin add i-have-adhd@i-have-adhd
 ```
 
+### 始终启用（可选）
+
+SessionStart 钩子也会检查 Codex 配置目录中的启用标记：
+
+```bash
+touch "${CODEX_HOME:-$HOME/.codex}/.i-have-adhd-always"
+```
+
+未设置 `CODEX_HOME` 时，钩子使用 `~/.codex`。如果两个运行环境变量都未设置，
+钩子会依次检查 `~/.claude` 和 `~/.codex`。删除该标记即可在后续会话中关闭默认启用；
+没有标记时钩子保持静默。
+
 明确输入 `$i-have-adhd` 来启用此技能。Codex 不会自动调用它。
 
 ### 验证

@@ -1,5 +1,7 @@
 // SessionStart hook: injects the full i-have-adhd ruleset when the user has
-// opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+// opted in by creating a .i-have-adhd-always flag in the active host's config
+// directory (Claude: CLAUDE_CONFIG_DIR or ~/.claude; Codex: CODEX_HOME or
+// ~/.codex).
 // Never blocks session start: any failure exits 0.
 //
 // Runs under Node so it works on macOS, Linux, and Windows. The shared Claude
@@ -13,11 +15,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 try {
-  const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
-  const flagPath = path.join(claudeDir, ".i-have-adhd-always");
+  const configuredDir = process.env.CLAUDE_CONFIG_DIR || process.env.CODEX_HOME;
+  const configDirs = configuredDir
+    ? [configuredDir]
+    : [path.join(os.homedir(), ".claude"), path.join(os.homedir(), ".codex")];
+  const flagPath = configDirs
+    .map((configDir) => path.join(configDir, ".i-have-adhd-always"))
+    .find((candidate) => fs.existsSync(candidate));
 
   // Only fire when the user has opted in.
-  if (!fs.existsSync(flagPath)) process.exit(0);
+  if (!flagPath) process.exit(0);
 
   // Resolve SKILL.md relative to this script's own location, not a trusted env var.
   const scriptDir = path.dirname(fileURLToPath(import.meta.url));

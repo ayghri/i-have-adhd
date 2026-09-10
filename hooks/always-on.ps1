@@ -1,17 +1,31 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the full
-# i-have-adhd ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+# i-have-adhd ruleset when the user has opted in by creating a
+# .i-have-adhd-always flag in the active host's config directory
+# (Claude: CLAUDE_CONFIG_DIR or ~/.claude; Codex: CODEX_HOME or ~/.codex).
 # Never blocks session start: any failure exits 0.
 
 try {
-  $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
-    $env:CLAUDE_CONFIG_DIR
+  $profileDir = [Environment]::GetFolderPath("UserProfile")
+  $configDirs = if ($env:CLAUDE_CONFIG_DIR) {
+    @($env:CLAUDE_CONFIG_DIR)
+  } elseif ($env:CODEX_HOME) {
+    @($env:CODEX_HOME)
   } else {
-    Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
+    @(
+      (Join-Path $profileDir ".claude")
+      (Join-Path $profileDir ".codex")
+    )
   }
-  $flagPath = Join-Path $claudeDir ".i-have-adhd-always"
+  $flagPath = $null
+  foreach ($configDir in $configDirs) {
+    $candidateFlagPath = Join-Path $configDir ".i-have-adhd-always"
+    if (Test-Path -LiteralPath $candidateFlagPath -PathType Leaf) {
+      $flagPath = $candidateFlagPath
+      break
+    }
+  }
 
-  if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
+  if (-not $flagPath) {
     exit 0
   }
 

@@ -126,6 +126,19 @@ codex plugin add i-have-adhd@i-have-adhd
 Invoke the skill explicitly by typing `$i-have-adhd`. Codex will not activate
 it automatically.
 
+### Always-on (optional)
+
+The SessionStart hook also checks the Codex config directory for an opt-in flag:
+
+```bash
+touch "${CODEX_HOME:-$HOME/.codex}/.i-have-adhd-always"
+```
+
+When `CODEX_HOME` is unset, the hook uses `~/.codex`. If neither host-specific
+environment variable is set, it checks `~/.claude` and then `~/.codex`. Remove
+the flag to turn always-on off for future sessions. The hook remains silent when
+no flag exists.
+
 ### Verify
 
 ```bash

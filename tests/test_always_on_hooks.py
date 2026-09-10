@@ -42,9 +42,16 @@ class AlwaysOnHookTest(unittest.TestCase):
             )
         return runtimes
 
-    def run_hook(self, command):
+    def run_hook(self, command, *, config_dir=None, codex_home=None):
         env = os.environ.copy()
-        env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
+        env.pop("CLAUDE_CONFIG_DIR", None)
+        env.pop("CODEX_HOME", None)
+        if config_dir is None and codex_home is None:
+            config_dir = self.config_dir
+        if config_dir is not None:
+            env["CLAUDE_CONFIG_DIR"] = str(config_dir)
+        if codex_home is not None:
+            env["CODEX_HOME"] = str(codex_home)
         return subprocess.run(
             [str(part) for part in command],
             check=False,
@@ -53,11 +60,18 @@ class AlwaysOnHookTest(unittest.TestCase):
             env=env,
         )
 
-    def run_codex_hook(self, plugin_root=None):
+    def run_codex_hook(self, plugin_root=None, *, config_dir=None, codex_home=None):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
-        env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
+        env.pop("CLAUDE_CONFIG_DIR", None)
+        env.pop("CODEX_HOME", None)
+        if config_dir is None and codex_home is None:
+            config_dir = self.config_dir
+        if config_dir is not None:
+            env["CLAUDE_CONFIG_DIR"] = str(config_dir)
+        if codex_home is not None:
+            env["CODEX_HOME"] = str(codex_home)
         plugin_root = plugin_root or self.plugin_root
         env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
         env["PLUGIN_ROOT"] = str(plugin_root)
@@ -148,6 +162,29 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stderr)
         self.assertEqual("", result.stdout)
+
+    def test_runtimes_support_codex_home_flag(self):
+        codex_home = Path(self.temp_dir.name) / "codex config"
+        codex_home.mkdir()
+        (codex_home / ".i-have-adhd-always").touch()
+
+        for name, command in self.runtimes():
+            with self.subTest(runtime=name):
+                result = self.run_hook(command, codex_home=codex_home)
+                self.assertEqual(0, result.returncode)
+                self.assertEqual("", result.stderr)
+                self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
+
+    def test_codex_command_supports_codex_home_flag(self):
+        codex_home = Path(self.temp_dir.name) / "codex config"
+        codex_home.mkdir()
+        (codex_home / ".i-have-adhd-always").touch()
+
+        result = self.run_codex_hook(config_dir=None, codex_home=codex_home)
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("", result.stderr)
+        self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
 
     def test_codex_command_swallows_missing_plugin_errors(self):
         result = self.run_codex_hook(self.plugin_root / "missing plugin")

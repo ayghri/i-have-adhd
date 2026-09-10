@@ -1,16 +1,32 @@
 #!/usr/bin/env sh
 # SessionStart hook: injects the full i-have-adhd ruleset when the user has
-# opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+# opted in by creating a .i-have-adhd-always flag in the active host's config
+# directory (Claude: CLAUDE_CONFIG_DIR or ~/.claude; Codex: CODEX_HOME or
+# ~/.codex).
 # Never blocks session start: any failure exits 0.
 #
 # POSIX fallback for environments where the default Node hook cannot run. It
 # works with sh on macOS/Linux and Git Bash on Windows without a Node install.
 
-claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-flag_path="$claude_dir/.i-have-adhd-always"
+flag_path=""
+if [ -n "${CLAUDE_CONFIG_DIR:-}" ]; then
+  candidate_flag_path="$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+  [ -f "$candidate_flag_path" ] && flag_path="$candidate_flag_path"
+elif [ -n "${CODEX_HOME:-}" ]; then
+  candidate_flag_path="$CODEX_HOME/.i-have-adhd-always"
+  [ -f "$candidate_flag_path" ] && flag_path="$candidate_flag_path"
+else
+  for config_dir in "$HOME/.claude" "$HOME/.codex"; do
+    candidate_flag_path="$config_dir/.i-have-adhd-always"
+    if [ -f "$candidate_flag_path" ]; then
+      flag_path="$candidate_flag_path"
+      break
+    fi
+  done
+fi
 
 # Only fire when the user has opted in.
-[ -f "$flag_path" ] || exit 0
+[ -n "$flag_path" ] || exit 0
 
 # $0 is the absolute script path substituted into hooks.json by Claude Code,
 # so resolve SKILL.md relative to it instead of trusting an exported env var.
