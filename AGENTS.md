@@ -26,10 +26,11 @@ Agents may read and reference any GitHub issue or pull request. Commenting has n
 
 | Area | Location | Purpose |
 | --- | --- | --- |
-| Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 10 ADHD-friendly response rules. |
+| Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 13 ADHD-friendly response rules, reference codes, and aliases. |
 | Skill mirror | `.cursor/skills/i-have-adhd/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
+| Output style | `output-styles/i-have-adhd.md` | Claude Code output style carrying the same body as the canonical skill; a test keeps them identical. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
 | Other runtimes | `qwen-extension.json`, `kimi.plugin.json`, `gemini-extension.json`, `GEMINI.md`, `plugin.json` | Qwen, Kimi, Gemini, and additional plugin metadata. |
@@ -43,7 +44,7 @@ When debugging or changing one integration, begin with its entry point:
 
 | Runtime | Read first |
 | --- | --- |
-| Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
+| Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs`, `output-styles/i-have-adhd.md` |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `hooks/hooks.json` |
 | Pi | `package.json` (`pi`), `extensions/i-have-adhd.ts` |
 | OMP | `package.json` (`omp`), `extensions/i-have-adhd.ts`, `extensions/context-compat.ts` |

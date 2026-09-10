@@ -1,7 +1,10 @@
 # SessionStart hook fallback for Windows PowerShell. Injects the full
-# i-have-adhd ruleset when the user has opted in by creating
-# $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
-# Never blocks session start: any failure exits 0.
+# i-have-adhd ruleset at the start of every session once always-on is turned
+# on. Off by default. Any one of these turns it on: the flag file
+# $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude), the plugin option
+# "always_on" (exported to hooks as CLAUDE_PLUGIN_OPTION_ALWAYS_ON), or the
+# environment variable I_HAVE_ADHD_ALWAYS_ON. $CLAUDE_CONFIG_DIR/.i-have-adhd-off
+# wins over all. Never blocks session start: any failure exits 0.
 
 try {
   $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
@@ -9,10 +12,33 @@ try {
   } else {
     Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
   }
-  $flagPath = Join-Path $claudeDir ".i-have-adhd-always"
+  $offPath = Join-Path $claudeDir ".i-have-adhd-off"
+  $alwaysPath = Join-Path $claudeDir ".i-have-adhd-always"
 
-  if (-not (Test-Path -LiteralPath $flagPath -PathType Leaf)) {
+  # Explicit opt-out wins over every way of opting in.
+  if (Test-Path -LiteralPath $offPath -PathType Leaf) {
     exit 0
+  }
+
+  function Test-Truthy([string]$value) {
+    if ($null -eq $value) { return $false }
+    return @("1", "true", "yes", "on") -contains $value.Trim().ToLowerInvariant()
+  }
+  $enabled = (Test-Path -LiteralPath $alwaysPath -PathType Leaf) -or
+    (Test-Truthy $env:CLAUDE_PLUGIN_OPTION_ALWAYS_ON) -or
+    (Test-Truthy $env:I_HAVE_ADHD_ALWAYS_ON)
+  if (-not $enabled) {
+    exit 0
+  }
+
+  # Also silent when settings.json selects the plugin's output style: the
+  # rules are already in the system prompt (with or without a plugin prefix).
+  $settingsPath = Join-Path $claudeDir "settings.json"
+  if (Test-Path -LiteralPath $settingsPath -PathType Leaf) {
+    $settings = [System.IO.File]::ReadAllText($settingsPath)
+    if ($settings -match '"outputStyle"\s*:\s*"([^"]*:)?i-have-adhd"') {
+      exit 0
+    }
   }
 
   $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -42,8 +68,8 @@ try {
   }
 
   $banner = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
-    '"stop adhd mode" turns it off for this session; delete '
-  [Console]::Out.Write($banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n")
+    '"stop adhd mode" turns it off for this session; create '
+  [Console]::Out.Write($banner + $offPath + " to turn always-on off for good.`n`n" + $body + "`n")
 } catch {
   # Never block session start.
   exit 0
