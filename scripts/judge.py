@@ -118,12 +118,16 @@ def parse_judge_scores(
     """Turn one judge response into score rows keyed by condition, not label."""
     case_id, trial = group_key
     verdicts = json.loads(_strip_code_fence(payload))
+    if not isinstance(verdicts, dict):
+        raise ValueError(f"{case_id}/trial {trial}: judge response must be a JSON object")
     rows = []
     for condition, label in sorted(labels.items()):
         where = f"{case_id}/trial {trial}/label {label}"
         if label not in verdicts:
             raise ValueError(f"{where}: judge returned no verdict for label {label}")
         verdict = verdicts[label]
+        if not isinstance(verdict, dict):
+            raise ValueError(f"{where}: verdict must be a JSON object")
         row: dict[str, Any] = {"case_id": case_id, "trial": trial, "condition": condition}
         for dimension in DIMENSIONS:
             value = verdict.get(dimension)

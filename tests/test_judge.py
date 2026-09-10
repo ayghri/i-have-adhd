@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -111,6 +112,38 @@ class ParseJudgeScoresTest(unittest.TestCase):
                 payload, ("direct-answer", 1), {"baseline": "B", "candidate": "A"}
             )
 
+    def test_non_object_document_is_a_contextual_validation_error(self):
+        for value in (None, True, 42, 1.5, "A", [], ["A", "B"]):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "direct-answer/trial 1:.*JSON object"):
+                    judge.parse_judge_scores(
+                        json.dumps(value),
+                        ("direct-answer", 1),
+                        {"baseline": "A", "candidate": "B"},
+                    )
+
+    def test_non_object_verdict_is_a_contextual_validation_error(self):
+        for value in (None, False, 42, 1.5, "unknown", [], [1, 2]):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "direct-answer/trial 1/label A:.*JSON object"):
+                    judge.parse_judge_scores(
+                        json.dumps({"A": value, "B": self._verdict(4)}),
+                        ("direct-answer", 1),
+                        {"baseline": "A", "candidate": "B"},
+                    )
+
+    def test_non_object_reply_is_retried_and_can_recover(self):
+        valid = json.dumps({"A": self._verdict(4), "B": self._verdict(5)})
+        with patch.object(judge, "invoke_judge", side_effect=[("null", 0.0), (valid, 0.0)]) as invoke:
+            with patch.object(judge.time, "sleep"):
+                rows, _ = judge._judge_group(
+                    ["unused-stub"], "text", "fixture prompt", ("direct-answer", 1),
+                    {"baseline": "A", "candidate": "B"}, retries=1,
+                )
+
+        self.assertEqual(2, invoke.call_count)
+        self.assertEqual([4, 5], [row["correctness"] for row in rows])
+
 
 class GraderRubricTest(unittest.TestCase):
     def test_only_the_marked_grader_section_is_extracted(self):
@@ -186,6 +219,42 @@ class EndToEndTest(unittest.TestCase):
         "blocker": False,
         "notes": "fixture",
     }
+
+    def test_non_object_verdict_exhausts_retries_without_stopping_later_groups(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            responses = root / "responses.jsonl"
+            responses.write_text(
+                "".join(
+                    json.dumps({
+                        "case_id": case_id, "trial": 1, "condition": condition,
+                        "runner": "stub", "response": "fixture response",
+                    }) + "\n"
+                    for case_id in ("casual-message", "direct-answer")
+                    for condition in ("baseline", "candidate")
+                ), encoding="utf-8",
+            )
+            config = root / "runners.json"
+            config.write_text(json.dumps({
+                "stub": {"command": ["unused-stub"], "response_format": "text"},
+            }), encoding="utf-8")
+            output = root / "scores.jsonl"
+            valid = json.dumps({"A": self.VERDICT, "B": self.VERDICT})
+            replies = [(' {"A": null, "B": null}', 0.0)] * 2 + [(valid, 0.0)]
+
+            with patch.object(judge, "invoke_judge", side_effect=replies) as invoke:
+                with patch.object(judge.time, "sleep"):
+                    exit_code = judge.main([
+                        "--responses", str(responses), "--output", str(output),
+                        "--runner-config", str(config), "--runner", "stub", "--retries", "1",
+                    ])
+
+            self.assertEqual(1, exit_code)
+            self.assertEqual(3, invoke.call_count)
+            rows = run_evals.read_jsonl(output)
+            self.assertEqual({"direct-answer"}, {row["case_id"] for row in rows})
+            self.assertEqual({"baseline", "candidate"}, {row["condition"] for row in rows})
+            self.assertEqual(2, len(rows))
 
     def test_judging_produces_paired_rows_the_scorer_accepts(self):
         with tempfile.TemporaryDirectory() as tmp:
