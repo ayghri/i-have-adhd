@@ -70,7 +70,7 @@ Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng
 6. Ước tính thời gian cụ thể (tính bằng phút, không nói chung chung).
 7. Làm nổi bật những kết quả đã đạt được.
 8. Báo lỗi một cách khách quan, thẳng thắn.
-9. Giới hạn danh sách tối đa 5 mục.
+9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không lời mở đầu. Không tóm tắt. Không lời chào kết.
 
 ## Tùy chỉnh

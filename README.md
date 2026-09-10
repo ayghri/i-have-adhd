@@ -76,7 +76,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 6. Specific time estimates (minutes, not "a bit").
 7. Make wins visible.
 8. Matter-of-fact errors.
-9. Cap lists at 5 items.
+9. Rank and group long lists; aim for at most five items per group without omitting relevant items.
 10. No preamble. No recap. No closers.
 
 ## Tune it
