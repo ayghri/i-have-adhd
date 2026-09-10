@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -39,6 +40,38 @@ class OpenCodePluginTest(unittest.TestCase):
             env=env,
         )
 
+    def run_config_hook(self, config=None):
+        env = os.environ.copy()
+        env["XDG_CONFIG_HOME"] = str(self.config_dir)
+        return subprocess.run(
+            [
+                "node",
+                str(ROOT / "tests" / "opencode_plugin_config_driver.mjs"),
+                str(self.plugin_root / ".opencode" / "plugins" / "i-have-adhd.mjs"),
+                json.dumps(config if config is not None else {}),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+
+    def command_markdown(self):
+        text = (
+            self.plugin_root / ".opencode" / "command" / "i-have-adhd.md"
+        ).read_text(encoding="utf-8")
+        fence = "---"
+        if not text.startswith(fence):
+            return "", text.strip()
+        rest = text[len(fence) :].lstrip("\r\n")
+        fm, _, body = rest.partition("\n" + fence)
+        description = ""
+        for line in fm.splitlines():
+            if line.startswith("description:"):
+                description = line.split(":", 1)[1].strip()
+                break
+        return description, body.strip()
+
     def opt_in(self):
         (self.config_dir / "opencode" / ".i-have-adhd-always").touch()
 
@@ -64,6 +97,33 @@ class OpenCodePluginTest(unittest.TestCase):
         result = self.run_plugin()
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("Fixture body, fence never closed.", result.stdout)
+
+    def test_config_hook_registers_slash_command(self):
+        result = self.run_config_hook({})
+        self.assertEqual(0, result.returncode, result.stderr)
+        config = json.loads(result.stdout)
+        description, template = self.command_markdown()
+        command = config.get("command", {}).get("i-have-adhd")
+        self.assertIsNotNone(command)
+        self.assertEqual(description, command["description"])
+        # Node fs.readFileSync keeps CRLF; Path.read_text uses universal newlines.
+        self.assertEqual(template, command["template"].replace("\r\n", "\n"))
+
+    def test_config_hook_keeps_existing_commands(self):
+        result = self.run_config_hook(
+            {"command": {"other": {"template": "keep me"}}}
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        config = json.loads(result.stdout)
+        self.assertEqual("keep me", config["command"]["other"]["template"])
+        self.assertIn("i-have-adhd", config["command"])
+
+    def test_config_hook_tolerates_missing_command_file(self):
+        (self.plugin_root / ".opencode" / "command" / "i-have-adhd.md").unlink()
+        result = self.run_config_hook({})
+        self.assertEqual(0, result.returncode, result.stderr)
+        config = json.loads(result.stdout)
+        self.assertNotIn("i-have-adhd", config.get("command", {}))
 
 
 if __name__ == "__main__":
