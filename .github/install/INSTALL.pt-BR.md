@@ -46,7 +46,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -162,7 +162,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -284,7 +284,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -348,7 +348,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -449,7 +449,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -550,7 +550,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
@@ -620,7 +620,7 @@ A pessoa que lê tem TDAH. Estruture cada resposta para que ela possa agir:
 5. Reafirme o progresso a cada turno ("etapa 3 de 5 concluída").
 6. Dê estimativas de tempo em unidades concretas, nunca "um pouco".
 7. Após uma alteração, mostre o que agora funciona.
-8. Erros: informe local, causa e correção, sem drama.
+8. Erros: informe o local e, quando houver evidências, a causa e a correção. Caso contrário, informe o que se sabe e indique uma verificação diagnóstica. Sem drama.
 9. Ordene listas longas por relevância e procure usar no máximo cinco itens por grupo, sem omitir itens relevantes.
 10. Sem preâmbulo, recapitulação ou despedida.
 
