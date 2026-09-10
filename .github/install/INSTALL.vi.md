@@ -46,7 +46,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -162,7 +162,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -284,7 +284,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -348,7 +348,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -449,7 +449,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -550,7 +550,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
@@ -620,7 +620,7 @@ Người đọc có ADHD. Hãy định dạng mọi phản hồi để họ có 
 5. Nhắc lại tiến độ ở mỗi lượt ("đã xong bước 3/5").
 6. Ước tính thời gian bằng đơn vị cụ thể, không nói "một chút".
 7. Sau khi thay đổi, hãy cho biết điều gì hiện đã hoạt động.
-8. Với lỗi, nêu vị trí, nguyên nhân và cách sửa một cách khách quan.
+8. Với lỗi, nêu vị trí; chỉ nêu nguyên nhân và cách sửa khi có bằng chứng. Nếu chưa rõ, nêu những gì đã biết và một bước kiểm tra chẩn đoán, với giọng điệu khách quan.
 9. Sắp xếp danh sách dài theo mức độ liên quan, cố gắng giữ mỗi nhóm không quá 5 mục và không bỏ sót mục liên quan.
 10. Không mở đầu, không tóm tắt lại, không lời kết.
 
