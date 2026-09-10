@@ -43,19 +43,21 @@ export function latestMarkerIsActive(
   activeType: string,
   disabledType: string,
 ): boolean {
-  let active = false;
-
-  for (const message of messages) {
+  // Only the newest relevant marker determines the state. Walking backwards
+  // avoids scanning the older context once that marker is found.
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
     if (message.role !== "custom" && message.type !== "custom_message") {
       continue;
     }
 
     if (message.customType === activeType) {
-      active = true;
-    } else if (message.customType === disabledType) {
-      active = false;
+      return true;
+    }
+    if (message.customType === disabledType) {
+      return false;
     }
   }
 
-  return active;
+  return false;
 }
