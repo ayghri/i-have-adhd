@@ -33,6 +33,8 @@ Or 🔗 [check the installation instructions](INSTALL.md).
 
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"
 
+For straightforward requests, aim for **4 lines or fewer**. Go longer when the task actually needs more detail.
+
 
 ## What changes
 
