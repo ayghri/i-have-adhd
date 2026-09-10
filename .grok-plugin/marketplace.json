@@ -1,0 +1,16 @@
+{
+  "name": "i-have-adhd",
+  "description": "Shape Grok output for an ADHD reader. Action-first, numbered steps, no tangents.",
+  "owner": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
+  "plugins": [
+    {
+      "name": "i-have-adhd",
+      "description": "Action-first, ADHD-friendly output shaping for Grok.",
+      "category": "productivity",
+      "source": { "type": "local", "path": "./" }
+    }
+  ]
+}

@@ -28,7 +28,7 @@ Agents may read and reference any GitHub issue or pull request. Commenting has n
 | --- | --- | --- |
 | Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 10 ADHD-friendly response rules. |
 | Skill mirror | `.cursor/skills/i-have-adhd/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
-| Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
+| Claude, Codex, and Grok metadata | `.claude-plugin/`, `.codex-plugin/`, `.grok-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
@@ -45,6 +45,7 @@ When debugging or changing one integration, begin with its entry point:
 | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `hooks/hooks.json` |
+| Grok | `.grok-plugin/marketplace.json`, `.grok-plugin/plugin.json`, `hooks/hooks.json` |
 | Pi | `package.json` (`pi`), `extensions/i-have-adhd.ts` |
 | OMP | `package.json` (`omp`), `extensions/i-have-adhd.ts`, `extensions/context-compat.ts` |
 | OpenCode | `opencode.json`, `.opencode/plugins/i-have-adhd.mjs`, `.opencode/command/i-have-adhd.md` |
