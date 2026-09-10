@@ -230,6 +230,71 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 </details>
 
+
+<details>
+<summary><strong>Grok (<code>grok</code>)</strong></summary>
+
+Grok's plugin CLI is the same shape as Claude Code and Codex: add the marketplace, install the plugin, then invoke the skill. Two Grok-only steps: `--trust` (hooks and skills stay inactive without it) and `grok plugin enable` (plugins stay off until enabled).
+
+### Install
+
+```bash
+grok plugin marketplace add ayghri/i-have-adhd
+grok plugin install ayghri/i-have-adhd --trust
+grok plugin enable i-have-adhd
+```
+
+Start a new Grok session and type `/i-have-adhd`. Grok honors `disable-model-invocation: true`, so nothing applies until you invoke the skill or turn on always-on.
+
+### Verify
+
+```bash
+grok plugin list
+grok inspect
+```
+
+Confirm `i-have-adhd` is listed, enabled, and shows a skill plus hooks.
+
+### Update
+
+```bash
+grok plugin update i-have-adhd
+```
+
+### Uninstall
+
+```bash
+grok plugin uninstall i-have-adhd --confirm
+grok plugin marketplace remove i-have-adhd
+```
+
+Or keep it installed and turn it off: `grok plugin disable i-have-adhd`.
+
+### Always-on (optional)
+
+Add the block to `~/.grok/AGENTS.md`, or drop it in `~/.grok/rules/i-have-adhd.md` (Grok loads both at session start):
+
+```markdown
+## Output style
+
+The reader has ADHD. Shape every response so it can be acted on:
+
+1. Lead with the answer or next action: command, path, or snippet first.
+2. Number multi-step work; one bounded action per step.
+3. End with one next action doable in under two minutes.
+4. Finish the current issue before raising a new one.
+5. Restate progress each turn ("step 3 of 5 done").
+6. Give time estimates in concrete units, never "a bit".
+7. After a change, show what now works.
+8. Errors: state location, cause, and fix. No drama.
+9. Cap lists to 5 items.
+10. No preamble, no recaps, no closers.
+
+Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
+```
+
+</details>
+
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
@@ -802,20 +867,22 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 ## How activation works
 
-1. **Installed, not invoked.** In Claude Code, Qwen Code, and Codex, nothing happens until you invoke the skill explicitly. Claude Code and Qwen Code honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
-2. **You invoke it explicitly.** Type `/i-have-adhd` in Claude Code or Qwen Code, or `$i-have-adhd` in Codex. Rules stay on for that session. "stop adhd mode" or "normal mode" turns them off.
+1. **Installed, not invoked.** In Claude Code, Qwen Code, Codex, and Grok, nothing happens until you invoke the skill explicitly. Claude Code, Qwen Code, and Grok honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
+2. **You invoke it explicitly.** Type `/i-have-adhd` in Claude Code, Qwen Code, or Grok, or `$i-have-adhd` in Codex. Rules stay on for that session. "stop adhd mode" or "normal mode" turns them off.
 3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code). A `SessionStart` hook loads the full ruleset from message one, every session.
-4. **You add the always-on snippet above** (other harnesses). Keeps the core rules in your agent's persistent context.
+4. **You add the always-on snippet above** (Grok, Codex, and other harnesses). Grok reads `~/.grok/AGENTS.md` and `~/.grok/rules/*.md`. Keeps the core rules in your agent's persistent context.
 
-In Claude Code, Qwen Code, and Codex, no middle ground: if you did not turn it on, it is off.
+In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not turn it on, it is off.
 
 ## Troubleshooting
 
-**`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup.
+**`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup. On Grok, also run `grok plugin enable i-have-adhd` and confirm the install used `--trust`.
 
-**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`.
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
+
+**`grok plugin install` does nothing visible.** Add `--trust`, then run `grok plugin enable i-have-adhd`, then start a new session. Grok plugins stay off and untrusted until those two steps.
 
 **Installed but replies still preamble.** Open a new session. If it still drifts, tighten the wording in `skills/i-have-adhd/SKILL.md`.
 
