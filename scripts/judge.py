@@ -168,8 +168,18 @@ def assign_labels(group_key: tuple, conditions: list[str]) -> dict[str, str]:
     return dict(zip(ordered, labels))
 
 
+class JudgeBudgetExhausted(RuntimeError):
+    """Raised instead of issuing a judge call that would exceed --budget-usd."""
+
+
 def invoke_judge(
-    command: list[str], response_format: str, prompt: str, retries: int
+    command: list[str],
+    response_format: str,
+    prompt: str,
+    retries: int,
+    spent: list[float],
+    budget_flag: Optional[str] = None,
+    remaining_budget: Optional[float] = None,
 ) -> tuple[str, Optional[float]]:
     """Run the judge runner once, retrying transient failures.
 
@@ -177,18 +187,51 @@ def invoke_judge(
     command ending in an option that takes a value (the claude runner ends in
     `--tools ""`) otherwise consumes the prompt as that option's value. Stdin
     also sidesteps argv length limits, and judge prompts embed whole responses.
+
+    Every paid invocation is appended to `spent`, including an attempt whose
+    reply later fails to parse: the provider bills it whether or not the verdict
+    is usable, so only a ledger that records all of them can be summed into a
+    truthful total. `remaining_budget` caps what the judge process may spend,
+    mirroring `run_evals.run_evaluations`.
     """
     completed = None
     for attempt in range(retries + 1):
+        invocation = list(command)
+        if remaining_budget is not None:
+            # Stop before a call that would begin past the ceiling. The price of
+            # the next call is unknowable, so the remaining allowance also goes
+            # to the runner via budget_flag (as run_evals does): this check
+            # handles a ledger already at/over budget, the flag handles the rest.
+            left = remaining_budget - sum(spent)
+            if left <= 0:
+                raise JudgeBudgetExhausted(
+                    f"judge budget ${remaining_budget:.4f} exhausted after "
+                    f"${sum(spent):.4f}; no further judge call was issued"
+                )
+            if budget_flag:
+                invocation.extend([budget_flag, f"{left:.4f}"])
         with run_evals._neutral_cwd() as cwd:
             completed = subprocess.run(
-                list(command),
+                invocation,
                 check=False,
                 capture_output=True,
                 text=True,
                 input=prompt,
                 cwd=cwd,
             )
+        # Record the cost of every issued call, successful or not: a failed
+        # attempt is still billed, and dropping it is what let the summary
+        # undercount paid invocations. A runner that reports nothing on failure
+        # contributes 0.0, and `main` says how many did so.
+        reported: Optional[float] = None
+        if completed.stdout.strip():
+            try:
+                _, _, reported = run_evals._parse_response(
+                    completed.stdout, response_format
+                )
+            except (ValueError, json.JSONDecodeError):
+                reported = None
+        spent.append(float(reported or 0))
         if completed.returncode == 0:
             break
         if attempt < retries:
@@ -208,6 +251,9 @@ def _judge_group(
     group_key: tuple,
     labels: dict[str, str],
     retries: int,
+    spent: list[float],
+    budget_flag: Optional[str] = None,
+    remaining_budget: Optional[float] = None,
 ) -> tuple[list[dict[str, Any]], Optional[float]]:
     """Invoke the judge and parse its verdict, retrying a malformed reply.
 
@@ -217,7 +263,15 @@ def _judge_group(
     """
     last_error: Optional[ValueError] = None
     for attempt in range(retries + 1):
-        text, cost = invoke_judge(command, response_format, prompt, retries)
+        text, cost = invoke_judge(
+            command,
+            response_format,
+            prompt,
+            retries,
+            spent,
+            budget_flag,
+            remaining_budget,
+        )
         try:
             return parse_judge_scores(text, group_key, labels), cost
         except ValueError as exc:
@@ -248,12 +302,27 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--retries", type=int, default=2)
+    parser.add_argument(
+        "--budget-usd",
+        type=float,
+        default=25.0,
+        help=(
+            "Ceiling on judge spend for this run (default: 25). Mirrors "
+            "run_evals --budget-usd. The run stops before issuing a call that "
+            "would begin past the ceiling and passes the remainder to the "
+            "runner when the runner declares a budget_flag; since a call's "
+            "price is only known after it returns, a run can overshoot by at "
+            "most one call."
+        ),
+    )
     parser.add_argument("--output", type=Path, required=True)
     return parser
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     args = _build_parser().parse_args(argv)
+    if args.budget_usd <= 0 or args.budget_usd > 25:
+        raise ValueError("--budget-usd must be greater than 0 and no more than 25")
     rubric = grader_rubric(args.rubric.read_text(encoding="utf-8"))
     cases = {case["id"]: case for case in run_evals.load_cases(args.cases)}
     rows = run_evals.read_jsonl(args.responses)
@@ -289,7 +358,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     command = list(runner["command"])
     response_format = runner.get("response_format", "text")
 
-    total_cost = 0.0
+    spent: list[float] = []
     skipped: list[tuple] = []
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as destination:
@@ -304,22 +373,41 @@ def main(argv: Optional[list[str]] = None) -> int:
             prompt = build_judge_prompt(cases[case_id], groups[key], labels, rubric)
             try:
                 scored, cost = _judge_group(
-                    command, response_format, prompt, key, labels, args.retries
+                    command,
+                    response_format,
+                    prompt,
+                    key,
+                    labels,
+                    args.retries,
+                    spent,
+                    runner.get("budget_flag"),
+                    args.budget_usd,
                 )
+            except JudgeBudgetExhausted as exc:
+                # A budget stop is not a per-group failure: stop the run rather
+                # than silently judge the rest, and say what was spent.
+                print(f"{exc}", file=sys.stderr)
+                print(
+                    f"Reported judge cost: ${sum(spent):.4f} across "
+                    f"{len(spent)} invocation(s)",
+                    file=sys.stderr,
+                )
+                return 2
             except (ValueError, RuntimeError) as exc:
                 # One unusable verdict must not discard the groups already
                 # written or the ones still queued behind it.
                 print(f"skip {case_id}/trial {trial}: {exc}", file=sys.stderr)
                 skipped.append(key)
                 continue
-            total_cost += float(cost or 0)
             for row in scored:
                 destination.write(json.dumps(row, ensure_ascii=False) + "\n")
             destination.flush()
             print(f"judged {case_id}/trial {trial}")
 
-    if total_cost:
-        print(f"Reported judge cost: ${total_cost:.4f}")
+    # Sum the ledger, not the last reported number: the runner's own per-call
+    # figure omits attempts it retried internally but still billed.
+    if spent:
+        print(f"Reported judge cost: ${sum(spent):.4f} across {len(spent)} invocation(s)")
     if skipped:
         print(
             f"{len(skipped)} group(s) went unjudged: "
