@@ -54,7 +54,7 @@ class AlwaysOnHookTest(unittest.TestCase):
         )
 
     def run_codex_hook(self, plugin_root=None):
-        config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+        config = json.loads((ROOT / "hooks" / "hooks.codex.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
         env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
@@ -133,14 +133,16 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(1, len(set(outputs.values())))
 
-    def test_codex_command_runs_the_hook_instead_of_parsing_session_json(self):
+    def test_codex_command_wraps_the_hook_output_in_the_session_start_envelope(self):
         (self.config_dir / ".i-have-adhd-always").touch()
 
         result = self.run_codex_hook()
 
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("", result.stderr)
-        self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
+        envelope = json.loads(result.stdout)
+        self.assertEqual("SessionStart", envelope["hookSpecificOutput"]["hookEventName"])
+        self.assertIn("ADHD MODE ACTIVE (always-on)", envelope["hookSpecificOutput"]["additionalContext"])
 
     def test_codex_command_is_silent_without_opt_in_flag(self):
         result = self.run_codex_hook()
@@ -156,7 +158,7 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual("", result.stderr)
         self.assertEqual("", result.stdout)
 
-    def test_hook_uses_a_shared_claude_and_codex_launcher(self):
+    def test_claude_hook_uses_a_launcher(self):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
 
@@ -167,6 +169,20 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertIn("process.env.PLUGIN_ROOT", command)
         self.assertIn("await import", command)
         self.assertIn(".catch", command)
+        self.assertIn("always-on.mjs", command)
+
+    def test_codex_hook_uses_a_launcher(self):
+        config = json.loads((ROOT / "hooks" / "hooks.codex.json").read_text())
+        hook = config["hooks"]["SessionStart"][0]["hooks"][0]
+
+        self.assertNotIn("args", hook)
+        command = hook["command"]
+        self.assertRegex(command, r'^node(?: --input-type=module)? -e "')
+        self.assertIn("process.env.CLAUDE_PLUGIN_ROOT", command)
+        self.assertIn("process.env.PLUGIN_ROOT", command)
+        self.assertIn("await import", command)
+        self.assertIn(".catch", command)
+        self.assertIn("codex-session-start.mjs", command)
 
 
 if __name__ == "__main__":
