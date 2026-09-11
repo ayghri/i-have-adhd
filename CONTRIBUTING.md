@@ -87,7 +87,7 @@ python3 scripts/run_evals.py validate
 
 For behavior changes, add or update representative eval cases when needed, run paired baseline/candidate evaluations under the same conditions, and apply the release gate. For hook or plugin changes, verify loading in an isolated configuration directory. If a check was not run, say so and explain why; never invent results or treat inspection as execution.
 
-## Documentation and checklist
+## Documentation and checklist:
 
 Keep examples safe to copy: use harmless fixtures, explicit placeholders, and read-only previews. Never include real secrets, personal paths, production identifiers, or commands that could damage a reader's environment. Distinguish required behavior from suggestions and avoid unsupported medical, accessibility, platform, or performance claims.
 
