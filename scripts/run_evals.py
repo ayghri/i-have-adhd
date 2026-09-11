@@ -268,7 +268,7 @@ def run_evaluations(args: argparse.Namespace) -> int:
         if row.get("condition") == args.condition and row.get("runner") == args.runner
     )
 
-    if args.budget_usd <= 0 or args.budget_usd > 25:
+    if not 0 < args.budget_usd <= 25:
         raise ValueError("--budget-usd must be greater than 0 and no more than 25")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
