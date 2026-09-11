@@ -11,6 +11,7 @@
 <p align="center">
   <strong title="English" aria-label="English">🇬🇧</strong> ·
   <a href=".github/readme/README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <a href=".github/readme/README.zh-TW.md" title="繁體中文" aria-label="繁體中文">繁體中文</a> ·
   <a href=".github/readme/README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href=".github/readme/README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href=".github/readme/README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
