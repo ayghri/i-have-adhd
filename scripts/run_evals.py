@@ -254,21 +254,32 @@ def run_evaluations(args: argparse.Namespace) -> int:
     runner = config[args.runner]
     command = list(runner["command"])
     response_format = runner.get("response_format", "text")
-    if response_format != "claude-json" and not args.allow_unmetered:
-        raise RuntimeError(
-            f"The {response_format!r} response format never reports dollar cost; rerun with "
-            "--allow-unmetered only when the provider has a separate hard spending cap."
-        )
-    reported_cost = 0.0
+    budget_was_explicit = args.budget_usd is not None
+    budget_usd = 25.0 if args.budget_usd is None else args.budget_usd
+    if response_format != "claude-json":
+        if not args.allow_unmetered:
+            raise RuntimeError(
+                f"The {response_format!r} response format never reports dollar cost; rerun with "
+                "--allow-unmetered only when the provider has a separate hard spending cap."
+            )
+        if budget_was_explicit:
+            raise RuntimeError(
+                "--budget-usd cannot be enforced for an unmetered runner; remove it and rely on "
+                "the provider's hard spending cap when using --allow-unmetered."
+            )
     prior_rows = read_jsonl(args.output) if args.output.exists() else []
     done = completed_keys(prior_rows)
-    reported_cost = sum(
-        float(row.get("cost_usd") or 0)
+    relevant_prior_rows = [
+        row
         for row in prior_rows
         if row.get("condition") == args.condition and row.get("runner") == args.runner
+    ]
+    reported_cost = sum(float(row.get("cost_usd") or 0) for row in relevant_prior_rows)
+    cost_reporting_available = response_format == "claude-json" and all(
+        row.get("cost_usd") is not None for row in relevant_prior_rows
     )
 
-    if args.budget_usd <= 0 or args.budget_usd > 25:
+    if budget_usd <= 0 or budget_usd > 25:
         raise ValueError("--budget-usd must be greater than 0 and no more than 25")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -281,7 +292,7 @@ def run_evaluations(args: argparse.Namespace) -> int:
                 if key in done:
                     print(f"skip completed {args.condition} trial {trial}: {case['id']}")
                     continue
-                remaining = args.budget_usd - reported_cost
+                remaining = budget_usd - reported_cost
                 if remaining <= 0:
                     print("Budget exhausted; stopping.", file=sys.stderr)
                     return 2
@@ -319,11 +330,18 @@ def run_evaluations(args: argparse.Namespace) -> int:
                         f"({shlex.join(invocation[:-1])}):\n{detail}"
                     )
                 text, usage, cost = _parse_response(completed.stdout, response_format)
-                if cost is None and not args.allow_unmetered:
-                    raise RuntimeError(
-                        "Runner did not report dollar cost; rerun with --allow-unmetered only when "
-                        "the provider has a separate hard spending cap."
-                    )
+                if cost is None:
+                    cost_reporting_available = False
+                    if not args.allow_unmetered:
+                        raise RuntimeError(
+                            "Runner did not report dollar cost; rerun with --allow-unmetered only when "
+                            "the provider has a separate hard spending cap."
+                        )
+                    if budget_was_explicit:
+                        raise RuntimeError(
+                            "--budget-usd cannot be enforced because the runner did not report dollar "
+                            "cost; rerun without --budget-usd and rely on a provider hard spending cap."
+                        )
                 reported_cost += float(cost or 0)
                 row = {
                     "case_id": case["id"],
@@ -337,7 +355,10 @@ def run_evaluations(args: argparse.Namespace) -> int:
                 destination.write(json.dumps(row, ensure_ascii=False) + "\n")
                 destination.flush()
                 print(f"{args.condition} trial {trial}: {case['id']}")
-    print(f"Reported cost: ${reported_cost:.4f}")
+    if cost_reporting_available:
+        print(f"Reported cost: ${reported_cost:.4f}")
+    else:
+        print("Reported cost: unavailable (runner did not report dollar cost)")
     return 0
 
 
@@ -365,7 +386,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--case", action="append")
     run.add_argument("--trials", type=int, default=3)
     run.add_argument("--retries", type=int, default=2)
-    run.add_argument("--budget-usd", type=float, default=25.0)
+    run.add_argument("--budget-usd", type=float, default=None)
     run.add_argument("--allow-unmetered", action="store_true")
     run.add_argument("--output", type=Path, required=True)
     run.set_defaults(handler=run_evaluations)
