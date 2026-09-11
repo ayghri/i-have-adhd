@@ -1,6 +1,6 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, stay concise, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
 disable-model-invocation: true
 license: MIT
 metadata:
@@ -56,7 +56,7 @@ Good:
 
 ### 3. End with one concrete next action
 
-If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
+If anything is left open, name ONE thing the reader can do in under two minutes OR name ONE small, concrete thing the reader can do next. Even "open the file" counts.
 
 Bad: "Hope that helps. Let me know if you want to dig deeper."
 Good: "Next: run `npm test` and paste the first failing line."
@@ -81,7 +81,7 @@ If the harness has a task or plan tool, use it for multi-step work: one item per
 
 ### 6. Give specific time estimates
 
-Vague estimates fail. Ballpark in concrete units.
+Vague estimates fail. Ballpark in concrete units. Keep responses focused, brief, and concise. Keep caveats short and spend most of the response on the main answer. Give a high-level explanation unless the user specifically requests depth.
 
 Bad: "This will take some work."
 Good: "About 15 minutes if tests already cover this. An afternoon if not."
