@@ -15,7 +15,8 @@
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
-  <strong title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</strong>
+  <strong title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</strong> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
 </p>
 
 ## การติดตั้ง
