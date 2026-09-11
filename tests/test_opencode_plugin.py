@@ -18,11 +18,16 @@ class OpenCodePluginTest(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
-        self.plugin_root = Path(self.temp_dir.name) / "plugin"
+        # Resolve the temp root: on macOS /var is a symlink to /private/var, so
+        # the path Python's tempfile reports (/var/...) differs from the
+        # realpath the Node plugin resolves to (/private/var/...). Matching the
+        # two keeps the skill-path assertions stable across platforms.
+        temp_root = Path(os.path.realpath(self.temp_dir.name))
+        self.plugin_root = temp_root / "plugin"
         shutil.copytree(ROOT / ".opencode", self.plugin_root / ".opencode")
         shutil.copytree(ROOT / "skills", self.plugin_root / "skills")
         # The plugin reads its flag from $XDG_CONFIG_HOME/opencode/.i-have-adhd-always.
-        self.config_dir = Path(self.temp_dir.name) / "config"
+        self.config_dir = temp_root / "config"
         (self.config_dir / "opencode").mkdir(parents=True)
 
     def run_plugin(self, mode=None, config=None):
