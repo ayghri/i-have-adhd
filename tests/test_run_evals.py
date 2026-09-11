@@ -1,4 +1,6 @@
 import argparse
+from contextlib import redirect_stdout
+import io
 import json
 import subprocess
 import sys
@@ -271,8 +273,105 @@ class EvaluationHarnessTest(unittest.TestCase):
             self.assertFalse((tmp_path / "out.jsonl").exists())
 
             args.allow_unmetered = True
-            self.assertEqual(0, run_evals.run_evaluations(args))
+            args.budget_usd = None
+            captured = io.StringIO()
+            with redirect_stdout(captured):
+                self.assertEqual(0, run_evals.run_evaluations(args))
             self.assertTrue(marker.exists())
+            self.assertIn("Reported cost: unavailable", captured.getvalue())
+
+    def test_unmetered_runner_rejects_an_explicit_budget_before_any_call(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            marker = tmp_path / "ran"
+            runner_config = tmp_path / "runners.json"
+            runner_config.write_text(
+                json.dumps(
+                    {
+                        "stub": {
+                            "command": [
+                                sys.executable,
+                                "-c",
+                                f"from pathlib import Path; Path({str(marker)!r}).touch(); print('hi')",
+                            ],
+                            "response_format": "text",
+                        }
+                    }
+                )
+            )
+            args = argparse.Namespace(
+                cases=ROOT / "evals" / "cases.jsonl",
+                runner_config=runner_config,
+                runner="stub",
+                condition="baseline",
+                condition_skill=None,
+                case=["direct-answer"],
+                trials=1,
+                retries=0,
+                budget_usd=5.0,
+                allow_unmetered=True,
+                output=tmp_path / "out.jsonl",
+            )
+
+            with self.assertRaisesRegex(RuntimeError, "cannot be enforced"):
+                run_evals.run_evaluations(args)
+
+            self.assertFalse(marker.exists(), "runner was invoked before the rejection")
+            self.assertFalse((tmp_path / "out.jsonl").exists())
+
+    def test_metered_runner_keeps_the_default_budget(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            runner_config = tmp_path / "runners.json"
+            runner_config.write_text(
+                json.dumps(
+                    {
+                        "stub": {
+                            "command": ["stub-runner"],
+                            "response_format": "claude-json",
+                            "budget_flag": "--max-budget-usd",
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = tmp_path / "responses.jsonl"
+            args = run_evals._build_parser().parse_args(
+                [
+                    "run",
+                    "--runner-config",
+                    str(runner_config),
+                    "--runner",
+                    "stub",
+                    "--condition",
+                    "baseline",
+                    "--case",
+                    "direct-answer",
+                    "--trials",
+                    "1",
+                    "--retries",
+                    "0",
+                    "--output",
+                    str(output),
+                ]
+            )
+            completed = subprocess.CompletedProcess(
+                args=["stub-runner"],
+                returncode=0,
+                stdout=json.dumps({"result": "102", "usage": {}, "total_cost_usd": 0.01}),
+                stderr="",
+            )
+
+            with mock.patch.object(
+                run_evals.subprocess, "run", return_value=completed
+            ) as runner:
+                self.assertEqual(0, run_evals.run_evaluations(args))
+
+            self.assertIsNone(args.budget_usd)
+            self.assertEqual(
+                ["--max-budget-usd", "25.0000"],
+                runner.call_args.args[0][1:3],
+            )
 
     def test_generation_runs_outside_the_repository(self):
         # An agent CLI adopts its working directory as project context. Run it
@@ -294,7 +393,7 @@ class EvaluationHarnessTest(unittest.TestCase):
                 case=["direct-answer"],
                 trials=1,
                 retries=0,
-                budget_usd=1.0,
+                budget_usd=None,
                 allow_unmetered=True,
                 output=output,
             )
