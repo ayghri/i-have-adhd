@@ -724,6 +724,48 @@ export default function (pi: ExtensionAPI) {
                     fallback.close()
 
             with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as typo_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as typo_home,
+            ):
+                # Valid JSON, but every field is either misspelled or the
+                # wrong type -- distinct from the previous case's unparseable
+                # JSON. This must NOT fall through to the home file: the
+                # project file was read successfully, it just validated to
+                # no fields at all (see loadUserPreferences's doc comment).
+                Path(typo_project, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_step": 2, "show_estimates": "no"}}),
+                    encoding="utf8",
+                )
+                Path(typo_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 5}}),
+                    encoding="utf8",
+                )
+                typo_env = dict(env)
+                typo_env["HOME"] = typo_home
+
+                typo = RpcClient(
+                    executable,
+                    typo_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(typo_project),
+                )
+                try:
+                    entries, _ = typo.request(
+                        "prefs-project-parses-with-no-valid-fields",
+                        {"type": "get_entries"},
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "User preferences" not in rules_content, (
+                        "A project file with only invalid fields must not fall through "
+                        "to a valid home-directory file"
+                    )
+                    assert "Cap numbered steps (rule 2) at 5" not in rules_content
+                finally:
+                    typo.close()
+
+            with (
                 tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as no_prefs_project,
                 tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as no_prefs_home,
             ):

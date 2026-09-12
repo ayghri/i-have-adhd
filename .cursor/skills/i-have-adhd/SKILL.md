@@ -293,6 +293,8 @@ When it is asked for, emit exactly this shape. Four of the five fields mirror Ta
 
 Everything above is one fixed policy. Some readers want it tuned instead: fewer steps per plan, no time estimates, terser reasoning, a pinned Response Mode. If you have file-reading tools and one of these exists, read it once at the start of the session and apply the overrides below for the rest of the conversation: `.i-have-adhd.json` in the project root, or `~/.i-have-adhd.json` in the reader's home directory. The project-level file wins if both exist. If neither exists, or the file cannot be parsed, say nothing about it and use the defaults as written above.
 
+A project-level file that parses but has no field you recognize (typos, wrong types) is not the same as it being unparseable -- apply whatever it does validly (nothing, if that's all it has) rather than falling back to the home-directory file instead.
+
 Schema (every field optional; an unset or invalid field keeps the default rather than failing the whole file):
 
 ```json

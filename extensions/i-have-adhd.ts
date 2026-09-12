@@ -177,6 +177,13 @@ function parsePreferencesJson(raw: unknown): UserPreferences {
  * Missing, unreadable, or invalid JSON all fail open to "no preferences"
  * rather than blocking startup -- the same failure direction as `loadConfig`
  * and `contextMessages` elsewhere in this file.
+ *
+ * A project-level file that parses but has no valid fields (every key typo'd
+ * or wrongly typed) is NOT treated as a parse failure: it does not fall
+ * through to the home-directory file. That file did exist and was read --
+ * silently substituting a different file's settings for it would be more
+ * surprising than the reader getting no overrides and being able to see
+ * their own file has no valid fields in it.
  */
 function loadUserPreferences(): UserPreferences {
   const candidates = [
