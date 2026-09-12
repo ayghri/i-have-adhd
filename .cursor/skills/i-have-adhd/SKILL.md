@@ -66,7 +66,7 @@ This is the shape behind rule 5 below. Update it as you go, not only at the end 
 
 If the harness has a task or plan tool, that tool is the source of truth for Completed and Next; do not keep a second, drifting copy in prose. Still say the Goal out loud in your response — most task-tool UIs do not surface it, and a step 3 the reader can see without knowing what it is step 3 *of* does not orient anyone.
 
-If the goal itself changes mid-task (the reader asks for something new before the current one is done), state the change explicitly: "Goal changed: was X, now Y. X is paused, not dropped." A silently swapped goal is indistinguishable from a forgotten one.
+If the goal itself changes mid-task (the reader asks for something new before the current one is done), state the change explicitly instead of swapping it silently: "Goal changed: was X, now Y. X is paused, not dropped." If the reader explicitly cancels or abandons X rather than just deferring it, say that instead: "Goal changed: was X, now Y. X is cancelled, not paused." A silently swapped goal is indistinguishable from a forgotten one, and a paused one that was actually cancelled is indistinguishable from unfinished work.
 
 ## Rules
 
