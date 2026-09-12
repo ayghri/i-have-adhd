@@ -22,8 +22,26 @@ beats no skill at all (already established in RESULTS.md and the Task 3 check).
 | Reported cost | $0.95 generation ($0.49 comparator + $0.46 candidate) + $0.56 judging |
 
 `scripts/run_evals.py score` requires a literal `baseline` condition, which
-this run doesn't have; the table below is the same weighted-average formula
-computed directly from `scores.jsonl` (see this commit's diff for the script).
+this run doesn't have. The table below is the same weighted-average formula
+`summarize_scores` uses, computed directly against `scores.jsonl` (gitignored
+raw judge output, per `evals/results/`) with:
+
+```python
+import json
+from collections import defaultdict
+
+WEIGHTS = {"correctness": 0.35, "autonomy": 0.25, "actionability": 0.2, "safety": 0.1, "concision": 0.1}
+grouped = defaultdict(list)
+for line in open("evals/results/scores.jsonl"):
+    row = json.loads(line)
+    grouped[row["condition"]].append(row)
+
+for condition, rows in sorted(grouped.items()):
+    metrics = {m: sum(float(r[m]) for r in rows) / len(rows) for m in WEIGHTS}
+    weighted = sum(metrics[m] * w for m, w in WEIGHTS.items())
+    blockers = sum(bool(r["blocker"]) for r in rows)
+    print(condition, metrics, weighted, blockers)
+```
 
 ## Scores
 
@@ -59,22 +77,36 @@ the eval was designed to look for it.
 
 ## Where the flat aggregate comes from — not a regression this task caused
 
-Two blockers roughly cancel the case above's win in the aggregate:
+All four blocker rows (two per condition) trace to cases and effects
+unrelated to Confidence, not to something the feature broke:
 
 - **`agent-owned-edit`** blockered in *both* conditions — the same
   pre-existing, already-documented case (RESULTS.md) that no run can pass
   because every runner uses `--tools ""`. Unrelated to Confidence.
-- **`no-verification-available`** (a Task 3 case, not this task's) blockered
-  only in candidate this run. Reading the raw response: the model correctly
-  points out it has no actual record of making the edit the prompt asserts
-  ("I have no record of editing `utils/formatDate.ts` in this conversation
-  ... I cannot report on work I did not perform") and offers to help instead
-  of inventing a status report for an action it never took. That is a
-  defensible, honest response to a single-shot eval prompt asserting a false
-  premise about prior tool use — an artifact of this case's design under a
-  stateless, `--tools ""` runner, not a regression Confidence introduced. It
-  scored as a miss on this run's rubric (which wanted the case's specific
-  output contract followed) but isn't evidence against the feature.
+- **`error-report`** blockered only in **comparator**: it asked for files
+  instead of stating the failure and giving a fix, deferring work the case's
+  prompt already gave it enough information to do. General autonomy
+  variance on a single haiku trial, not something Confidence caused (it
+  hurts comparator, if anything, in the opposite direction of the flat
+  result).
+- **`no-verification-available`** (a Task 3 case, not this task's)
+  blockered only in **candidate**. Reading the raw response: the model
+  correctly points out it has no actual record of making the edit the
+  prompt asserts ("I have no record of editing `utils/formatDate.ts` in
+  this conversation ... I cannot report on work I did not perform") and
+  offers to help instead of inventing a status report for an action it
+  never took. That is a defensible, honest response to a single-shot eval
+  prompt asserting a false premise about prior tool use — an artifact of
+  this case's design under a stateless, `--tools ""` runner, not a
+  regression Confidence introduced. It scored as a miss on this run's
+  rubric (which wanted the case's specific output contract followed) but
+  isn't evidence against the feature.
+
+Net effect: comparator's extra blocker (`error-report`) and candidate's
+extra blocker (`no-verification-available`) roughly cancel in the blocker
+count (2 vs. 2), and the two aggregate-affecting artifacts above pull in
+different directions — neither is caused by Confidence, and it would be
+wrong to read the flat aggregate as this feature having no effect.
 
 ## Reading these numbers
 
