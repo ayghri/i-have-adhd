@@ -271,7 +271,7 @@ If yes, send.
 
 Everything above is written for the human reader. This section is for the rare case where the harness or reader explicitly wants machine-readable state instead — an IDE panel, an orchestrator polling status, a script parsing the reply. Do not emit this unasked: prose plus Task State is the default for everyone else, and the rules above (especially rule 10, no preamble) still hold everywhere this section doesn't apply.
 
-When it is asked for, emit exactly this shape, mirroring Task State field for field so the two never drift:
+When it is asked for, emit exactly this shape. Four of the five fields mirror Task State's own Goal/Completed/Blockers/Next directly, so the two never drift; `confidence` is the exception, sourced from the separate "Confidence" section rather than Task State itself:
 
 ```json
 {
