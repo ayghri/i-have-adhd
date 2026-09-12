@@ -21,6 +21,29 @@ beats no skill at all (already established in RESULTS.md and the Task 3 check).
 | Judge | same model and runner, blind, one call per `(case, trial)` group |
 | Reported cost | $0.95 generation ($0.49 comparator + $0.46 candidate) + $0.56 judging |
 
+Exact commands, run against a local runner config pointing `command` at the
+local `claude` binary with `--model claude-haiku-4-5-20251001` (otherwise
+identical to `runners.example.json`'s `claude` entry):
+
+```bash
+python3 scripts/run_evals.py run --runner claude --runner-config <local-config> \
+  --condition comparator --condition-skill <pre-Task-4 SKILL.md, commit e62e8ee> \
+  --trials 1 --budget-usd 3.00 --output evals/results/responses.jsonl
+
+python3 scripts/run_evals.py run --runner claude --runner-config <local-config> \
+  --condition candidate --condition-skill skills/i-have-adhd/SKILL.md \
+  --trials 1 --budget-usd 3.00 --output evals/results/responses.jsonl
+
+python3 scripts/judge.py --runner claude --runner-config <local-config> \
+  --responses evals/results/responses.jsonl \
+  --conditions comparator candidate \
+  --output evals/results/scores.jsonl
+```
+
+`--budget-usd 3.00` was the configured cap per generation run (comparator,
+candidate); actual spend was well under it, per the reported costs above.
+`judge.py` has no separate budget flag — its cost is reported, not capped.
+
 `scripts/run_evals.py score` requires a literal `baseline` condition, which
 this run doesn't have. The table below is the same weighted-average formula
 `summarize_scores` uses, computed directly against `scores.jsonl` (gitignored
@@ -86,10 +109,12 @@ effect:
 This is the behavior Task 4 was meant to add, and it appears exactly where
 the eval was designed to look for it.
 
-## Where the flat aggregate comes from — not a regression this task caused
+## Where the flat aggregate comes from
 
-All four blocker rows (two per condition) trace to cases and effects
-unrelated to Confidence, not to something the feature broke:
+Breaking down all four blocker rows (two per condition) — one is definitely
+unrelated to Confidence, one is structurally unrelated (fails in the
+condition that doesn't have the feature), and one is an unresolved possible
+regression that this single trial cannot rule out:
 
 - **`agent-owned-edit`** blockered in *both* conditions — the same
   pre-existing, already-documented case (RESULTS.md) that no run can pass
