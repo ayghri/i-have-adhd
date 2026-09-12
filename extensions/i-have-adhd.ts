@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,7 +9,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import {
   contextMessages,
-  latestMarkerIsActive,
+  latestMarkerContent,
 } from "./context-compat";
 
 const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
@@ -26,10 +27,29 @@ const MODE_MESSAGE_TYPE = "i-have-adhd-mode-changed";
 const STATUS_KEY = "i-have-adhd";
 const DISABLE_CONFIRMATION = "ADHD mode disabled.";
 const STOP_PHRASES = new Set(["stop adhd mode", "normal mode"]);
-const RULES_HEADER =
-  'ADHD MODE ACTIVE. The ruleset below applies to every response until turned off. "stop adhd mode" or "normal mode" turns it off for this session.';
 const DISABLED_NOTICE =
   "ADHD MODE OFF. Ignore the i-have-adhd ruleset injected earlier in this conversation and return to your default response style.";
+
+// Matches the [i-have-adhd:<hash>] tag embedded in an injected ruleset
+// message, so a later check can tell a still-current injection from a stale
+// one (SKILL.md changed after it was injected -- e.g. the plugin was
+// upgraded mid-session). Content-derived, not a semantic version: it exists
+// to detect drift, not to be read as a release number.
+function rulesTag(hash: string): string {
+  return `[i-have-adhd:${hash}]`;
+}
+
+function hashRules(rules: string): string {
+  return createHash("sha256").update(rules, "utf8").digest("hex").slice(0, 12);
+}
+
+function rulesHeader(hash: string): string {
+  return (
+    'ADHD MODE ACTIVE. The ruleset below applies to every response until turned off. ' +
+    '"stop adhd mode" or "normal mode" turns it off for this session. ' +
+    rulesTag(hash)
+  );
+}
 
 // Matches the four modes named in the skill's "Response Mode" section.
 // Keep this list in sync with that section if it ever changes.
@@ -133,22 +153,54 @@ function getSavedState(ctx: ExtensionContext): AdhdModeState | undefined {
 }
 
 /**
- * Whether the rules are still live in the context the model actually receives.
+ * Whether the CURRENT ruleset (matching `expectedHash`) is still live in the
+ * context the model actually receives.
  *
- * Only the newest marker counts: a later "disabled" notice cancels an earlier
- * ruleset, and compaction drops summarized entries so the ruleset has to be
- * injected again.
+ * Only the newest marker counts: a later "disabled" notice cancels an
+ * earlier ruleset, and compaction drops summarized entries so the ruleset
+ * has to be injected again. Beyond presence, the embedded tag has to match
+ * `expectedHash` too -- a present-but-stale injection (SKILL.md changed
+ * since it went in, e.g. an upgrade mid-session) is treated the same as
+ * "not injected," so the caller replaces it instead of leaving the model on
+ * an outdated ruleset for the rest of the session. If content isn't
+ * available on this API surface at all, latestMarkerContent already reports
+ * that as `undefined`, and undefined content fails the hash check the same
+ * way -- fails toward re-injecting, not toward silently trusting stale text.
  */
-function rulesAreInContext(ctx: ExtensionContext): boolean {
-  return latestMarkerIsActive(
+function rulesAreCurrentInContext(
+  ctx: ExtensionContext,
+  expectedHash: string,
+): boolean {
+  const content = latestMarkerContent(
     contextMessages(ctx.sessionManager),
     RULES_MESSAGE_TYPE,
     DISABLED_MESSAGE_TYPE,
+  );
+  return content !== undefined && content.includes(rulesTag(expectedHash));
+}
+
+/**
+ * Presence only, ignoring currency: some ruleset (current or stale) is the
+ * active marker. Deliberately separate from rulesAreCurrentInContext -- the
+ * "should I cancel what's there with a disabled notice" decision cares that
+ * *something* is visible to the model, not whether it happens to be the
+ * latest revision. Using the currency-aware check there instead would skip
+ * the disabled notice for a stale-but-present ruleset, leaving the model
+ * quietly following rules the reader just turned off.
+ */
+function rulesAreInContext(ctx: ExtensionContext): boolean {
+  return (
+    latestMarkerContent(
+      contextMessages(ctx.sessionManager),
+      RULES_MESSAGE_TYPE,
+      DISABLED_MESSAGE_TYPE,
+    ) !== undefined
   );
 }
 
 export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const rules = loadRules();
+  const rulesHash = hashRules(rules);
   const alwaysOnFlag = join(getAgentDir(), ".i-have-adhd-always");
   const config = loadConfig();
   let enabled = false;
@@ -170,18 +222,21 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
    * SessionStart hook does: inject the ruleset once, never per request.
    */
   const syncContext = (ctx: ExtensionContext): void => {
-    const injected = rulesAreInContext(ctx);
+    const current = rulesAreCurrentInContext(ctx, rulesHash);
 
-    if (enabled && !injected) {
-      // Fold the active response mode into the same injection instead of a
-      // separate marker: this is the one point where the ruleset (and so
-      // the mode) has to survive compaction, so there is nothing extra to
-      // keep synchronized after this.
+    if (enabled && !current) {
+      // Covers both "never injected this session" and "injected, but
+      // SKILL.md changed since (a stale hash) -- e.g. the plugin was
+      // upgraded mid-session" the same way: a fresh injection with the
+      // current content. Fold the active response mode into the same
+      // injection instead of a separate marker: this is the one point
+      // where the ruleset (and so the mode) has to survive compaction, so
+      // there is nothing extra to keep synchronized after this.
       const modeNote = mode ? `\n\n${modeDirective(mode)}` : "";
       pi.sendMessage(
         {
           customType: RULES_MESSAGE_TYPE,
-          content: `${RULES_HEADER}\n\n${rules}${modeNote}`,
+          content: `${rulesHeader(rulesHash)}\n\n${rules}${modeNote}`,
           display: false,
         },
         { triggerTurn: false },
@@ -189,7 +244,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       return;
     }
 
-    if (!enabled && injected) {
+    if (!enabled && rulesAreInContext(ctx)) {
       pi.sendMessage(
         {
           customType: DISABLED_MESSAGE_TYPE,
@@ -231,12 +286,13 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   };
 
   const setMode = (nextMode: ResponseMode, ctx: ExtensionContext): void => {
-    // Capture this before syncContext can change it: if the ruleset isn't
-    // in context yet, syncContext below injects it with the new mode
-    // already folded in, and rulesAreInContext would then read back `true`
-    // -- sending a second, redundant standalone message on top of that
-    // fresh injection.
-    const alreadyInjected = rulesAreInContext(ctx);
+    // Capture this before syncContext can change it: if the current rules
+    // aren't in context yet (missing, or present but stale -- see
+    // rulesAreCurrentInContext), syncContext below injects them fresh with
+    // the new mode already folded in, and this check would then read back
+    // `true` against that fresh injection -- sending a second, redundant
+    // standalone message on top of it.
+    const rulesAlreadyCurrent = rulesAreCurrentInContext(ctx, rulesHash);
 
     mode = nextMode;
     // Setting a mode implies wanting the ruleset active; a mode with the
@@ -246,11 +302,11 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     updateStatus(ctx);
     syncContext(ctx);
 
-    // If the ruleset was already injected this session, syncContext above
-    // does nothing (it only (re-)injects when missing) -- send the mode
+    // If the current rules were already in context, syncContext above does
+    // nothing (it only (re-)injects when missing or stale) -- send the mode
     // change on its own so the model sees it without waiting for the next
     // compaction-triggered re-injection.
-    if (alreadyInjected) {
+    if (rulesAlreadyCurrent) {
       pi.sendMessage(
         {
           customType: MODE_MESSAGE_TYPE,

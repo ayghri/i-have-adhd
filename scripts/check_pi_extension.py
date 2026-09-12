@@ -271,6 +271,23 @@ export default function (pi: ExtensionAPI) {
     description: \"Reload Pi for smoke testing\",
     handler: async (_args, ctx) => { await ctx.reload(); },
   });
+  // Simulates "the currently active i-have-adhd ruleset injection is stale"
+  // (e.g. SKILL.md changed after it went in) without ever touching the real
+  // file: plants a fake rules message with a hash tag that cannot match the
+  // real one, becoming the newest \"i-have-adhd-rules\" marker.
+  pi.registerCommand(\"plant-stale-rules\", {
+    description: \"Plant a fake stale i-have-adhd rules injection for testing\",
+    handler: async (_args) => {
+      pi.sendMessage(
+        {
+          customType: \"i-have-adhd-rules\",
+          content: \"ADHD MODE ACTIVE (fake, planted by test). [i-have-adhd:000000000000]\",
+          display: false,
+        },
+        { triggerTurn: false },
+      );
+    },
+  });
   pi.on(\"input\", async (event) => {
     if (!existsSync(passthroughProbeFlag) || event.text.trim().toLowerCase() !== \"normal mode\") {
       return { action: \"continue\" };
@@ -520,6 +537,53 @@ export default function (pi: ExtensionAPI) {
             ), "Disabled mode swallowed ordinary input"
         finally:
             client.close()
+
+        # TASK 9 (Optimize Context Injection): a stale-but-present ruleset
+        # injection (SKILL.md changed since it went in -- simulated here
+        # without touching the real file) must be replaced, not left as-is,
+        # the next time something re-checks context (a reload, here).
+        # Isolated in its own session so this doesn't perturb the message
+        # counts the block above already asserted exact values for.
+        stale = RpcClient(
+            executable,
+            env,
+            "--no-session",
+            *extension_args,
+            "-e",
+            str(reload_probe),
+            "--adhd",
+        )
+        try:
+            entries, _ = stale.request("stale-startup", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 1
+
+            planted, _ = stale.request(
+                "stale-plant",
+                {"type": "prompt", "message": "/plant-stale-rules"},
+            )
+            assert planted["success"] is True
+
+            entries, _ = stale.request("stale-planted", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 2
+            assert "[i-have-adhd:000000000000]" in message_contents(
+                entries, "i-have-adhd-rules"
+            )[-1], "Planted fake message did not become the latest rules marker"
+
+            reloaded, _ = stale.request(
+                "stale-reload",
+                {"type": "prompt", "message": "/reload-probe"},
+            )
+            assert reloaded["success"] is True
+
+            entries, _ = stale.request("stale-after-reload", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 3, (
+                "A stale injection must be replaced with a fresh one, not left alone"
+            )
+            assert "[i-have-adhd:000000000000]" not in message_contents(
+                entries, "i-have-adhd-rules"
+            )[-1], "Reload kept serving the planted stale content instead of refreshing it"
+        finally:
+            stale.close()
 
         if args.runtime == "pi":
             Path(agent_dir, ".i-have-adhd-always").touch()
