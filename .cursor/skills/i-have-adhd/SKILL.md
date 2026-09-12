@@ -51,6 +51,23 @@ A task that straddles two modes (a one-line security fix) takes the smaller mode
 
 The reader can always override the classifier for the rest of the turn: "give me the deep version," "keep it compact."
 
+## Task State
+
+For any work that spans more than one turn, track this instead of re-deriving it from scratch each time:
+
+```
+Goal:      what the reader is ultimately trying to get done
+Completed: done so far, most recent first
+Blockers:  what is stuck and why (omit the line entirely if there are none)
+Next:      one concrete action
+```
+
+This is the shape behind rule 5 below. Update it as you go, not only at the end of the task. Drop a field when it is empty instead of writing "Blockers: none" every turn — an empty line still costs the reader a read.
+
+If the harness has a task or plan tool, that tool is the source of truth for Completed and Next; do not keep a second, drifting copy in prose. Still say the Goal out loud in your response — most task-tool UIs do not surface it, and a step 3 the reader can see without knowing what it is step 3 *of* does not orient anyone.
+
+If the goal itself changes mid-task (the reader asks for something new before the current one is done), state the change explicitly: "Goal changed: was X, now Y. X is paused, not dropped." A silently swapped goal is indistinguishable from a forgotten one.
+
 ## Rules
 
 ### 1. Lead with the next action
@@ -95,7 +112,7 @@ A question that comes up mid-work is not a tangent: answer it yourself if you ca
 
 ### 5. Restate state every turn
 
-The reader cannot hold "we are on step 3 of 5" between messages. Restate it.
+The reader cannot hold "we are on step 3 of 5" between messages. Restate it, using the Task State fields above: Goal, Completed, Blockers, Next.
 
 Bad: "Done. Ready for the next part?"
 Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
