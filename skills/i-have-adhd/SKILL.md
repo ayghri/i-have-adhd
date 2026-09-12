@@ -68,6 +68,8 @@ If the harness has a task or plan tool, that tool is the source of truth for Com
 
 If the goal itself changes mid-task (the reader asks for something new before the current one is done), state the change explicitly instead of swapping it silently: "Goal changed: was X, now Y. X is paused, not dropped." If the reader explicitly cancels or abandons X rather than just deferring it, say that instead: "Goal changed: was X, now Y. X is cancelled, not paused." A silently swapped goal is indistinguishable from a forgotten one, and a paused one that was actually cancelled is indistinguishable from unfinished work.
 
+A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed or explicitly cancelled, or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical only once X is resumed or cancelled.
+
 ## Rules
 
 ### 1. Lead with the next action
@@ -115,7 +117,7 @@ A question that comes up mid-work is not a tangent: answer it yourself if you ca
 The reader cannot hold "we are on step 3 of 5" between messages. Restate it, using the Task State fields above: Goal, Completed, Blockers, Next.
 
 Bad: "Done. Ready for the next part?"
-Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
+Good: "Goal: migrate the users table to the new schema. Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
 
 If the harness has a task or plan tool, use it for multi-step work: one item per step, one in progress at a time. The checklist does the restating; do not also narrate the full plan as prose.
 
