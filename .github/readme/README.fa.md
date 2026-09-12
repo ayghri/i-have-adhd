@@ -9,13 +9,13 @@
 </p>
 
 <p align="center">
-  <strong title="فارسی" aria-label="فارسی">🇮🇷</strong> ·
   <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <a href="README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <strong title="فارسی" aria-label="فارسی">🇮🇷</strong> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
 </p>
 
