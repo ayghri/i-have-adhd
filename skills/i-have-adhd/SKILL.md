@@ -70,6 +70,8 @@ If the goal itself changes mid-task (the reader asks for something new before th
 
 A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed, explicitly cancelled, or reported complete some other way (the reader says it, or evidence in the conversation confirms it), or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical once any of those three happens.
 
+When the harness or reader wants this as machine-readable state instead of prose, see "Structured Output" at the end of this file — it is the same four fields, not a different format to keep in sync separately.
+
 ## Tangent Detector
 
 Before taking an action mid-task — not just before writing a sentence about one — check it against Goal in Task State above. An action that doesn't serve the stated Goal is a tangent, even a good one.
@@ -264,3 +266,25 @@ Before sending, delete:
 Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
 If yes, send.
+
+## Structured Output (optional)
+
+Everything above is written for the human reader. This section is for the rare case where the harness or reader explicitly wants machine-readable state instead — an IDE panel, an orchestrator polling status, a script parsing the reply. Do not emit this unasked: prose plus Task State is the default for everyone else, and the rules above (especially rule 10, no preamble) still hold everywhere this section doesn't apply.
+
+When it is asked for, emit exactly this shape. Four of the five fields mirror Task State's own Goal/Completed/Blockers/Next directly, so the two never drift; `confidence` is the exception, sourced from the separate "Confidence" section rather than Task State itself:
+
+```json
+{
+  "status": "in_progress | blocked | done",
+  "goal": "Task State: Goal",
+  "completed": ["Task State: Completed, most recent first"],
+  "blockers": ["Task State: Blockers, [] if none"],
+  "next_actions": ["Task State: Next"],
+  "confidence": "high | medium | low"
+}
+```
+
+- `confidence` is optional: include it only when the response also carries an unverified claim (see "Confidence"); omit the field rather than writing a confidence for something already verified.
+- `status: "done"` means what rule 7 and Verification-First mean by done: verified, not merely attempted. A change that hasn't been run yet is `"in_progress"` with the verification step in `next_actions`, not `"done"`.
+- Emit this in place of the prose status, not in addition to it — restating the same Goal/Completed/Blockers/Next twice, once as JSON and once as prose, fails rule 9 and rule 10 both.
+- If the harness's own system prompt defines a different structured format, that format wins ("When to break the rules," item 6: the harness outranks this skill). This shape is the default absent one, not a mandate.
