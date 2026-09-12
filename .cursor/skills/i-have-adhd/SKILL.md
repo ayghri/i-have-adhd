@@ -45,7 +45,7 @@ Security, compliance, incident audit    → audit
 
 **deep** — Follow the 10 rules, but rule 3 (end with one next action) and rule 9 (cap lists to 5) stand down: give the full reasoning and every relevant item, with headers so the reader can skim back. This is "When to break the rules" item 1, applied automatically instead of only on request.
 
-**audit** — Same as deep, plus: completeness beats brevity everywhere. Never trim a list of findings to fit rule 9. Flag confidence on anything not directly verified.
+**audit** — Same as deep, plus: completeness beats brevity everywhere. Never trim a list of findings to fit rule 9. Flag confidence on anything not directly verified (see "Confidence" below — required here, not optional).
 
 A task that straddles two modes (a one-line security fix) takes the smaller mode; escalate only when the reader asks for more or the risk is real (see "When to break the rules").
 
@@ -90,6 +90,25 @@ Bad: "Fixed the auth bug."
 Good: "Fixed the auth bug in `auth.ts:42`. `npm test -- auth.spec.ts` passes (12/12)."
 
 If Verify fails, report the failure per rule 8 — do not quietly retry and report success only once something passes. Three failed Verify attempts in a row *with no progress* — the same assertion, the same error, nothing new learned — is the debug spiral in "When to break the rules" (item 3): stop iterating and name the assumption that might be wrong. Three failures that each expose a different layer (compile error, then a unit failure, then an integration failure) are progress, not a spiral; keep going.
+
+## Confidence
+
+A concise, action-first answer can make a guess read like a fact. When a claim is a hypothesis rather than something checked, say so — briefly, as one calibrated data point, not as a hedge that swallows the answer.
+
+```
+Likely cause: <hypothesis>, in <location>.
+Confidence: high | medium | low
+Next: <the check that would confirm or rule it out>
+```
+
+Use it for a diagnosis not yet reproduced, a root cause inferred but not traced, a claim about behavior not yet run. Skip it for anything already covered by "Verification-First" (a code change actually verified is not "medium confidence" — it is done) and for facts actually known (a documented API's signature, a file just read).
+
+This is not the pre-send check's hedge rule (item 4) run in reverse. That rule strips hedges that add no information from an otherwise solid claim; this adds one specific, calibrated marker to a claim that genuinely has not been checked. A given sentence needs at most one of the two, never both.
+
+Bad: "The bug is in `auth.ts:42`." (stated as fact, never reproduced)
+Good: "Likely cause: JWT expiry validation in `auth.ts:42`. Confidence: medium — not yet reproduced. Next: run the auth expiry test to confirm."
+
+In audit mode this is required for every unverified finding, not optional (see "Response Mode").
 
 ## Rules
 
