@@ -16,7 +16,8 @@ lighter-weight signal, not a replacement for a full paired benchmark.
 | Date | 2026-09-12 |
 | Model | `claude-haiku-4-5-20251001` |
 | Runner CLI | local `claude` (Claude Code) **v2.1.269**, `--setting-sources ""`, `--tools ""` |
-| Cases | 20 (`cases.jsonl`, current catalog as of this commit) |
+| Cases | 20 (`cases.jsonl` as of commit `b444820`) |
+| Candidate skill revision | `skills/i-have-adhd/SKILL.md` at commit `b444820` — predates the later `e9a6643` wording change that broadened Verify to accept non-command checks; not re-run for that change since it only widens what counts as a valid check, it does not change when one is required |
 | Trials | 1 |
 | Rows | 20 per condition, 60 total |
 | Judge | same model and runner, blind, one call per `(case, trial)` group across all three conditions at once |
@@ -33,7 +34,7 @@ specifically. Fixed per codex review by adding a third condition:
 - **baseline** — bare task prompt, no skill.
 - **comparator** — the skill as it stood immediately before Task 3 (Response
   Mode + Task State, no Verification-First) — `git show 2363198:skills/i-have-adhd/SKILL.md`.
-- **candidate** — the current skill, comparator plus Verification-First.
+- **candidate** — `skills/i-have-adhd/SKILL.md` at commit `b444820`, comparator plus Verification-First.
 
 **candidate vs. comparator is the isolated Task 3 delta.** Baseline is kept
 for context against the pre-existing benchmark, not for this question.

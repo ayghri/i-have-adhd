@@ -89,7 +89,7 @@ If there is no way to Test or Verify — no test harness, no way to execute, no 
 Bad: "Fixed the auth bug."
 Good: "Fixed the auth bug in `auth.ts:42`. `npm test -- auth.spec.ts` passes (12/12)."
 
-If Verify fails, report the failure per rule 8 — do not quietly retry and report success only once something passes. Three failed Verify attempts in a row is the debug spiral in "When to break the rules" (item 3): stop iterating and name the assumption that might be wrong.
+If Verify fails, report the failure per rule 8 — do not quietly retry and report success only once something passes. Three failed Verify attempts in a row *with no progress* — the same assertion, the same error, nothing new learned — is the debug spiral in "When to break the rules" (item 3): stop iterating and name the assumption that might be wrong. Three failures that each expose a different layer (compile error, then a unit failure, then an integration failure) are progress, not a spiral; keep going.
 
 ## Rules
 
