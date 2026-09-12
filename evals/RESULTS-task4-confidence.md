@@ -58,6 +58,17 @@ Blocking findings: comparator 2, candidate 2. Essentially flat overall — this
 is a much smaller, mixed result compared to Task 3's clearly positive one,
 and the write-up below explains why rather than rounding it up.
 
+## Release gate: FAILED
+
+Candidate has 2 blocking findings; the gate in `rubric.md` is zero-tolerance.
+Not treated as blocking this PR, on the precedent [RESULTS.md](RESULTS.md#release-gate-failed)
+and [RESULTS-task3-verification-first.md](RESULTS-task3-verification-first.md#on-the-failed-release-gate)
+already set for this exact repository property: the gate has never passed
+for the shipped canonical skill either, and the prior supplementary check
+merged with the same explicit "FAILED, here's why that isn't blocking" call.
+This report follows that established call rather than inventing a stricter
+one for this task specifically.
+
 ## The case built for this feature: a clean win
 
 `unverified-diagnosis` (a bug report with no reproduction yet) is the one
@@ -90,23 +101,31 @@ unrelated to Confidence, not to something the feature broke:
   hurts comparator, if anything, in the opposite direction of the flat
   result).
 - **`no-verification-available`** (a Task 3 case, not this task's)
-  blockered only in **candidate**. Reading the raw response: the model
-  correctly points out it has no actual record of making the edit the
-  prompt asserts ("I have no record of editing `utils/formatDate.ts` in
-  this conversation ... I cannot report on work I did not perform") and
-  offers to help instead of inventing a status report for an action it
-  never took. That is a defensible, honest response to a single-shot eval
-  prompt asserting a false premise about prior tool use — an artifact of
-  this case's design under a stateless, `--tools ""` runner, not a
-  regression Confidence introduced. It scored as a miss on this run's
-  rubric (which wanted the case's specific output contract followed) but
-  isn't evidence against the feature.
+  blockered only in **candidate** — and candidate is the one condition that
+  differs from comparator by adding Confidence, so a single trial cannot
+  rule out Confidence as a contributing cause here the way it can for the
+  other two blockers above. Reading the raw response for what's plausible,
+  not conclusive: the model points out it has no actual record of making
+  the edit the prompt asserts ("I have no record of editing
+  `utils/formatDate.ts` in this conversation ... I cannot report on work I
+  did not perform") and offers to help instead of inventing a status report
+  for an action it never took — a defensible, honest reaction to a
+  single-shot eval prompt asserting a false premise about prior tool use,
+  and the kind of thing a stateless `--tools ""` runner surfaces regardless
+  of skill content. Plausible, not proven: one trial cannot distinguish
+  "this case's construction triggered it" from "Confidence made the model
+  more willing to refuse an unverifiable premise." Would need more trials
+  to tell apart, not asserted as settled here.
 
-Net effect: comparator's extra blocker (`error-report`) and candidate's
-extra blocker (`no-verification-available`) roughly cancel in the blocker
-count (2 vs. 2), and the two aggregate-affecting artifacts above pull in
-different directions — neither is caused by Confidence, and it would be
-wrong to read the flat aggregate as this feature having no effect.
+Net effect: comparator's extra blocker (`error-report`, definitely unrelated
+to Confidence — it's comparator's failure) and candidate's extra blocker
+(`no-verification-available`, plausibly but not provenly unrelated) roughly
+cancel in the blocker count (2 vs. 2). Between that cancellation and the two
+artifacts pulling in different directions, it would be wrong to read the
+flat aggregate as proof this feature has no effect — but it would equally be
+wrong to claim this run proves it has none of the downside either. The
+feature-specific case (`unverified-diagnosis`) remains the more informative
+single data point either way.
 
 ## Reading these numbers
 
