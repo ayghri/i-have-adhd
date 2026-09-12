@@ -86,6 +86,23 @@ condition — it did in an earlier two-condition version of this check. That
 inconsistency is itself the single-trial-noise caveat below, not a change in
 the case's nature.
 
+## On the failed release gate
+
+`codex review` flagged shipping this alongside a failed release gate as a
+blocker. Not treated as one here, on the same precedent [RESULTS.md](RESULTS.md#release-gate-failed)
+itself sets: the gate in `rubric.md` is absolute ("zero blocking findings
+anywhere in the case set"), and RESULTS.md documents plainly that under that
+rule "no candidate can ever pass ... however much it improves" — the
+currently-shipped, canonical skill has never passed this gate either, and was
+merged anyway with that limitation stated rather than hidden. This
+supplementary run holds itself to the same standard the repository already
+applies to the skill as a whole: report the gate result honestly, including
+a failure, rather than treat an unreachable absolute bar as a merge blocker.
+Actually revising the gate rule in `rubric.md` (e.g., a blocker-count budget
+instead of zero-tolerance) is a real option worth deciding on deliberately,
+as RESULTS.md itself suggests — but that is a policy change to the eval
+harness itself, out of scope for this task.
+
 ## Reading these numbers
 
 - **One trial, one (smaller) model, single-run judge noise.** This is a
