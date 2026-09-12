@@ -1,0 +1,16 @@
+{
+  "name": "i-have-adhd",
+  "version": "0.3.0",
+  "description": "Shape Kiro CLI output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible.",
+  "license": "MIT",
+  "homepage": "https://github.com/ayghri/i-have-adhd",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
+  "interface": {
+    "displayName": "I Have ADHD",
+    "shortDescription": "Action-first output for ADHD readers"
+  },
+  "skills": "skills"
+}
