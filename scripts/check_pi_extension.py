@@ -211,6 +211,15 @@ def latest_mode(entries_response: dict[str, Any]) -> str | None:
     return modes[-1] if modes else None
 
 
+def message_contents(entries_response: dict[str, Any], custom_type: str) -> list[str]:
+    return [
+        entry.get("content", "")
+        for entry in entries_response["data"]["entries"]
+        if entry.get("type") == "custom_message"
+        and entry.get("customType") == custom_type
+    ]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Smoke-test the i-have-adhd extension without a model request."
@@ -402,6 +411,10 @@ export default function (pi: ExtensionAPI) {
                 "Setting a mode while rules are already injected must not re-inject them"
             )
             assert message_count(entries, "i-have-adhd-mode-changed") == 1
+            assert any(
+                'Response Mode is explicitly set to "deep"' in content
+                for content in message_contents(entries, "i-have-adhd-mode-changed")
+            ), "Mode-changed message must actually name the mode, not just exist"
 
             # An unrecognized argument must not touch enabled/mode state.
             bad_mode, _ = client.request(
@@ -450,6 +463,36 @@ export default function (pi: ExtensionAPI) {
             # Off (no re-injection) then re-enabled by the mode command: one
             # more injection than the 3 seen before turning off.
             assert message_count(entries, "i-have-adhd-rules") == 4
+            # The fresh injection from the off->mode path must not ALSO get
+            # a redundant standalone mode-changed message on top of it (the
+            # rules injection already carries the mode note).
+            assert message_count(entries, "i-have-adhd-mode-changed") == 1
+            assert any(
+                'Response Mode is explicitly set to "compact"' in content
+                for content in message_contents(entries, "i-have-adhd-rules")
+            ), "Fresh rules injection must fold in the active mode"
+
+            # A hard off has to reset the mode, matching the disabled
+            # notice's own promise to "return to your default response
+            # style" -- a pinned mode must not silently resurrect on the
+            # next enable.
+            off_after_mode, _ = client.request(
+                "off-after-mode",
+                {"type": "prompt", "message": "/i-have-adhd off"},
+            )
+            assert off_after_mode["success"] is True
+
+            back_on, _ = client.request(
+                "on-after-mode-reset",
+                {"type": "prompt", "message": "/i-have-adhd"},
+            )
+            assert back_on["success"] is True
+
+            entries, _ = client.request("entries-mode-reset", {"type": "get_entries"})
+            assert latest_enabled(entries) is True
+            assert latest_mode(entries) is None, (
+                "Mode from before the hard off resurrected instead of resetting"
+            )
 
             stopped, stop_events = client.request(
                 "stop-phrase",

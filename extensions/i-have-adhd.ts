@@ -49,7 +49,9 @@ function modeDirective(mode: ResponseMode): string {
 
 type AdhdModeState = {
   enabled: boolean;
-  mode?: ResponseMode;
+  // `null` (as opposed to the key being absent) marks an explicit reset --
+  // see getSavedState and setEnabled.
+  mode?: ResponseMode | null;
 };
 
 type AdhdConfig = {
@@ -97,27 +99,37 @@ function loadRules(): string {
 }
 
 function getSavedState(ctx: ExtensionContext): AdhdModeState | undefined {
-  let savedState: AdhdModeState | undefined;
+  let enabledState: boolean | undefined;
+  let modeState: ResponseMode | undefined;
 
   for (const entry of ctx.sessionManager.getBranch()) {
     if (entry.type !== "custom" || entry.customType !== STATE_ENTRY_TYPE) {
       continue;
     }
 
-    const data = entry.data as Partial<AdhdModeState> | undefined;
-    if (typeof data?.enabled === "boolean") {
-      // Older entries (written before mode support existed) never set
-      // `mode`; carry the previously seen mode forward instead of
-      // resetting it, so a mode chosen earlier in the branch survives a
-      // later plain on/off toggle that doesn't mention mode at all.
-      savedState = {
-        enabled: data.enabled,
-        mode: isResponseMode(data.mode) ? data.mode : savedState?.mode,
-      };
+    const data = entry.data as { enabled?: unknown; mode?: unknown } | undefined;
+    if (typeof data?.enabled !== "boolean") continue;
+    enabledState = data.enabled;
+
+    // Three cases for `mode` on a given entry:
+    //  - a real mode string: adopt it.
+    //  - `null`: an explicit reset (written when turning off -- see
+    //    setEnabled), distinct from the key being absent. Clears the
+    //    carried-forward value instead of leaving it untouched.
+    //  - absent (older entries written before mode support existed, or an
+    //    entry that only toggled `enabled`): carry the previous value
+    //    forward, so a mode chosen earlier in the branch survives a later
+    //    on/off toggle that doesn't itself mention mode.
+    if (data.mode === null) {
+      modeState = undefined;
+    } else if (isResponseMode(data.mode)) {
+      modeState = data.mode;
     }
   }
 
-  return savedState;
+  return enabledState === undefined
+    ? undefined
+    : { enabled: enabledState, mode: modeState };
 }
 
 /**
@@ -204,13 +216,28 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
 
   const setEnabled = (nextEnabled: boolean, ctx: ExtensionContext): void => {
     enabled = nextEnabled;
-    pi.appendEntry(STATE_ENTRY_TYPE, { enabled, mode } satisfies AdhdModeState);
+    // A hard off promises "return to your default response style" (see
+    // DISABLED_NOTICE): a mode pinned before turning off must not silently
+    // resurrect on the next enable. `null` (not just leaving the key off
+    // the entry) marks this as an explicit reset -- see getSavedState.
+    if (!enabled) mode = undefined;
+    pi.appendEntry(STATE_ENTRY_TYPE, {
+      enabled,
+      mode: enabled ? mode : null,
+    } satisfies AdhdModeState);
     updateStatus(ctx);
     syncContext(ctx);
     ctx.ui.notify(`ADHD mode ${enabled ? "enabled" : "disabled"}`, "info");
   };
 
   const setMode = (nextMode: ResponseMode, ctx: ExtensionContext): void => {
+    // Capture this before syncContext can change it: if the ruleset isn't
+    // in context yet, syncContext below injects it with the new mode
+    // already folded in, and rulesAreInContext would then read back `true`
+    // -- sending a second, redundant standalone message on top of that
+    // fresh injection.
+    const alreadyInjected = rulesAreInContext(ctx);
+
     mode = nextMode;
     // Setting a mode implies wanting the ruleset active; a mode with the
     // ruleset off would have nothing to modify.
@@ -223,7 +250,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     // does nothing (it only (re-)injects when missing) -- send the mode
     // change on its own so the model sees it without waiting for the next
     // compaction-triggered re-injection.
-    if (rulesAreInContext(ctx)) {
+    if (alreadyInjected) {
       pi.sendMessage(
         {
           customType: MODE_MESSAGE_TYPE,

@@ -534,7 +534,7 @@ Set the skill's Response Mode explicitly instead of leaving it to the model's ow
 /i-have-adhd audit
 ```
 
-The mode persists for the rest of the session (including through `/reload`) until set again or the session ends; setting a mode turns ADHD-friendly output on if it was off. This explicit form is Pi- and OMP-specific — everywhere else, use natural language ("give me the deep version") instead, which applies for the rest of that turn.
+The mode persists for the rest of the session (including through `/reload`) until set again, turned off (`/i-have-adhd off`, "stop adhd mode," or "normal mode" reset it, matching that ruleset's own promise to return to a default style), or the session ends. Setting a mode turns ADHD-friendly output on if it was off. This explicit form is Pi- and OMP-specific — everywhere else, use natural language ("give me the deep version") instead, which applies for the rest of that turn.
 
 Like the Claude Code hook, the extension adds the ruleset to the conversation once instead of rewriting the system prompt on every request, and adds it again after compaction drops it.
 
