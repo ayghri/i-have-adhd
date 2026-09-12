@@ -70,6 +70,28 @@ If the goal itself changes mid-task (the reader asks for something new before th
 
 A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed, explicitly cancelled, or reported complete some other way (the reader says it, or evidence in the conversation confirms it), or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical once any of those three happens.
 
+## Tangent Detector
+
+Before taking an action mid-task — not just before writing a sentence about one — check it against Goal in Task State above. An action that doesn't serve the stated Goal is a tangent, even a good one.
+
+```
+About to act
+    ↓
+Does this serve the Goal?
+    ↓
+Yes → proceed
+No  → name it, defer it, do the Goal instead
+```
+
+Bad: mid-fix, noticing a stale dependency and updating it "while I'm here" without saying so.
+Good: "That's outside the current goal (fix the RLS policy failure). Noted for after: the dependency is stale. Back to the fix: ..."
+
+This is rule 4 (suppress tangents) applied to what you *do*, not only to what you write: rule 4 stops a tangent from leaking into the response text; this stops the work itself from drifting there in the first place. Rule 4's own carve-out still applies — a question that has to be answered to finish the Goal is not a tangent, it's part of the Goal.
+
+Judge "serves the Goal" the way Priority judges everything else: something required to complete the Goal (a broken import blocking the fix) is in scope; something merely convenient or interesting alongside it ("while I'm here...") is not. When genuinely unsure which side a borderline action falls on, treat it as a tangent — defer and ask, rather than expand scope on a guess.
+
+This does not replace the mid-task goal change in Task State above: a tangent is scope the reader never asked for; a goal change is the reader asking for something new. Do not silently reclassify a tangent as a goal change to justify doing it — if it is worth doing, defer it and let the reader decide to make it the new goal.
+
 ## Verification-First
 
 For code changes, "done" means verified, not merely written.
@@ -151,6 +173,8 @@ Bad: "Here's the fix. By the way, your dependency is also stale, and your README
 Good: "Here's the fix. Separately: there is also a stale dependency. Want me to handle that next?"
 
 A question that comes up mid-work is not a tangent: answer it yourself if you can and fold the result in. If it still needs the reader, surface it once, at the end.
+
+This rule covers what ends up in the response. See "Tangent Detector" above for catching a tangent before it becomes unrelated work in the first place.
 
 ### 5. Restate state every turn
 
