@@ -1,7 +1,10 @@
 # Evaluation results
 
 First recorded run of the harness in `scripts/`. Reproduce with the commands in
-[README.md](README.md).
+[README.md](README.md), against `cases.jsonl` as it stood at commit
+[`53cfa3f`](https://github.com/Trapa-Eureka/i-have-adhd-adaptive/commit/53cfa3f)
+(the 14 cases below). The catalog has since grown with additional cases; running the same
+commands against a newer `cases.jsonl` will not reproduce these exact numbers.
 
 | | |
 |---|---|
