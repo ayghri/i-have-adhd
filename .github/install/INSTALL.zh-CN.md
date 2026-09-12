@@ -229,7 +229,7 @@ codex plugin marketplace remove i-have-adhd
 
 Gemini CLI 没有插件市场，因此有两种原生方式：**自定义命令**（选择启用，调用前保持关闭）或**扩展**（安装后始终启用）。命令方式符合此技能的默认行为；除非希望每次会话都使用这些规则，否则请选择命令方式。
 
-### 安装 (command, opt-in)
+### 安装（命令方式，按需启用）
 
 ```bash
 mkdir -p ~/.gemini/commands
@@ -239,7 +239,7 @@ curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-ha
 
 开始新会话并输入 `/i-have-adhd`。它会在该会话中持续启用。
 
-### 安装 (extension, always-on)
+### 安装（扩展方式，始终启用）
 
 ```bash
 gemini extensions install https://github.com/ayghri/i-have-adhd
@@ -251,7 +251,7 @@ gemini extensions install https://github.com/ayghri/i-have-adhd
 
 ```bash
 gemini extensions list          # 扩展方式
-ls ~/.gemini/commands           # command route: i-have-adhd.toml present
+ls ~/.gemini/commands           # 命令方式：应存在 i-have-adhd.toml
 ```
 
 也可以在会话中输入 `/`，确认列表中有 `i-have-adhd`。
@@ -267,7 +267,7 @@ gemini extensions update i-have-adhd    # 扩展方式
 
 ```bash
 gemini extensions uninstall i-have-adhd    # 扩展方式
-rm ~/.gemini/commands/i-have-adhd.toml     # command route
+rm ~/.gemini/commands/i-have-adhd.toml     # 命令方式
 ```
 
 </details>
@@ -355,7 +355,7 @@ Copilot 遵循 `disable-model-invocation`：与 Claude Code 相同，在调用�
 hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 ```
 
-输入 `/i-have-adhd`。 The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
+输入 `/i-have-adhd`。技能会安装到 `~/.hermes/skills/`，并在下次会话启动时作为斜杠命令生效。
 
 想先浏览内容？将此仓库添加为技能源（“tap”），然后搜索并安装：
 
@@ -436,77 +436,185 @@ hermes skills uninstall i-have-adhd
 
 
 <details>
-<summary><strong>Pi</strong></summary>
+<summary><strong>OpenCode</strong></summary>
 
-Pi 实现了 Agent Skills 标准，因此可直接加载同一个 `SKILL.md`，无需转换。Pi 的调用方式不同：使用 `/skill:<name>` 调用技能。
+OpenCode 将此仓库作为服务端插件加载：`.opencode/plugins/i-have-adhd.mjs` 注册 `skills/` 入口点和 `/i-have-adhd` 命令，并在启用始终启用模式时注入规则。OpenCode 也会原生读取 `skills/`，因此即使没有插件，技能本身仍然可用——插件额外提供的是 `/i-have-adhd` 命令和始终启用标志。
 
 ### 安装
 
-```bash
-npx skills add ayghri/i-have-adhd -a pi -y
-```
-
-偏好文件系统方式？Pi 会在 `~/.pi/agent/skills/` 和 `~/.agents/skills/`（全局），以及 `.pi/skills/` 和 `.agents/skills/`（项目）中发现技能：
+克隆仓库并让 OpenCode 指向该插件。使用绝对路径可以让所有项目共享同一份检出：
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
-mkdir -p ~/.pi/agent/skills
-cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
+git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 ```
 
-在 Pi 的 `settings.json` 中启用技能斜杠命令：
+将以下内容加入你的 `opencode.json`（全局：`~/.config/opencode/opencode.json`）：
 
 ```json
-{ "enableSkillCommands": true }
+{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
 ```
 
-开始新会话并输入 `/skill:i-have-adhd`。
+也可以直接在检出目录中运行 OpenCode——仓库根目录自带已接好插件的 `opencode.json`。
+
+开启新会话，并为该会话启用 ADHD 友好输出：
+
+```text
+/i-have-adhd
+```
+
+规则持续生效，直到输入 `stop adhd mode` 或 `normal mode`。
 
 ### 验证
 
-```bash
-npx skills list
-```
-
-也可以在会话中输入 `/skill:`，确认列表中有 `i-have-adhd`。
+启动 OpenCode，输入 `/`，确认命令列表中出现 `i-have-adhd`。
 
 ### 更新
 
 ```bash
-npx skills update i-have-adhd
+git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
 
-也可以在 `git pull` 后重新复制该文件夹。
+### 卸载
+
+从 `opencode.json` 中移除 `plugin` 条目。
+
+### 始终启用（可选）
+
+```bash
+touch ~/.config/opencode/.i-have-adhd-always
+```
+
+标志存在期间，插件会在每一轮把完整规则追加到系统提示——相当于 Claude Code `SessionStart` 钩子的 OpenCode 版本。`stop adhd mode` 或 `normal mode` 可在当前会话中停用；删除该标志即可永久关闭始终启用：
+
+```bash
+rm ~/.config/opencode/.i-have-adhd-always
+```
+
+</details>
+
+
+<details>
+<summary><strong>Pi</strong></summary>
+
+Pi 将此仓库识别为原生包：`extensions/` 提供会话级持久模式，`skills/` 保留 Agent Skills 入口点。
+
+### 安装
+
+```bash
+pi install https://github.com/ayghri/i-have-adhd
+```
+
+开启新的 Pi 会话，为当前会话切换 ADHD 友好输出：
+
+```text
+/i-have-adhd
+```
+
+模式生效期间，页脚会显示 `● ADHD ON`。再次运行该命令即可关闭，也可以明确指定：
+
+```text
+/i-have-adhd on
+/i-have-adhd off
+stop adhd mode
+```
+
+与 Claude Code 的钩子类似，扩展只把规则集加入一次对话，而不是在每次请求时重写系统提示，并在压缩丢弃后重新注入。
+
+现有的 Agent Skills 命令仍作为别名可用：
+
+```text
+/skill:i-have-adhd
+```
+
+以默认启用模式开启新的 Pi 会话：
+
+```bash
+pi --adhd
+```
+
+### 验证
+
+```bash
+pi list
+```
+
+确认列表中出现该 GitHub 包，然后输入 `/i-have-adhd`，检查页脚是否显示 `● ADHD ON`。
+
+### 更新
+
+```bash
+pi update https://github.com/ayghri/i-have-adhd
+```
+
+或使用 `pi update --extensions` 更新所有未固定版本的 Pi 包。
 
 ### 卸载
 
 ```bash
-npx skills remove i-have-adhd
+pi remove https://github.com/ayghri/i-have-adhd
 ```
-
-也可以删除 `~/.pi/agent/skills/i-have-adhd`。
 
 ### 始终启用（可选）
 
-添加到项目的 `AGENTS.md`：
+在 Pi 的智能体配置目录中创建标志文件：
 
-```markdown
-## 输出风格
+```bash
+touch ~/.pi/agent/.i-have-adhd-always
+```
 
-读者有 ADHD。请让每条回复都便于立即执行：
+扩展会在每个新建、恢复、分叉或重载的会话中检查该标志。当前会话已保存的选择优先于此默认值，因此 `stop adhd mode` 仍可让该会话保持关闭。
 
-1. 先给出答案或下一步行动：命令、路径或代码片段优先。
-2. 为多步骤工作编号；每一步只包含一个明确的行动。
-3. 最后给出一个能在两分钟内完成的下一步行动。
-4. 先解决当前问题，再提出新问题。
-5. 每轮重述进度（“5 步中的第 3 步已完成”）。
-6. 用具体单位估算时间，绝不说“一会儿”。
-7. 修改后说明现在可以正常工作的内容。
-8. 出错时说明位置、原因和修复方法，不夸大。
-9. 列表最多包含 5 项。
-10. 不要前言、回顾或结束语。
+恢复为按需启用：
 
-例外：用户要求解释时应充分说明。执行破坏性操作前先确认。连续三次修复失败后停止，并指出可疑的假设。请求含糊时只问一个简短问题。
+```bash
+rm ~/.pi/agent/.i-have-adhd-always
+```
+
+### 配置文件（可选）
+
+在 Pi 的智能体配置目录中创建 `~/.pi/agent/i-have-adhd.json`：
+
+```json
+{
+  "alwaysOn": true,
+  "hideStatus": true
+}
+```
+
+- `alwaysOn`：每个会话都以规则启用开始——与 `.i-have-adhd-always` 标志文件等效，标志文件仍然可用
+- `hideStatus`：隐藏 `● ADHD ON` 状态栏条目；规则和 `/i-have-adhd` 命令仍然有效
+
+该文件在扩展启动时读取一次，修改后需重启 Pi。当前会话已保存的选择优先于 `alwaysOn`，因此 `stop adhd mode` 仍可让该会话保持关闭。
+
+如果设置了 `PI_CODING_AGENT_DIR`，请改为在该目录中放置 `.i-have-adhd-always`。修改标志后运行 `/reload` 或开启新会话。
+
+</details>
+
+
+<details>
+<summary><strong>Oh My Pi (OMP)</strong></summary>
+
+### 安装
+
+```bash
+omp plugin marketplace add ayghri/i-have-adhd
+omp plugin install --scope user i-have-adhd@i-have-adhd
+```
+
+开启新的 OMP 会话并运行 `/i-have-adhd` 切换模式。
+
+### 更新
+
+```bash
+omp plugin marketplace update i-have-adhd
+omp plugin upgrade --scope user i-have-adhd@i-have-adhd
+```
+
+### 卸载
+
+```bash
+omp plugin uninstall --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace remove i-have-adhd
 ```
 
 </details>
@@ -614,16 +722,16 @@ cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 </details>
 
 <details>
-<summary><strong>Cursor、OpenCode、Amp 及其他 agent-skills 运行环境</strong></summary>
+<summary><strong>Cursor、Amp 及其他 agent-skills 运行环境</strong></summary>
 
 适用于任何能读取 Agent Skills 的运行环境。将 `-a <agent>` 替换为你的智能体。
 
 ### 安装
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # this workspace
+npx skills add ayghri/i-have-adhd                  # 当前项目
 npx skills add ayghri/i-have-adhd -g               # 所有项目
-npx skills add ayghri/i-have-adhd -a cursor -y     # one agent only
+npx skills add ayghri/i-have-adhd -a cursor -y     # 仅一个智能体
 npx skills add ayghri/i-have-adhd -a opencode -y
 ```
 
