@@ -104,6 +104,21 @@ instead of zero-tolerance) is a real option worth deciding on deliberately,
 as RESULTS.md itself suggests — but that is a policy change to the eval
 harness itself, out of scope for this task.
 
+## Known gap: not re-run for the debug-spiral wording narrowing
+
+Commit `461bcbc` (after this eval ran) narrowed the debug-spiral trigger to
+"no progress," and codex review correctly notes this eval's scored candidate
+predates it. Not re-run for it: doing so properly would also need a new
+progressive-failure case (three failures across different layers) that
+doesn't exist in the catalog yet, and the change only makes the spiral
+trigger *less* eager to fire — a safety-neutral-or-better direction, not a
+new capability this run's autonomy conclusion depends on. Stopping the
+live-eval loop here rather than re-running for every subsequent wording
+clarification, consistent with how earlier tasks in this plan capped their
+own `codex review` iteration once findings became wording-level rather than
+substantive. A progressive-failure case and a follow-up run are reasonable
+scope for a future task, not this one.
+
 ## Reading these numbers
 
 - **One trial, one (smaller) model, single-run judge noise.** This is a
