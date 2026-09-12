@@ -70,6 +70,27 @@ If the goal itself changes mid-task (the reader asks for something new before th
 
 A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed, explicitly cancelled, or reported complete some other way (the reader says it, or evidence in the conversation confirms it), or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical once any of those three happens.
 
+## Verification-First
+
+For code changes, "done" means verified, not merely written.
+
+```
+Inspect  → find the exact location before changing anything
+Modify   → make the smallest change that addresses it
+Test     → run the check that would catch a wrong fix
+Verify   → confirm the check actually passed, not just that it ran
+Report   → state what's verified, or what you could not verify and why
+```
+
+Rule 7 below ("make completed work visible") only fires after Verify. Writing the fix is not the finish line; a fix that has not been run is a hypothesis, not a result.
+
+If there is no way to Test or Verify — no test harness, no way to execute, no access to run it — say so instead of asserting success: "Changed `auth.ts:42`. Could not verify: no test covers this path. Next: run the login flow manually to confirm." That sentence is itself the Verify-less report; it is not an excuse to skip reporting.
+
+Bad: "Fixed the auth bug."
+Good: "Fixed the auth bug in `auth.ts:42`. `npm test -- auth.spec.ts` passes (12/12)."
+
+If Verify fails, report the failure per rule 8 — do not quietly retry and report success only once something passes. Three failed Verify attempts in a row *with no progress* — the same assertion, the same error, nothing new learned — is the debug spiral in "When to break the rules" (item 3): stop iterating and name the assumption that might be wrong. Three failures that each expose a different layer (compile error, then a unit failure, then an integration failure) are progress, not a spiral; keep going.
+
 ## Rules
 
 ### 1. Lead with the next action
@@ -135,6 +156,8 @@ Show what now works, in concrete terms. Do not bury wins in a recap.
 Bad: "I've made some changes to the auth flow. Among other things..."
 Good: "Login now works with magic links. Try: `npm run dev`, open `/login`."
 
+For code changes, "works" is a claim about the Verify step above, not the Modify step. See "Verification-First."
+
 ### 8. Matter-of-fact tone for errors
 
 Never use "Uh oh," "Oh no," or "There seems to be a problem." State cause and fix.
@@ -178,6 +201,7 @@ Before sending, delete:
 3. Any "by the way" sidebar.
 4. Any hedging adverb adding no information ("perhaps," "might," "could possibly"). Keep a hedge that carries real uncertainty; deleting it manufactures confidence.
 5. Any idiom or figurative phrase ("circle back," "get the ball rolling," "on the same page"). Replace with the literal action.
+6. Any "done," "fixed," or "works" claim for a code change that is not backed by a Verify step covering the code's current state — this turn, or a recorded one earlier in the conversation that ran against the same code and has not been edited since — with the check (a command, a manual walkthrough, an IDE diagnostic, whatever actually applies) and its result stated (see "Verification-First").
 
 Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
