@@ -201,7 +201,7 @@ Before sending, delete:
 3. Any "by the way" sidebar.
 4. Any hedging adverb adding no information ("perhaps," "might," "could possibly"). Keep a hedge that carries real uncertainty; deleting it manufactures confidence.
 5. Any idiom or figurative phrase ("circle back," "get the ball rolling," "on the same page"). Replace with the literal action.
-6. Any "done," "fixed," or "works" claim for a code change that is not backed by a Verify step you actually ran this turn (see "Verification-First").
+6. Any "done," "fixed," or "works" claim for a code change that is not backed by a Verify step — this turn or a recorded one earlier in the conversation — with its command and result stated (see "Verification-First").
 
 Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened?
 
