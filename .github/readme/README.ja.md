@@ -28,6 +28,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 または、🔗 [インストール手順を確認する](../install/INSTALL.ja.md)。
 
+対応ランタイム: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## 機能
 
 コーディングアシスタントの回答を長文で埋めさせないようにするスキル。最優先は行動で、手順を箇条書きで整理。  「お役に立てれば幸いです！」などの不要な挨拶や定型文をカットします。

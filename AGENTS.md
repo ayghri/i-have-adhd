@@ -29,6 +29,7 @@ Agents may read and reference any GitHub issue or pull request. Commenting has n
 | Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 10 ADHD-friendly response rules. |
 | Skill mirror | `.cursor/skills/i-have-adhd/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
+| Kiro | `kiro-skill.json`, `.kiro/`, `hooks/always-on-kiro.sh` | Kiro CLI skill manifest, install guide, and always-on hook. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
@@ -49,6 +50,7 @@ When debugging or changing one integration, begin with its entry point:
 | OMP | `package.json` (`omp`), `extensions/i-have-adhd.ts`, `extensions/context-compat.ts` |
 | OpenCode | `opencode.json`, `.opencode/plugins/i-have-adhd.mjs`, `.opencode/command/i-have-adhd.md` |
 | Qwen, Kimi, Gemini | The corresponding manifest above, plus `GEMINI.md` for Gemini behavior |
+| Kiro | `kiro-skill.json`, `.kiro/INSTALL.md`, `hooks/always-on-kiro.sh` |
 
 ## Source-of-truth rules
 

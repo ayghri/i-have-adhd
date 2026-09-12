@@ -37,15 +37,21 @@ The skill stays active for the rest of the session. Say "stop adhd mode" or
 
    ```json
    {
+     "name": "default",
      "hooks": {
        "agentSpawn": [
          {
-           "command": "/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh"
+           "command": "/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh",
+           "timeout_ms": 30000
          }
        ]
      }
    }
    ```
+
+   The `"name"` field is required — Kiro rejects the config with an "invalid
+   agent config" error if it is missing. `timeout_ms` is optional (default
+   30 000 ms) but recommended to set explicitly.
 
    Replace `/absolute/path/to/i-have-adhd` with the actual clone location,
    e.g. `~/projects/i-have-adhd`.
