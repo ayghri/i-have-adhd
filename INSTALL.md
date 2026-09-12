@@ -606,6 +606,10 @@ Read once at extension startup, so restart Pi after changing it. A saved choice 
 
 If `PI_CODING_AGENT_DIR` is set, put `.i-have-adhd-always` in that directory instead. Run `/reload` or start a new session after changing the flag.
 
+### Preferences file (optional)
+
+Separate from the harness config above: `.i-have-adhd.json` in your project root, or `~/.i-have-adhd.json` in your home directory, tunes the rules themselves (steps per plan, time estimates, verification strictness) rather than the plugin's own behavior. See "Preferences (optional)" near the end of this file and in `skills/i-have-adhd/SKILL.md` for the schema. Also read once at startup, so restart Pi after changing it.
+
 </details>
 
 
@@ -819,6 +823,31 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 4. **You add the always-on snippet above** (other harnesses). Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, and Codex, no middle ground: if you did not turn it on, it is off.
+
+## Preferences (optional)
+
+Any harness that can read files can honor per-reader preferences without a separate install step: drop a `.i-have-adhd.json` in your project root, or `~/.i-have-adhd.json` in your home directory (the project one wins if both exist), and the skill's own "Preferences (optional)" section tells the agent to read it at session start.
+
+```json
+{
+  "mode": "adaptive",
+  "preferences": {
+    "max_steps": 4,
+    "show_completed": true,
+    "show_blockers": true,
+    "show_estimates": true,
+    "explain_reasoning": "normal"
+  },
+  "coding": {
+    "require_verification": true,
+    "show_changed_files": false
+  }
+}
+```
+
+Every field is optional; see `skills/i-have-adhd/SKILL.md` for what each one does. A missing or unparseable file just means no overrides — nothing to install or configure beyond the file itself.
+
+On Pi and OMP this is also enforced in code (see "Config file (optional)" in the Pi section above) rather than relying on the model to honor it — do not confuse it with `~/.pi/agent/i-have-adhd.json`, which configures the harness plugin itself (`alwaysOn`, `hideStatus`), not reader preferences.
 
 ## Troubleshooting
 
