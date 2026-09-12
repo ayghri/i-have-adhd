@@ -153,29 +153,38 @@ function getSavedState(ctx: ExtensionContext): AdhdModeState | undefined {
 }
 
 /**
+ * The content of the latest active i-have-adhd-rules marker, or `undefined`
+ * if none is active (never injected, or cancelled by a later disabled
+ * notice). The one place both checks below read from, so they can't
+ * silently diverge on how a message is found even if one grows a different
+ * final condition than the other.
+ */
+function latestRulesContent(ctx: ExtensionContext): string | undefined {
+  return latestMarkerContent(
+    contextMessages(ctx.sessionManager),
+    RULES_MESSAGE_TYPE,
+    DISABLED_MESSAGE_TYPE,
+  );
+}
+
+/**
  * Whether the CURRENT ruleset (matching `expectedHash`) is still live in the
  * context the model actually receives.
  *
- * Only the newest marker counts: a later "disabled" notice cancels an
- * earlier ruleset, and compaction drops summarized entries so the ruleset
- * has to be injected again. Beyond presence, the embedded tag has to match
- * `expectedHash` too -- a present-but-stale injection (SKILL.md changed
- * since it went in, e.g. an upgrade mid-session) is treated the same as
- * "not injected," so the caller replaces it instead of leaving the model on
- * an outdated ruleset for the rest of the session. If content isn't
- * available on this API surface at all, latestMarkerContent already reports
- * that as `undefined`, and undefined content fails the hash check the same
- * way -- fails toward re-injecting, not toward silently trusting stale text.
+ * Beyond presence, the embedded tag has to match `expectedHash` too -- a
+ * present-but-stale injection (SKILL.md changed since it went in, e.g. an
+ * upgrade mid-session) is treated the same as "not injected," so the caller
+ * replaces it instead of leaving the model on an outdated ruleset for the
+ * rest of the session. If content isn't available on this API surface at
+ * all, latestRulesContent already reports that as `undefined`, and
+ * undefined content fails the hash check the same way -- fails toward
+ * re-injecting, not toward silently trusting stale text.
  */
 function rulesAreCurrentInContext(
   ctx: ExtensionContext,
   expectedHash: string,
 ): boolean {
-  const content = latestMarkerContent(
-    contextMessages(ctx.sessionManager),
-    RULES_MESSAGE_TYPE,
-    DISABLED_MESSAGE_TYPE,
-  );
+  const content = latestRulesContent(ctx);
   return content !== undefined && content.includes(rulesTag(expectedHash));
 }
 
@@ -189,13 +198,7 @@ function rulesAreCurrentInContext(
  * quietly following rules the reader just turned off.
  */
 function rulesAreInContext(ctx: ExtensionContext): boolean {
-  return (
-    latestMarkerContent(
-      contextMessages(ctx.sessionManager),
-      RULES_MESSAGE_TYPE,
-      DISABLED_MESSAGE_TYPE,
-    ) !== undefined
-  );
+  return latestRulesContent(ctx) !== undefined;
 }
 
 export default function iHaveAdhdExtension(pi: ExtensionAPI) {
