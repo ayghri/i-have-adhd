@@ -525,6 +525,17 @@ The footer shows `● ADHD ON` while the mode is active. Run the command again t
 stop adhd mode
 ```
 
+Set the skill's Response Mode explicitly instead of leaving it to the model's own classifier — the footer shows `● ADHD ON [deep]` while one is set:
+
+```text
+/i-have-adhd compact
+/i-have-adhd normal
+/i-have-adhd deep
+/i-have-adhd audit
+```
+
+The mode persists for the rest of the session (including through `/reload`) until set again or the session ends; setting a mode turns ADHD-friendly output on if it was off. This explicit form is Pi- and OMP-specific — everywhere else, use natural language ("give me the deep version") instead, which applies for the rest of that turn.
+
 Like the Claude Code hook, the extension adds the ruleset to the conversation once instead of rewriting the system prompt on every request, and adds it again after compaction drops it.
 
 The existing Agent Skills command remains available as an alias:
@@ -608,7 +619,7 @@ omp plugin marketplace add ayghri/i-have-adhd
 omp plugin install --scope user i-have-adhd@i-have-adhd
 ```
 
-Start a new OMP session and run `/i-have-adhd` to toggle the mode.
+Start a new OMP session and run `/i-have-adhd` to toggle the mode, or `/i-have-adhd compact|normal|deep|audit` to set an explicit Response Mode for the session (see the Pi section above — OMP shares the same extension).
 
 ### Update
 

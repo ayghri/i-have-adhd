@@ -22,6 +22,7 @@ const SKILL_PATH = join(
 const STATE_ENTRY_TYPE = "i-have-adhd-state";
 const RULES_MESSAGE_TYPE = "i-have-adhd-rules";
 const DISABLED_MESSAGE_TYPE = "i-have-adhd-disabled";
+const MODE_MESSAGE_TYPE = "i-have-adhd-mode-changed";
 const STATUS_KEY = "i-have-adhd";
 const DISABLE_CONFIRMATION = "ADHD mode disabled.";
 const STOP_PHRASES = new Set(["stop adhd mode", "normal mode"]);
@@ -30,8 +31,25 @@ const RULES_HEADER =
 const DISABLED_NOTICE =
   "ADHD MODE OFF. Ignore the i-have-adhd ruleset injected earlier in this conversation and return to your default response style.";
 
+// Matches the four modes named in the skill's "Response Mode" section.
+// Keep this list in sync with that section if it ever changes.
+const RESPONSE_MODES = ["compact", "normal", "deep", "audit"] as const;
+type ResponseMode = (typeof RESPONSE_MODES)[number];
+
+function isResponseMode(value: unknown): value is ResponseMode {
+  return (
+    typeof value === "string" &&
+    (RESPONSE_MODES as readonly string[]).includes(value)
+  );
+}
+
+function modeDirective(mode: ResponseMode): string {
+  return `Response Mode is explicitly set to "${mode}" for the rest of this session (see "Response Mode" in the ruleset). This overrides the automatic classifier until changed with /i-have-adhd <mode> or the session ends.`;
+}
+
 type AdhdModeState = {
   enabled: boolean;
+  mode?: ResponseMode;
 };
 
 type AdhdConfig = {
@@ -78,8 +96,8 @@ function loadRules(): string {
   return rules;
 }
 
-function getSavedState(ctx: ExtensionContext): boolean | undefined {
-  let savedState: boolean | undefined;
+function getSavedState(ctx: ExtensionContext): AdhdModeState | undefined {
+  let savedState: AdhdModeState | undefined;
 
   for (const entry of ctx.sessionManager.getBranch()) {
     if (entry.type !== "custom" || entry.customType !== STATE_ENTRY_TYPE) {
@@ -88,7 +106,14 @@ function getSavedState(ctx: ExtensionContext): boolean | undefined {
 
     const data = entry.data as Partial<AdhdModeState> | undefined;
     if (typeof data?.enabled === "boolean") {
-      savedState = data.enabled;
+      // Older entries (written before mode support existed) never set
+      // `mode`; carry the previously seen mode forward instead of
+      // resetting it, so a mode chosen earlier in the branch survives a
+      // later plain on/off toggle that doesn't mention mode at all.
+      savedState = {
+        enabled: data.enabled,
+        mode: isResponseMode(data.mode) ? data.mode : savedState?.mode,
+      };
     }
   }
 
@@ -115,6 +140,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const alwaysOnFlag = join(getAgentDir(), ".i-have-adhd-always");
   const config = loadConfig();
   let enabled = false;
+  let mode: ResponseMode | undefined;
 
   const updateStatus = (ctx: ExtensionContext): void => {
     if (!enabled || config.hideStatus) {
@@ -123,7 +149,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     }
 
     const dot = ctx.ui.theme.fg("success", "●");
-    const label = ctx.ui.theme.fg("accent", "ADHD ON");
+    const label = ctx.ui.theme.fg("accent", mode ? `ADHD ON [${mode}]` : "ADHD ON");
     ctx.ui.setStatus(STATUS_KEY, `${dot} ${label}`);
   };
 
@@ -135,10 +161,15 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     const injected = rulesAreInContext(ctx);
 
     if (enabled && !injected) {
+      // Fold the active response mode into the same injection instead of a
+      // separate marker: this is the one point where the ruleset (and so
+      // the mode) has to survive compaction, so there is nothing extra to
+      // keep synchronized after this.
+      const modeNote = mode ? `\n\n${modeDirective(mode)}` : "";
       pi.sendMessage(
         {
           customType: RULES_MESSAGE_TYPE,
-          content: `${RULES_HEADER}\n\n${rules}`,
+          content: `${RULES_HEADER}\n\n${rules}${modeNote}`,
           display: false,
         },
         { triggerTurn: false },
@@ -165,17 +196,45 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       config.alwaysOn === true ||
       existsSync(alwaysOnFlag);
 
-    enabled = savedState ?? enabledByDefault;
+    enabled = savedState?.enabled ?? enabledByDefault;
+    mode = savedState?.mode;
     updateStatus(ctx);
     syncContext(ctx);
   };
 
   const setEnabled = (nextEnabled: boolean, ctx: ExtensionContext): void => {
     enabled = nextEnabled;
-    pi.appendEntry(STATE_ENTRY_TYPE, { enabled } satisfies AdhdModeState);
+    pi.appendEntry(STATE_ENTRY_TYPE, { enabled, mode } satisfies AdhdModeState);
     updateStatus(ctx);
     syncContext(ctx);
     ctx.ui.notify(`ADHD mode ${enabled ? "enabled" : "disabled"}`, "info");
+  };
+
+  const setMode = (nextMode: ResponseMode, ctx: ExtensionContext): void => {
+    mode = nextMode;
+    // Setting a mode implies wanting the ruleset active; a mode with the
+    // ruleset off would have nothing to modify.
+    enabled = true;
+    pi.appendEntry(STATE_ENTRY_TYPE, { enabled, mode } satisfies AdhdModeState);
+    updateStatus(ctx);
+    syncContext(ctx);
+
+    // If the ruleset was already injected this session, syncContext above
+    // does nothing (it only (re-)injects when missing) -- send the mode
+    // change on its own so the model sees it without waiting for the next
+    // compaction-triggered re-injection.
+    if (rulesAreInContext(ctx)) {
+      pi.sendMessage(
+        {
+          customType: MODE_MESSAGE_TYPE,
+          content: modeDirective(nextMode),
+          display: false,
+        },
+        { triggerTurn: false },
+      );
+    }
+
+    ctx.ui.notify(`ADHD response mode: ${nextMode}`, "info");
   };
 
   pi.registerFlag("adhd", {
@@ -185,7 +244,8 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   });
 
   pi.registerCommand("i-have-adhd", {
-    description: "Toggle ADHD-friendly output for this session",
+    description:
+      "Toggle ADHD-friendly output, or set a response mode (compact/normal/deep/audit)",
     handler: async (args, ctx) => {
       const argument = args.trim().toLowerCase();
 
@@ -204,7 +264,15 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
         return;
       }
 
-      ctx.ui.notify("Usage: /i-have-adhd [on|off]", "warning");
+      if (isResponseMode(argument)) {
+        setMode(argument, ctx);
+        return;
+      }
+
+      ctx.ui.notify(
+        "Usage: /i-have-adhd [on|off|compact|normal|deep|audit]",
+        "warning",
+      );
     },
   });
 
