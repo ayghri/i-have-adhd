@@ -23,6 +23,8 @@
 
 🔗 [安装说明](../install/INSTALL.zh-CN.md)
 
+支持的运行时：Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## 功能
 
 这是一个面向编程助手的技能，阻止它把答案藏在冗长文字中。行动优先。步骤编号。不说“希望这能帮到你！”

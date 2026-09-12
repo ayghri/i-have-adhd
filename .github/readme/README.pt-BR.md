@@ -23,6 +23,8 @@
 
 🔗 [Instruções de instalação](../install/INSTALL.pt-BR.md)
 
+Runtimes compatíveis: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## O que ela faz
 
 Uma skill para o seu assistente de código que impede que ele enterre a resposta. Ação primeiro. Passos numerados. Nada de "Espero ter ajudado!"
