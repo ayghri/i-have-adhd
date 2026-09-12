@@ -44,11 +44,12 @@ class RpcClient:
         executable: str,
         env: dict[str, str],
         *args: str,
+        cwd: Path = ROOT,
     ) -> None:
         self.stderr_file = tempfile.TemporaryFile(mode="w+t")
         self.process = subprocess.Popen(
             [executable, "--mode", "rpc", *args],
-            cwd=ROOT,
+            cwd=cwd,
             env=env,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -584,6 +585,172 @@ export default function (pi: ExtensionAPI) {
             )[-1], "Reload kept serving the planted stale content instead of refreshing it"
         finally:
             stale.close()
+
+        # TASK 10 (User Profiles/Preferences): .i-have-adhd.json in the
+        # project root (cwd) or the reader's home directory, project winning
+        # when both exist -- see "Preferences (optional)" in SKILL.md. Each
+        # sub-case gets its own project/home temp dir pair and RPC session so
+        # a stray file from one case can't leak into the next.
+        if args.runtime == "pi":
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as home_only_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as home_only_home,
+            ):
+                Path(home_only_home, ".i-have-adhd.json").write_text(
+                    json.dumps(
+                        {
+                            "mode": "audit",
+                            "preferences": {
+                                "max_steps": 2,
+                                "show_estimates": False,
+                                # Not a valid explain_reasoning level: must be
+                                # dropped on its own, without rejecting the
+                                # valid fields alongside it.
+                                "explain_reasoning": "loud",
+                            },
+                            "coding": {"show_changed_files": True},
+                        }
+                    ),
+                    encoding="utf8",
+                )
+                home_env = dict(env)
+                home_env["HOME"] = home_only_home
+
+                home_only = RpcClient(
+                    executable,
+                    home_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(home_only_project),
+                )
+                try:
+                    entries, startup_events = home_only.request(
+                        "prefs-home-only-startup", {"type": "get_entries"}
+                    )
+                    assert any(
+                        "[audit]" in (text or "")
+                        for text in status_texts(startup_events)
+                    ), "mode from the home-directory preferences file did not seed a fresh session"
+
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert 'Response Mode is explicitly set to "audit"' in rules_content, (
+                        "mode from the preferences file did not fold into the rules injection"
+                    )
+                    assert "Cap numbered steps (rule 2) at 2" in rules_content
+                    assert "Skip rule 6" in rules_content
+                    assert "list the changed files" in rules_content
+                    # These two phrases are unique to the directive lines
+                    # generated for a valid explain_reasoning value (as
+                    # opposed to SKILL.md's own similarly-worded prose
+                    # describing the schema, which is always present) -- so
+                    # their absence here actually proves the invalid value
+                    # ("loud") was dropped rather than applied.
+                    assert "regardless of the active Response Mode" not in rules_content, (
+                        "An invalid explain_reasoning value should be dropped, not applied"
+                    )
+                    assert "without waiting to be asked" not in rules_content
+                finally:
+                    home_only.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as override_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as override_home,
+            ):
+                Path(override_project, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 3}}),
+                    encoding="utf8",
+                )
+                Path(override_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 7}}),
+                    encoding="utf8",
+                )
+                override_env = dict(env)
+                override_env["HOME"] = override_home
+
+                override = RpcClient(
+                    executable,
+                    override_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(override_project),
+                )
+                try:
+                    entries, _ = override.request(
+                        "prefs-project-override", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "Cap numbered steps (rule 2) at 3" in rules_content, (
+                        "Project-level preferences must win over the home-directory file"
+                    )
+                    assert "Cap numbered steps (rule 2) at 7" not in rules_content
+                finally:
+                    override.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as fallback_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as fallback_home,
+            ):
+                Path(fallback_project, ".i-have-adhd.json").write_text(
+                    "{ not valid json",
+                    encoding="utf8",
+                )
+                Path(fallback_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 5}}),
+                    encoding="utf8",
+                )
+                fallback_env = dict(env)
+                fallback_env["HOME"] = fallback_home
+
+                fallback = RpcClient(
+                    executable,
+                    fallback_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(fallback_project),
+                )
+                try:
+                    entries, _ = fallback.request(
+                        "prefs-invalid-project-falls-back", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "Cap numbered steps (rule 2) at 5" in rules_content, (
+                        "An unparseable project-level file should fall back to a valid "
+                        "home-directory one instead of giving up on preferences entirely"
+                    )
+                finally:
+                    fallback.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as no_prefs_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as no_prefs_home,
+            ):
+                # Both cwd and HOME point at empty temp dirs -- the real
+                # machine's actual home directory must never be consulted by
+                # this test, preference file or not.
+                no_prefs_env = dict(env)
+                no_prefs_env["HOME"] = no_prefs_home
+
+                no_prefs = RpcClient(
+                    executable,
+                    no_prefs_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(no_prefs_project),
+                )
+                try:
+                    entries, _ = no_prefs.request(
+                        "prefs-absent", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "User preferences" not in rules_content, (
+                        "No preferences file must add no extra note to the injected ruleset"
+                    )
+                finally:
+                    no_prefs.close()
 
         if args.runtime == "pi":
             Path(agent_dir, ".i-have-adhd-always").touch()

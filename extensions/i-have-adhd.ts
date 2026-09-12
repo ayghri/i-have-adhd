@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -65,6 +66,192 @@ function isResponseMode(value: unknown): value is ResponseMode {
 
 function modeDirective(mode: ResponseMode): string {
   return `Response Mode is explicitly set to "${mode}" for the rest of this session (see "Response Mode" in the ruleset). This overrides the automatic classifier until changed with /i-have-adhd <mode> or the session ends.`;
+}
+
+// Matches the "explain_reasoning" values documented in the skill's
+// "Preferences (optional)" section.
+const EXPLAIN_REASONING_LEVELS = ["minimal", "normal", "detailed"] as const;
+type ExplainReasoning = (typeof EXPLAIN_REASONING_LEVELS)[number];
+
+function isExplainReasoning(value: unknown): value is ExplainReasoning {
+  return (
+    typeof value === "string" &&
+    (EXPLAIN_REASONING_LEVELS as readonly string[]).includes(value)
+  );
+}
+
+const PREFERENCES_FILENAME = ".i-have-adhd.json";
+
+// Mirrors the schema documented in the skill's "Preferences (optional)"
+// section -- keep the two in sync if this shape changes. Every field is
+// optional and validated independently in parsePreferencesJson: one invalid
+// or misspelled field is dropped on its own rather than rejecting the whole
+// file, so a typo in `show_estimates` doesn't also silently disable
+// `max_steps`.
+type AdhdPreferences = {
+  maxSteps?: number;
+  showCompleted?: boolean;
+  showBlockers?: boolean;
+  showEstimates?: boolean;
+  explainReasoning?: ExplainReasoning;
+  requireVerification?: boolean;
+  showChangedFiles?: boolean;
+};
+
+type UserPreferences = {
+  // "adaptive" (or the field absent/invalid) is not a real ResponseMode --
+  // it means "keep the automatic classifier," so it collapses to undefined
+  // here rather than being carried around as a fifth mode value.
+  mode?: ResponseMode;
+  prefs: AdhdPreferences;
+};
+
+function readBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function parsePreferencesJson(raw: unknown): UserPreferences {
+  const empty: UserPreferences = { prefs: {} };
+  if (raw === null || typeof raw !== "object") return empty;
+
+  const root = raw as Record<string, unknown>;
+  const mode = isResponseMode(root.mode) ? root.mode : undefined;
+
+  const prefs: AdhdPreferences = {};
+  const preferences = root.preferences;
+  if (preferences !== null && typeof preferences === "object") {
+    const p = preferences as Record<string, unknown>;
+
+    if (
+      typeof p.max_steps === "number" &&
+      Number.isInteger(p.max_steps) &&
+      p.max_steps >= 1 &&
+      p.max_steps <= 20
+    ) {
+      prefs.maxSteps = p.max_steps;
+    }
+
+    const showCompleted = readBoolean(p.show_completed);
+    if (showCompleted !== undefined) prefs.showCompleted = showCompleted;
+
+    const showBlockers = readBoolean(p.show_blockers);
+    if (showBlockers !== undefined) prefs.showBlockers = showBlockers;
+
+    const showEstimates = readBoolean(p.show_estimates);
+    if (showEstimates !== undefined) prefs.showEstimates = showEstimates;
+
+    if (isExplainReasoning(p.explain_reasoning)) {
+      prefs.explainReasoning = p.explain_reasoning;
+    }
+  }
+
+  const coding = root.coding;
+  if (coding !== null && typeof coding === "object") {
+    const c = coding as Record<string, unknown>;
+
+    const requireVerification = readBoolean(c.require_verification);
+    if (requireVerification !== undefined) {
+      prefs.requireVerification = requireVerification;
+    }
+
+    const showChangedFiles = readBoolean(c.show_changed_files);
+    if (showChangedFiles !== undefined) {
+      prefs.showChangedFiles = showChangedFiles;
+    }
+  }
+
+  return { mode, prefs };
+}
+
+/**
+ * Loads the reader's own preferences -- distinct from `loadConfig`'s
+ * `i-have-adhd.json` in the Pi agent dir, which holds harness-level settings
+ * (`alwaysOn`, `hideStatus`) rather than reader-facing ones. This file lives
+ * where the reader actually works, following the same lookup and schema
+ * documented in SKILL.md's "Preferences (optional)" section, so a prompt-only
+ * runtime with no extension code (Claude Code, Codex, ...) can honor the
+ * identical file just by reading it when instructed to.
+ *
+ * A project-level file wins over a home-directory one when both exist, so a
+ * personal default (home) can be overridden per-project without editing it.
+ * Missing, unreadable, or invalid JSON all fail open to "no preferences"
+ * rather than blocking startup -- the same failure direction as `loadConfig`
+ * and `contextMessages` elsewhere in this file.
+ */
+function loadUserPreferences(): UserPreferences {
+  const candidates = [
+    join(process.cwd(), PREFERENCES_FILENAME),
+    join(homedir(), PREFERENCES_FILENAME),
+  ];
+
+  for (const path of candidates) {
+    try {
+      if (!existsSync(path)) continue;
+      return parsePreferencesJson(JSON.parse(readFileSync(path, "utf8")));
+    } catch {
+      continue;
+    }
+  }
+
+  return { prefs: {} };
+}
+
+/**
+ * A directive block folded into the ruleset injection, the same way
+ * modeDirective is. Only preferences that actually change behavior from the
+ * documented defaults produce a line -- e.g. `showChangedFiles` is opt-in, so
+ * only `true` is worth stating; `showEstimates` is on by default, so only
+ * `false` is. Returns undefined (add nothing) when no preference deviates
+ * from default, so a reader with no preferences file sees no extra text.
+ */
+function preferencesDirective(prefs: AdhdPreferences): string | undefined {
+  const lines: string[] = [];
+
+  if (prefs.maxSteps !== undefined) {
+    lines.push(
+      `- Cap numbered steps (rule 2) at ${prefs.maxSteps}; never inflate a shorter plan to reach it.`,
+    );
+  }
+  if (prefs.showCompleted === false) {
+    lines.push(
+      "- Omit the Task State Completed field even when it has content.",
+    );
+  }
+  if (prefs.showBlockers === false) {
+    lines.push(
+      "- Omit the Task State Blockers field even when it has content.",
+    );
+  }
+  if (prefs.showEstimates === false) {
+    lines.push("- Skip rule 6 (time estimates) for the rest of this session.");
+  }
+  if (prefs.explainReasoning === "minimal") {
+    lines.push(
+      "- Keep reasoning at compact mode's tightness regardless of the active Response Mode.",
+    );
+  } else if (prefs.explainReasoning === "detailed") {
+    lines.push(
+      '- Apply "When to break the rules" item 1 (explain fully) by default, without waiting to be asked.',
+    );
+  }
+  if (prefs.requireVerification === false) {
+    lines.push(
+      "- Verification-First still applies whenever a check is possible; when none is, state that once if relevant instead of calling it out every turn.",
+    );
+  }
+  if (prefs.showChangedFiles === true) {
+    lines.push(
+      "- Rule 7 (make completed work visible): list the changed files for code changes.",
+    );
+  }
+
+  if (lines.length === 0) return undefined;
+
+  return (
+    `User preferences (from ${PREFERENCES_FILENAME}) apply for this session, ` +
+    "unless Priority's safety/correctness rule requires otherwise:\n" +
+    lines.join("\n")
+  );
 }
 
 type AdhdModeState = {
@@ -206,6 +393,12 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const rulesHash = hashRules(rules);
   const alwaysOnFlag = join(getAgentDir(), ".i-have-adhd-always");
   const config = loadConfig();
+  // Loaded once at startup, like `config` above: preferences shape the
+  // ruleset text injected at session start, not a live runtime toggle, so
+  // there is no reload-preferences command to keep in sync with a later edit
+  // of the file (edit it, then start a new session to pick it up).
+  const userPreferences = loadUserPreferences();
+  const prefsNote = preferencesDirective(userPreferences.prefs);
   let enabled = false;
   let mode: ResponseMode | undefined;
 
@@ -236,10 +429,11 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       // where the ruleset (and so the mode) has to survive compaction, so
       // there is nothing extra to keep synchronized after this.
       const modeNote = mode ? `\n\n${modeDirective(mode)}` : "";
+      const preferencesNote = prefsNote ? `\n\n${prefsNote}` : "";
       pi.sendMessage(
         {
           customType: RULES_MESSAGE_TYPE,
-          content: `${rulesHeader(rulesHash)}\n\n${rules}${modeNote}`,
+          content: `${rulesHeader(rulesHash)}\n\n${rules}${modeNote}${preferencesNote}`,
           display: false,
         },
         { triggerTurn: false },
@@ -267,7 +461,12 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       existsSync(alwaysOnFlag);
 
     enabled = savedState?.enabled ?? enabledByDefault;
-    mode = savedState?.mode;
+    // A pinned mode from the preferences file only seeds a session that has
+    // never saved any state of its own -- once the reader has toggled
+    // enabled/mode at all this session (even to explicitly reset the mode
+    // via a hard off, which saves `mode: null`), that saved state wins, the
+    // same way `enabledByDefault` only applies absent a saved `enabled`.
+    mode = savedState ? savedState.mode : userPreferences.mode;
     updateStatus(ctx);
     syncContext(ctx);
   };

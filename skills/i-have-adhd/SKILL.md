@@ -288,3 +288,36 @@ When it is asked for, emit exactly this shape. Four of the five fields mirror Ta
 - `status: "done"` means what rule 7 and Verification-First mean by done: verified, not merely attempted. A change that hasn't been run yet is `"in_progress"` with the verification step in `next_actions`, not `"done"`.
 - Emit this in place of the prose status, not in addition to it — restating the same Goal/Completed/Blockers/Next twice, once as JSON and once as prose, fails rule 9 and rule 10 both.
 - If the harness's own system prompt defines a different structured format, that format wins ("When to break the rules," item 6: the harness outranks this skill). This shape is the default absent one, not a mandate.
+
+## Preferences (optional)
+
+Everything above is one fixed policy. Some readers want it tuned instead: fewer steps per plan, no time estimates, terser reasoning, a pinned Response Mode. If you have file-reading tools and one of these exists, read it once at the start of the session and apply the overrides below for the rest of the conversation: `.i-have-adhd.json` in the project root, or `~/.i-have-adhd.json` in the reader's home directory. The project-level file wins if both exist. If neither exists, or the file cannot be parsed, say nothing about it and use the defaults as written above.
+
+Schema (every field optional; an unset or invalid field keeps the default rather than failing the whole file):
+
+```json
+{
+  "mode": "adaptive",
+  "preferences": {
+    "max_steps": 4,
+    "show_completed": true,
+    "show_blockers": true,
+    "show_estimates": true,
+    "explain_reasoning": "normal"
+  },
+  "coding": {
+    "require_verification": true,
+    "show_changed_files": false
+  }
+}
+```
+
+- `mode: "adaptive"` (or the field absent) keeps the automatic classifier in "Response Mode" above. Any other value (`compact`, `normal`, `deep`, `audit`) pins that mode for the whole session, the same as an explicit "give me the deep version" override there.
+- `preferences.max_steps` caps rule 2's numbered step lists specifically -- lower than 5 tightens it further; it does not raise rule 9's separate 5-item cap on other lists (findings, options). Never inflate a shorter plan just to reach the number.
+- `preferences.show_completed` / `show_blockers`: `false` drops that Task State field even when it has content, not only when it is empty -- the reader is saying they do not want to see it, not that it is usually blank.
+- `preferences.show_estimates: false` skips rule 6 for the rest of the session.
+- `preferences.explain_reasoning`: `"minimal"` keeps compact mode's tightness even in normal or deep mode; `"detailed"` applies "When to break the rules" item 1 (explain fully) by default, without waiting for the reader to ask; `"normal"` (or the field absent) changes nothing.
+- `coding.require_verification: false` does not turn off Verification-First -- a change is still verified whenever a check is possible -- it only stops calling out "could not verify" every single turn when none is; state it once if relevant, then move on.
+- `coding.show_changed_files: true` adds a short changed-files list to rule 7's "make completed work visible" step for code changes. Default is off, since rule 7 already covers what now works without it.
+
+These preferences shape delivery, not correctness or safety: Priority's top rule still overrides a preference that would suppress information safety or completeness requires, the same way it already overrides rule 9's cap.

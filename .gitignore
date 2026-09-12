@@ -2,3 +2,8 @@
 __pycache__/
 *.py[cod]
 evals/results/
+
+# Personal preferences file (see "Preferences (optional)" in
+# skills/i-have-adhd/SKILL.md) -- reader-specific, never meant to be
+# committed if someone creates it at the repo root while testing.
+.i-have-adhd.json
