@@ -68,7 +68,7 @@ If the harness has a task or plan tool, that tool is the source of truth for Com
 
 If the goal itself changes mid-task (the reader asks for something new before the current one is done), state the change explicitly instead of swapping it silently: "Goal changed: was X, now Y. X is paused, not dropped." If the reader explicitly cancels or abandons X rather than just deferring it, say that instead: "Goal changed: was X, now Y. X is cancelled, not paused." A silently swapped goal is indistinguishable from a forgotten one, and a paused one that was actually cancelled is indistinguishable from unfinished work.
 
-A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed or explicitly cancelled, or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical only once X is resumed or cancelled.
+A paused goal does not disappear from the Goal field after the announcement turn — it has to survive until it is resumed, explicitly cancelled, or reported complete some other way (the reader says it, or evidence in the conversation confirms it), or the pause was pointless. Keep it visible: "Goal: Y (X paused)." Drop the parenthetical once any of those three happens.
 
 ## Rules
 
