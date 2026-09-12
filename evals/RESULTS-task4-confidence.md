@@ -21,20 +21,28 @@ beats no skill at all (already established in RESULTS.md and the Task 3 check).
 | Judge | same model and runner, blind, one call per `(case, trial)` group |
 | Reported cost | $0.95 generation ($0.49 comparator + $0.46 candidate) + $0.56 judging |
 
-Exact commands, run against a local runner config pointing `command` at the
-local `claude` binary with `--model claude-haiku-4-5-20251001` (otherwise
-identical to `runners.example.json`'s `claude` entry):
+Exact commands. `/tmp/eval_runner_local.json` is `runners.example.json`'s
+`claude` entry with `command[0]` set to the absolute path of the local
+`claude` binary (`which claude`) and `--model` set to
+`claude-haiku-4-5-20251001` — required because `run_evals.py`'s
+subprocess call does not inherit `$PATH` reliably, and because this run
+intentionally does not use the pinned `claude-opus-4-8`:
 
 ```bash
-python3 scripts/run_evals.py run --runner claude --runner-config <local-config> \
-  --condition comparator --condition-skill <pre-Task-4 SKILL.md, commit e62e8ee> \
+git show e62e8ee:skills/i-have-adhd/SKILL.md > /tmp/skill_pre_task4.md
+
+python3 scripts/run_evals.py run --runner claude \
+  --runner-config /tmp/eval_runner_local.json \
+  --condition comparator --condition-skill /tmp/skill_pre_task4.md \
   --trials 1 --budget-usd 3.00 --output evals/results/responses.jsonl
 
-python3 scripts/run_evals.py run --runner claude --runner-config <local-config> \
+python3 scripts/run_evals.py run --runner claude \
+  --runner-config /tmp/eval_runner_local.json \
   --condition candidate --condition-skill skills/i-have-adhd/SKILL.md \
   --trials 1 --budget-usd 3.00 --output evals/results/responses.jsonl
 
-python3 scripts/judge.py --runner claude --runner-config <local-config> \
+python3 scripts/judge.py --runner claude \
+  --runner-config /tmp/eval_runner_local.json \
   --responses evals/results/responses.jsonl \
   --conditions comparator candidate \
   --output evals/results/scores.jsonl
@@ -42,7 +50,13 @@ python3 scripts/judge.py --runner claude --runner-config <local-config> \
 
 `--budget-usd 3.00` was the configured cap per generation run (comparator,
 candidate); actual spend was well under it, per the reported costs above.
-`judge.py` has no separate budget flag — its cost is reported, not capped.
+
+**Known gap:** `judge.py` has no `--budget-usd` flag, so the judging step
+above ran uncapped (cost was checked after the fact, not bounded during the
+run). Adding judge-side budget enforcement is a change to `scripts/judge.py`
+itself — real code, its own tests, its own review — not something to bolt
+on inside a results write-up. Flagged here rather than silently worked
+around; a reasonable scope for its own follow-up task, not this one.
 
 `scripts/run_evals.py score` requires a literal `baseline` condition, which
 this run doesn't have. The table below is the same weighted-average formula
