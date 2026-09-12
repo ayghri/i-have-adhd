@@ -49,7 +49,7 @@ Security, compliance, incident audit    → audit
 
 A task that straddles two modes (a one-line security fix) takes the smaller mode; escalate only when the reader asks for more or the risk is real (see "When to break the rules").
 
-The reader can always override the classifier for the rest of the turn: "give me the deep version," "keep it compact."
+The reader can always override the classifier: "give me the deep version," "keep it compact," for the rest of the turn. On harnesses that pass slash-command arguments through as explicit state (Pi, OMP: `/i-have-adhd compact|normal|deep|audit`), the override persists for the rest of the session instead of just the one turn, until changed again or the session ends.
 
 ## Task State
 
