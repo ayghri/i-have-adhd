@@ -194,7 +194,9 @@ Clone o repositório e gere o ZIP do Qoder:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Em **Extensions → Plugins → Add Plugins → Upload Plugin**, envie `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin aceita um ZIP, não o diretório clonado.
+O Qoder IDE atual permite importar a pasta clonada em **Plugins → + Create Plugin → import from a local folder**. O ZIP abaixo é opcional para versões que oferecem upload de ZIP. [Instruções oficiais](https://docs.qoder.com/extensions/plugins).
+
+`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
 
 ### Verificar e ativar
 
