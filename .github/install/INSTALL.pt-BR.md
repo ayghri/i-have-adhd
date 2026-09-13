@@ -220,6 +220,19 @@ qoder plugins install ./i-have-adhd
 qoder plugins uninstall i-have-adhd
 ```
 
+### Sempre ativo (opcional)
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+Inicie uma nova tarefa no Qoder. O Hook `SessionStart` injeta as regras canônicas desde a primeira mensagem e novamente após retomar, limpar ou compactar. Para voltar ao modo sob demanda:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
 </details>
 
 <details>

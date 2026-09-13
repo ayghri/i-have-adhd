@@ -220,6 +220,19 @@ qoder plugins install ./i-have-adhd
 qoder plugins uninstall i-have-adhd
 ```
 
+### Luôn bật (không bắt buộc)
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+Bắt đầu tác vụ Qoder mới. Hook `SessionStart` chèn quy tắc chuẩn từ tin nhắn đầu tiên và chèn lại sau khi tiếp tục, xóa hoặc nén ngữ cảnh. Để trở lại chế độ theo yêu cầu:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
 </details>
 
 <details>

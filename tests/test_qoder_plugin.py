@@ -10,7 +10,26 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 QODER_MANIFEST = ROOT / ".qoder-plugin" / "plugin.json"
-QODER_EXECUTABLE = shutil.which("qoder") or shutil.which("qodercli")
+
+
+def find_qoder_cli():
+    """Avoid mistaking the Qoder IDE launcher for the Qoder agent CLI."""
+    for name in ("qodercli", "qoder"):
+        executable = shutil.which(name)
+        if not executable:
+            continue
+        result = subprocess.run(
+            [executable, "plugins", "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0 and "Manage plugins" in result.stdout:
+            return executable
+    return None
+
+
+QODER_EXECUTABLE = find_qoder_cli()
 
 
 class QoderPluginTest(unittest.TestCase):
@@ -23,6 +42,8 @@ class QoderPluginTest(unittest.TestCase):
         self.assertEqual("./skills/", self.manifest["skills"])
         self.assertTrue(ROOT.joinpath(self.manifest["skills"]).is_dir())
         self.assertTrue(ROOT.joinpath("skills/i-have-adhd/SKILL.md").is_file())
+        self.assertEqual("./hooks/hooks.json", self.manifest["hooks"])
+        self.assertTrue(ROOT.joinpath(self.manifest["hooks"]).is_file())
 
     def test_manifest_metadata_matches_shared_package(self):
         for field in ("name", "version", "license", "homepage"):
@@ -49,6 +70,10 @@ class QoderPluginTest(unittest.TestCase):
                 names = set(archive.namelist())
             self.assertIn(".qoder-plugin/plugin.json", names)
             self.assertIn("skills/i-have-adhd/SKILL.md", names)
+            self.assertIn("hooks/hooks.json", names)
+            self.assertIn("hooks/always-on.mjs", names)
+            self.assertIn("hooks/always-on.sh", names)
+            self.assertIn("hooks/always-on.ps1", names)
             self.assertNotIn(".cursor/skills/i-have-adhd/SKILL.md", names)
 
     @unittest.skipUnless(
@@ -81,7 +106,23 @@ class QoderPluginTest(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            self.assertIn("i-have-adhd", listed.stdout)
+            plugins = json.loads(listed.stdout)
+            plugin = next(
+                item for item in plugins if item["name"] == "i-have-adhd"
+            )
+            self.assertTrue(plugin["enabled"])
+            self.assertEqual(
+                ["i-have-adhd"],
+                [skill["name"] for skill in plugin["resources"]["skills"]],
+            )
+            self.assertIn(
+                {
+                    "event": "SessionStart",
+                    "matcher": "startup|resume|clear|compact",
+                    "type": "command",
+                },
+                plugin["resources"]["hooks"],
+            )
             skills = subprocess.run(
                 [*command, "skills", "list", "--all"],
                 cwd=ROOT,

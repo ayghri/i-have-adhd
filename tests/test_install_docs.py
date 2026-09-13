@@ -51,6 +51,14 @@ class QoderInstallDocsTest(unittest.TestCase):
                     "i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip",
                     text,
                 )
+                self.assertIn(
+                    'touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"',
+                    text,
+                )
+                self.assertIn(
+                    'rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"',
+                    text,
+                )
                 self.assertIn("/i-have-adhd", text)
 
 

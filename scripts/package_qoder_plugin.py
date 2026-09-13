@@ -11,7 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / ".qoder-plugin" / "plugin.json"
-PACKAGE_ROOTS = (ROOT / ".qoder-plugin", ROOT / "skills")
+PACKAGE_ROOTS = (ROOT / ".qoder-plugin", ROOT / "skills", ROOT / "hooks")
 PACKAGE_FILES = (ROOT / "README.md", ROOT / "INSTALL.md", ROOT / "LICENSE")
 IGNORED_NAMES = {".DS_Store", "__pycache__"}
 IGNORED_SUFFIXES = {".pyc", ".pyo"}

@@ -292,6 +292,21 @@ qoder plugins uninstall i-have-adhd
 In Qoder IDE, open **Extensions → Plugins → Installed** and remove **I Have
 ADHD**.
 
+### Always-on (optional)
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+Start a new Qoder task. The plugin's `SessionStart` hook injects the canonical
+rules from the first message, and injects them again after resume, clear, or
+compaction. To return to on-demand mode:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
 </details>
 
 <details>

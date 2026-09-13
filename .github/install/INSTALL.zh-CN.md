@@ -277,6 +277,19 @@ qoder plugins uninstall i-have-adhd
 
 在 Qoder IDE 中，打开 **Extensions → Plugins → Installed** 并移除 **I Have ADHD**。
 
+### 始终启用（可选）
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+新建 Qoder 任务。插件的 `SessionStart` Hook 会从第一条消息起注入规范规则，并在恢复、清空或压缩后再次注入。恢复按需模式：
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
 </details>
 
 <details>

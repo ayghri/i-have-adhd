@@ -220,6 +220,19 @@ qoder plugins install ./i-have-adhd
 qoder plugins uninstall i-have-adhd
 ```
 
+### 常時有効（任意）
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+新しい Qoder タスクを開始します。`SessionStart` Hook は最初のメッセージから正規ルールを注入し、再開、クリア、コンパクション後にも再注入します。オンデマンド方式に戻すには：
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
 </details>
 
 <details>
