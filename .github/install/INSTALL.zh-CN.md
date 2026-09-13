@@ -355,7 +355,13 @@ Copilot 遵循 `disable-model-invocation`：与 Claude Code 相同，在调用�
 hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 ```
 
-输入 `/i-have-adhd`。 The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
+技能会安装到 `~/.hermes/skills/`。
+
+如需显式启用，请直接要求 Hermes 使用 `i-have-adhd` 技能，例如：
+
+> 在本次会话中使用 i-have-adhd 技能。
+
+当对话内容与技能描述匹配时，Hermes 也可能自动加载该技能。
 
 想先浏览内容？将此仓库添加为技能源（“tap”），然后搜索并安装：
 
