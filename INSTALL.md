@@ -362,7 +362,13 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 ```
 
-Type `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
+The skill installs into `~/.hermes/skills/`.
+
+To activate it explicitly, ask Hermes to use the `i-have-adhd` skill, for example:
+
+> Use the i-have-adhd skill for this session.
+
+Hermes may also load the skill automatically when the conversation matches its description.
 
 Prefer to browse first? Add this repo as a skill source (a "tap"), then search and install:
 
