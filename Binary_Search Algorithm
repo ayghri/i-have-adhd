@@ -1,0 +1,7 @@
+What is Binary Search?
+
+Binary Search is a searching algorithm used 
+to find an element in a sorted list. 
+Instead of checking every element one by one,
+it repeatedly divides the list into two halves and 
+eliminates the half where the element cannot exist.
