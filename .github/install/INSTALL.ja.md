@@ -188,13 +188,13 @@ qoder plugins install ./i-have-adhd
 
 ### インストール（IDE）
 
-リポジトリをクローンし、**Extensions → Plugins → Add Plugins → Upload Plugin** からルートフォルダーをインポートします。ZIP を使う場合：
+リポジトリをクローンし、Qoder 用 ZIP を作成します：
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-`dist/qoder/i-have-adhd-0.3.0.zip` をアップロードします。
+Qoder の **Extensions → Plugins → Add Plugins → Upload Plugin** から `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip` をアップロードします。Upload Plugin が受け付けるのは ZIP であり、クローンしたディレクトリではありません。
 
 ### 確認と有効化
 

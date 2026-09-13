@@ -241,13 +241,13 @@ qoder plugins install ./i-have-adhd
 
 ### 安装（IDE）
 
-克隆仓库，然后从 **Extensions → Plugins → Add Plugins → Upload Plugin** 导入仓库根目录。也可以构建 ZIP：
+克隆仓库并构建 Qoder ZIP：
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-上传 `dist/qoder/i-have-adhd-0.3.0.zip`。
+在 Qoder 中打开 **Extensions → Plugins → Add Plugins → Upload Plugin**，上传 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`。Upload Plugin 接受 ZIP，不接受克隆后的目录。
 
 ### 验证和启用
 

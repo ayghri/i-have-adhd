@@ -188,13 +188,13 @@ Các bản Qoder CLI cũ có thể dùng tên lệnh `qodercli`; hãy dùng cùn
 
 ### Cài đặt (IDE)
 
-Clone kho rồi nhập thư mục gốc tại **Extensions → Plugins → Add Plugins → Upload Plugin**. Để dùng ZIP:
+Clone kho rồi tạo gói ZIP cho Qoder:
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Tải lên `dist/qoder/i-have-adhd-0.3.0.zip`.
+Trong **Extensions → Plugins → Add Plugins → Upload Plugin**, tải lên `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin nhận tệp ZIP, không nhận thư mục đã clone.
 
 ### Xác minh và kích hoạt
 

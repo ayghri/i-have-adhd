@@ -188,13 +188,13 @@ Versões antigas do Qoder CLI podem usar o executável `qodercli`; use os mesmos
 
 ### Instalar (IDE)
 
-Clone o repositório e importe a pasta raiz em **Extensions → Plugins → Add Plugins → Upload Plugin**. Para usar um ZIP:
+Clone o repositório e gere o ZIP do Qoder:
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Envie `dist/qoder/i-have-adhd-0.3.0.zip`.
+Em **Extensions → Plugins → Add Plugins → Upload Plugin**, envie `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin aceita um ZIP, não o diretório clonado.
 
 ### Verificar e ativar
 

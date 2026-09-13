@@ -43,7 +43,14 @@ class QoderInstallDocsTest(unittest.TestCase):
                 self.assertIn("qoder plugins install ./i-have-adhd", text)
                 self.assertIn("qoder plugins list", text)
                 self.assertIn("qoder plugins uninstall i-have-adhd", text)
-                self.assertIn("python3 scripts/package_qoder_plugin.py", text)
+                self.assertIn(
+                    "python3 i-have-adhd/scripts/package_qoder_plugin.py",
+                    text,
+                )
+                self.assertIn(
+                    "i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip",
+                    text,
+                )
                 self.assertIn("/i-have-adhd", text)
 
 

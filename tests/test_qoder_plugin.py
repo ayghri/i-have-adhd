@@ -1,4 +1,5 @@
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -9,6 +10,7 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 QODER_MANIFEST = ROOT / ".qoder-plugin" / "plugin.json"
+QODER_EXECUTABLE = shutil.which("qoder") or shutil.which("qodercli")
 
 
 class QoderPluginTest(unittest.TestCase):
@@ -48,6 +50,46 @@ class QoderPluginTest(unittest.TestCase):
             self.assertIn(".qoder-plugin/plugin.json", names)
             self.assertIn("skills/i-have-adhd/SKILL.md", names)
             self.assertNotIn(".cursor/skills/i-have-adhd/SKILL.md", names)
+
+    @unittest.skipUnless(
+        QODER_EXECUTABLE,
+        "qoder or qodercli is required for native plugin validation",
+    )
+    def test_qoder_cli_validates_installs_and_lists_plugin(self):
+        with tempfile.TemporaryDirectory(
+            prefix="i-have-adhd-qoder-config-",
+        ) as config_dir:
+            command = [QODER_EXECUTABLE, "--config-dir", config_dir]
+            subprocess.run(
+                [*command, "plugins", "validate", str(ROOT)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            subprocess.run(
+                [*command, "plugins", "install", str(ROOT)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            listed = subprocess.run(
+                [*command, "plugins", "list", "--json"],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("i-have-adhd", listed.stdout)
+            skills = subprocess.run(
+                [*command, "skills", "list", "--all"],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("i-have-adhd", skills.stdout)
 
 
 if __name__ == "__main__":

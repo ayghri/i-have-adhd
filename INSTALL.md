@@ -249,15 +249,15 @@ subcommands with that name.
 
 ### Install (IDE)
 
-Clone the repository and import its root folder from **Extensions → Plugins →
-Add Plugins → Upload Plugin**. To upload a ZIP instead, build the bounded Qoder
-package:
+Clone the repository and build the bounded Qoder package:
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Upload `dist/qoder/i-have-adhd-0.3.0.zip`.
+In Qoder, open **Extensions → Plugins → Add Plugins → Upload Plugin**, then
+upload `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin accepts a
+ZIP package, not the cloned directory.
 
 ### Verify and activate
 

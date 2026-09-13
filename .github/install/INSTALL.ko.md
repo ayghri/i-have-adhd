@@ -188,13 +188,13 @@ qoder plugins install ./i-have-adhd
 
 ### 설치(IDE)
 
-저장소를 복제한 뒤 **Extensions → Plugins → Add Plugins → Upload Plugin**에서 루트 폴더를 가져옵니다. ZIP을 사용하려면:
+저장소를 복제한 뒤 Qoder ZIP을 만드세요:
 
 ```bash
-python3 scripts/package_qoder_plugin.py
+python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-`dist/qoder/i-have-adhd-0.3.0.zip`을 업로드하세요.
+Qoder의 **Extensions → Plugins → Add Plugins → Upload Plugin**에서 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`을 업로드하세요. Upload Plugin은 복제한 디렉터리가 아니라 ZIP을 받습니다.
 
 ### 확인 및 활성화
 
