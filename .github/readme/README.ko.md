@@ -23,6 +23,8 @@
 
 🔗 [설치 안내](../install/INSTALL.ko.md)
 
+지원 런타임: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## 무슨 일을 하나
 
 코딩 어시스턴트가 답을 긴 글 속에 묻어두지 못하게 막는 스킬입니다. **행동 우선**, 단계는 **번호로**, "도움이 되었기를!" 같은 군더더기 없음.

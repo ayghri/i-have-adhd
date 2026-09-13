@@ -29,6 +29,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 Or 🔗 [check the installation instructions](INSTALL.md).
 
+Supported runtimes: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## What it does
 
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"

@@ -28,6 +28,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 หรือ 🔗 [ดูวิธีติดตั้ง](../../INSTALL.md) (ภาษาอังกฤษ)
 
+รันไทม์ที่รองรับ: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## มันทำอะไรได้บ้าง
 
 เป็น Skill สำหรับผู้ช่วยเขียนโค้ดของคุณ ซึ่งช่วยไม่ให้คำตอบสำคัญ ๆ ถูกกลบด้วยข้อความยาว ๆ โดยจะแสดงสิ่งที่ต้องทำก่อน มีขั้นตอนและเลขกำกับ และไม่มีประโยคอย่าง “หวังว่าจะช่วยได้นะ!”
@@ -80,8 +82,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 Fork โปรเจกต์นี้ และแก้ไขไฟล์ `skills/i-have-adhd/SKILL.md` จากนั้นเปลี่ยนไปใช้เวอร์ชันของคุณด้วยคำสั่งต่อไปนี้:
 
 ```bash
-claude plugin uninstall i-have-adhd            # drop the upstream copy first:
-claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
+claude plugin uninstall i-have-adhd            # ลบ upstream copy ก่อน:
+claude plugin marketplace remove i-have-adhd   # fork กับ upstream ใช้ชื่อเดียวกัน
 claude plugin marketplace add <your-username>/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```

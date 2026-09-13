@@ -23,6 +23,8 @@
 
 🔗 [Hướng dẫn cài đặt](../install/INSTALL.vi.md)
 
+Runtime được hỗ trợ: Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## Skill này làm gì
 
 Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng vào trọng tâm thay vì bị chôn vùi trong những đoạn văn dài. Hành động trước. Đánh số các bước. Không có câu “Hy vọng điều này hữu ích!”
