@@ -1,8 +1,6 @@
 # i-have-adhd — Kiro CLI installation guide
 
-`kiro-skill.json` is the Kiro manifest. It tells Kiro where the skill lives
-(`skills/`) and provides display metadata. Kiro does not require it to be
-copied anywhere — the skill files themselves are what Kiro discovers.
+Kiro discovers the canonical skill through its [documented skill directories](https://kiro.dev/docs/skills/). No additional manifest is needed.
 
 ## On-demand skill (install once, invoke with `/i-have-adhd`)
 
@@ -25,9 +23,12 @@ The skill stays active for the rest of the session. Say "stop adhd mode" or
 
 ## Always-on (inject ruleset at every agent spawn)
 
+This hook requires a POSIX shell (macOS/Linux). The example uses the CLI 2.x agent format. Merge it into your existing configuration, preserving other settings and `resources`. Native Kiro loading, compaction, and model responses remain independently unverified.
+
 1. **Opt in** — create the flag file:
 
    ```sh
+   mkdir -p ~/.kiro
    touch ~/.kiro/.i-have-adhd-always
    ```
 
@@ -38,10 +39,14 @@ The skill stays active for the rest of the session. Say "stop adhd mode" or
    ```json
    {
      "name": "default",
+     "resources": [
+       "skill://.kiro/skills/*/SKILL.md",
+       "skill://~/.kiro/skills/*/SKILL.md"
+     ],
      "hooks": {
        "agentSpawn": [
          {
-           "command": "/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh",
+           "command": "sh \"/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh\"",
            "timeout_ms": 30000
          }
        ]
@@ -54,10 +59,9 @@ The skill stays active for the rest of the session. Say "stop adhd mode" or
    30 000 ms) but recommended to set explicitly.
 
    Replace `/absolute/path/to/i-have-adhd` with the actual clone location,
-   e.g. `~/projects/i-have-adhd`.
+   e.g. `/home/you/projects/i-have-adhd`.
 
-3. **Verify** — start a new Kiro session. The first response should include
-   the `ADHD MODE ACTIVE` notice.
+3. **Verify** — start a new Kiro session. The hook adds the `ADHD MODE ACTIVE` notice and rules to the agent context; the assistant need not repeat the banner.
 
 4. **Opt out** — delete the flag file:
 

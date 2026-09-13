@@ -760,10 +760,10 @@ rest of that session. Say "stop adhd mode" or "normal mode" to turn it off.
 ### Update
 
 ```bash
-cd i-have-adhd && git pull
-cp skills/i-have-adhd/SKILL.md ~/.kiro/skills/i-have-adhd/SKILL.md   # global
-# or, for workspace installs:
-cp skills/i-have-adhd/SKILL.md .kiro/skills/i-have-adhd/SKILL.md
+git -C i-have-adhd pull --ff-only
+cp i-have-adhd/skills/i-have-adhd/SKILL.md ~/.kiro/skills/i-have-adhd/SKILL.md   # global
+# or, from the workspace where you installed the skill:
+cp i-have-adhd/skills/i-have-adhd/SKILL.md .kiro/skills/i-have-adhd/SKILL.md
 ```
 
 ### Uninstall
@@ -775,9 +775,12 @@ rm -rf .kiro/skills/i-have-adhd     # workspace
 
 ### Always-on (optional)
 
+This shell hook requires a POSIX shell (macOS/Linux). The agent configuration below uses the CLI 2.x format. Native Kiro loading, compaction, and model responses have not been independently tested in this review. Merge the hook into your existing agent configuration; preserve its other settings and `resources`.
+
 1. Create the opt-in flag:
 
    ```bash
+   mkdir -p ~/.kiro
    touch ~/.kiro/.i-have-adhd-always
    ```
 
@@ -787,10 +790,14 @@ rm -rf .kiro/skills/i-have-adhd     # workspace
    ```json
    {
      "name": "default",
+     "resources": [
+       "skill://.kiro/skills/*/SKILL.md",
+       "skill://~/.kiro/skills/*/SKILL.md"
+     ],
      "hooks": {
        "agentSpawn": [
          {
-           "command": "/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh",
+           "command": "sh \"/absolute/path/to/i-have-adhd/hooks/always-on-kiro.sh\"",
            "timeout_ms": 30000
          }
        ]
@@ -802,8 +809,7 @@ rm -rf .kiro/skills/i-have-adhd     # workspace
    agent config" error if it is missing. Replace the path with your actual
    clone location.
 
-3. Start a new Kiro session. The first response will include
-   `ADHD MODE ACTIVE (always-on)`.
+3. Start a new Kiro session. The hook adds `ADHD MODE ACTIVE (always-on)` and the rules to the agent context; the assistant need not repeat the banner.
 
 4. To turn off, delete the flag:
 
