@@ -172,6 +172,57 @@ codex plugin marketplace remove i-have-adhd
 </details>
 
 <details>
+<summary><strong>Qoder IDE 및 Qoder CLI</strong></summary>
+
+Qoder는 기본 플러그인 형식으로 정식 `skills/i-have-adhd/SKILL.md`를 직접 불러옵니다. Qoder 전용 규칙 사본은 만들지 않습니다.
+
+### 설치(CLI)
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+이전 Qoder CLI에서는 실행 파일 이름이 `qodercli`일 수 있습니다. 이 경우에도 같은 하위 명령을 사용하세요.
+
+### 설치(IDE)
+
+저장소를 복제한 뒤 **Extensions → Plugins → Add Plugins → Upload Plugin**에서 루트 폴더를 가져옵니다. ZIP을 사용하려면:
+
+```bash
+python3 scripts/package_qoder_plugin.py
+```
+
+`dist/qoder/i-have-adhd-0.3.0.zip`을 업로드하세요.
+
+### 확인 및 활성화
+
+```bash
+qoder plugins list
+```
+
+새 Qoder 작업에서 `/`를 입력하고 `/i-have-adhd`를 선택하세요. `stop adhd mode` 또는 `normal mode`를 입력할 때까지 해당 작업에서 규칙이 유지됩니다.
+
+Qoder는 설명과 요청이 일치하면 설치된 Skill을 자동으로 선택할 수도 있습니다. 공식 문서는 `name`과 `description`만 Skill 메타데이터로 명시하며 `disable-model-invocation`은 문서화하지 않습니다.
+
+### 업데이트
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+### 제거
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 Gemini CLI에는 플러그인 마켓플레이스가 없어 두 가지 기본 방법을 제공합니다. 호출 전까지 꺼져 있는 **사용자 지정 명령**(선택 활성화)과 설치 후 항상 켜지는 **확장 프로그램**입니다. 명령 방식이 이 스킬의 기본 동작과 같으므로 모든 세션에서 규칙을 원하지 않는다면 이 방식을 선택하세요.
@@ -632,8 +683,8 @@ npx skills remove i-have-adhd -g    # 전역 설치한 경우
 
 ## 활성화 방식
 
-1. **설치했지만 호출하지 않은 상태.** Claude Code, Qwen Code, Codex에서는 명시적으로 호출하기 전까지 아무 일도 일어나지 않습니다. Claude Code와 Qwen Code는 `SKILL.md`의 `disable-model-invocation: true`를 따르고, Codex는 `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`를 따릅니다. 다른 실행 환경은 시작 시 각 스킬 설명을 불러와 스스로 활성화할 수 있습니다.
-2. **명시적으로 호출합니다.** Claude Code와 Qwen Code에서는 `/i-have-adhd`를, Codex에서는 `$i-have-adhd`를 입력합니다. 해당 세션에서 규칙이 활성화됩니다. "stop adhd mode" 또는 "normal mode"로 끌 수 있습니다.
+1. **설치했지만 호출하지 않은 상태.** Claude Code, Qwen Code, Codex에서는 명시적으로 호출하기 전까지 아무 일도 일어나지 않습니다. Claude Code와 Qwen Code는 `disable-model-invocation: true`를 따르고, Codex는 `policy.allow_implicit_invocation: false`를 따릅니다. Qoder 등의 환경은 설명을 기준으로 설치된 Skill을 자동 선택할 수 있습니다.
+2. **명시적으로 호출합니다.** Claude Code, Qwen Code, Qoder에서는 `/i-have-adhd`를, Codex에서는 `$i-have-adhd`를 입력합니다. 해당 세션에서 규칙이 활성화됩니다. "stop adhd mode" 또는 "normal mode"로 끌 수 있습니다.
 3. **`~/.claude/.i-have-adhd-always`를 만듭니다**(Claude Code). `SessionStart` 훅이 매 세션의 첫 메시지부터 전체 규칙을 불러옵니다.
 4. **위의 항상 활성화 코드 조각을 추가합니다**(기타 실행 환경). 핵심 규칙이 에이전트의 영구 컨텍스트에 유지됩니다.
 

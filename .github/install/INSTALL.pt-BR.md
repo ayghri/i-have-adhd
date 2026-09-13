@@ -172,6 +172,57 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 </details>
 
 <details>
+<summary><strong>Qoder IDE e Qoder CLI</strong></summary>
+
+O Qoder carrega diretamente o arquivo canônico `skills/i-have-adhd/SKILL.md` por meio do formato nativo de plugin. Não há uma segunda cópia das regras para Qoder.
+
+### Instalar (CLI)
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+Versões antigas do Qoder CLI podem usar o executável `qodercli`; use os mesmos subcomandos com esse nome.
+
+### Instalar (IDE)
+
+Clone o repositório e importe a pasta raiz em **Extensions → Plugins → Add Plugins → Upload Plugin**. Para usar um ZIP:
+
+```bash
+python3 scripts/package_qoder_plugin.py
+```
+
+Envie `dist/qoder/i-have-adhd-0.3.0.zip`.
+
+### Verificar e ativar
+
+```bash
+qoder plugins list
+```
+
+Em uma nova tarefa do Qoder, digite `/` e selecione `/i-have-adhd`. As regras permanecem ativas até você dizer `stop adhd mode` ou `normal mode`.
+
+O Qoder também pode selecionar automaticamente uma Skill quando a solicitação corresponder à descrição. A documentação oficial define apenas `name` e `description` como metadados da Skill e não documenta `disable-model-invocation`.
+
+### Atualizar
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+### Desinstalar
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 O Gemini CLI não tem marketplace de plugins, então há duas opções nativas: um **comando personalizado** (opt-in, desativado até ser invocado) ou uma **extensão** (sempre ativa após a instalação). O comando corresponde ao comportamento padrão desta skill; escolha-o, a menos que queira as regras em todas as sessões.
@@ -632,8 +683,8 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 
 ## Como a ativação funciona
 
-1. **Instalada, mas não invocada.** No Claude Code, Qwen Code e Codex, nada acontece até que você invoque a skill explicitamente. Claude Code e Qwen Code respeitam `disable-model-invocation: true` em `SKILL.md`; o Codex respeita `policy.allow_implicit_invocation: false` em `agents/openai.yaml`. Outros ambientes podem carregar a descrição de cada skill na inicialização e ativá-la por conta própria.
-2. **Você a invoca explicitamente.** Digite `/i-have-adhd` no Claude Code ou Qwen Code, ou `$i-have-adhd` no Codex. As regras ficam ativas nessa sessão. "stop adhd mode" ou "normal mode" as desativa.
+1. **Instalada, mas não invocada.** No Claude Code, Qwen Code e Codex, nada acontece até a invocação explícita. Claude Code e Qwen Code respeitam `disable-model-invocation: true`; o Codex respeita `policy.allow_implicit_invocation: false`. O Qoder e outros ambientes podem selecionar automaticamente uma Skill instalada pela descrição.
+2. **Você a invoca explicitamente.** Digite `/i-have-adhd` no Claude Code, Qwen Code ou Qoder, ou `$i-have-adhd` no Codex. As regras ficam ativas nessa sessão. "stop adhd mode" ou "normal mode" as desativa.
 3. **Você cria `~/.claude/.i-have-adhd-always`** (Claude Code). Um hook `SessionStart` carrega todas as regras desde a primeira mensagem, em toda sessão.
 4. **Você adiciona o trecho sempre ativo acima** (outros ambientes). Isso mantém as regras principais no contexto persistente do agente.
 

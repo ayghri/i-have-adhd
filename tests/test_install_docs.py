@@ -1,4 +1,4 @@
-"""Checks Zed installation paths across the installation guides."""
+"""Checks platform installation paths across the installation guides."""
 
 import pathlib
 import unittest
@@ -27,6 +27,24 @@ class ZedInstallPathTest(unittest.TestCase):
                     section,
                 )
                 self.assertIn("~/.agents/skills/i-have-adhd", section)
+
+
+class QoderInstallDocsTest(unittest.TestCase):
+    def test_qoder_install_and_lifecycle_are_documented(self):
+        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
+        for path in [ROOT / "INSTALL.md", *translations]:
+            with self.subTest(file=path.name):
+                text = path.read_text(encoding="utf8")
+                self.assertRegex(
+                    text,
+                    r"<summary><strong>Qoder IDE (?:and|e|và|및|和|/) Qoder CLI</strong></summary>",
+                )
+                self.assertIn("qoder plugins validate ./i-have-adhd", text)
+                self.assertIn("qoder plugins install ./i-have-adhd", text)
+                self.assertIn("qoder plugins list", text)
+                self.assertIn("qoder plugins uninstall i-have-adhd", text)
+                self.assertIn("python3 scripts/package_qoder_plugin.py", text)
+                self.assertIn("/i-have-adhd", text)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+{
+  "name": "i-have-adhd",
+  "displayName": "I Have ADHD",
+  "version": "0.3.0",
+  "description": "ADHD-friendly output shaping for Qoder: action first, numbered steps, no tangents, and visible progress.",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
+  "homepage": "https://github.com/ayghri/i-have-adhd",
+  "repository": "https://github.com/ayghri/i-have-adhd",
+  "license": "MIT",
+  "keywords": [
+    "adhd",
+    "output-style",
+    "productivity",
+    "skills",
+    "qoder"
+  ],
+  "skills": "./skills/"
+}
