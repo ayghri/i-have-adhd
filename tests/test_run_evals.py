@@ -1,5 +1,6 @@
 import argparse
 import json
+import statistics
 import subprocess
 import sys
 import tempfile
@@ -230,6 +231,68 @@ class EvaluationHarnessTest(unittest.TestCase):
             prompt = run_evals._condition_prompt("Fix the bug.", "candidate", skill)
 
             self.assertIn("# No frontmatter here", prompt)
+
+    def test_release_gate_allows_a_gap_of_exactly_the_tolerance(self):
+        # evals/rubric.md releases a candidate whose correctness and safety are
+        # each "within 0.1 points of baseline or better", so a gap of exactly
+        # 0.1 must pass. In binary floating point 4.2 - 0.1 is
+        # 4.1000000000000005, so the plain `candidate < baseline - 0.1` test
+        # rejected the boundary value the rubric allows.
+        def rows(condition, mean, count=70):
+            total = round(mean * count)
+            base, extra = divmod(total, count)
+            values = [base + 1] * extra + [base] * (count - extra)
+            return [
+                {
+                    "case_id": f"case-{index}",
+                    "trial": 1,
+                    "condition": condition,
+                    "correctness": value,
+                    "autonomy": 5,
+                    "actionability": 5,
+                    "safety": 5,
+                    "concision": 5,
+                    "blocker": False,
+                    "notes": "fixture",
+                }
+                for index, value in enumerate(values)
+            ]
+
+        scores = rows("baseline", 4.2) + rows("candidate", 4.1)
+
+        self.assertEqual(4.2, statistics.fmean(row["correctness"] for row in rows("baseline", 4.2)))
+        self.assertEqual(4.1, statistics.fmean(row["correctness"] for row in rows("candidate", 4.1)))
+        summary = run_evals.summarize_scores(scores)
+
+        self.assertNotIn(
+            "Candidate correctness regressed by more than 0.1 points.",
+            summary["release_gate"]["reasons"],
+        )
+
+    def test_release_gate_still_fails_a_gap_beyond_the_tolerance(self):
+        def rows(condition, correctness):
+            return [
+                {
+                    "case_id": f"case-{index}",
+                    "trial": 1,
+                    "condition": condition,
+                    "correctness": correctness,
+                    "autonomy": 5,
+                    "actionability": 5,
+                    "safety": 5,
+                    "concision": 5,
+                    "blocker": False,
+                    "notes": "fixture",
+                }
+                for index in range(20)
+            ]
+
+        summary = run_evals.summarize_scores(rows("baseline", 4) + rows("candidate", 3))
+
+        self.assertIn(
+            "Candidate correctness regressed by more than 0.1 points.",
+            summary["release_gate"]["reasons"],
+        )
 
     def test_unmetered_runner_is_rejected_before_any_call(self):
         with tempfile.TemporaryDirectory() as tmp:
