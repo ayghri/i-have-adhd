@@ -40,6 +40,7 @@ try {
   } else {
     ""
   }
+  $body = $body.TrimEnd([char]13, [char]10)
 
   $banner = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
     '"stop adhd mode" turns it off for this session; delete '
