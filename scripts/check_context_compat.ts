@@ -84,4 +84,25 @@ assert(
   "Ordinary messages must not activate the rules",
 );
 
+let inspected = 0;
+const recentMarker = new Proxy(
+  [{ role: "custom", customType: ACTIVE }, { role: "custom", customType: DISABLED }],
+  {
+    get(target, property, receiver) {
+      if (typeof property === "string" && /^\d+$/.test(property)) {
+        inspected += 1;
+      }
+      return Reflect.get(target, property, receiver);
+    },
+  },
+);
+assert(
+  !latestMarkerIsActive(recentMarker, ACTIVE, DISABLED),
+  "the newest marker should win",
+);
+assert(
+  inspected === 1,
+  `latest marker lookup inspected ${inspected} entries instead of stopping at the newest marker`,
+);
+
 console.log("Pi/OMP context compatibility checks passed");
