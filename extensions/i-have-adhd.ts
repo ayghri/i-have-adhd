@@ -43,7 +43,7 @@ function loadConfig(): AdhdConfig {
   try {
     return JSON.parse(
       readFileSync(join(getAgentDir(), "i-have-adhd.json"), "utf8"),
-    );
+    ) ?? {};
   } catch {
     return {};
   }
