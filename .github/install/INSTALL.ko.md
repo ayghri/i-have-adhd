@@ -194,7 +194,9 @@ qoder plugins install ./i-have-adhd
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Qoder의 **Extensions → Plugins → Add Plugins → Upload Plugin**에서 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`을 업로드하세요. Upload Plugin은 복제한 디렉터리가 아니라 ZIP을 받습니다.
+현재 Qoder IDE는 **Plugins → + Create Plugin → import from a local folder**에서 복제한 폴더를 가져올 수 있습니다. 아래 ZIP은 ZIP 업로드를 제공하는 버전에서 선택적으로 사용합니다. [공식 안내](https://docs.qoder.com/extensions/plugins).
+
+`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
 
 ### 확인 및 활성화
 

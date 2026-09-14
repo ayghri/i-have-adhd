@@ -1,25 +1,26 @@
 import json
+import pathlib
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
-from pathlib import Path
-from zipfile import ZipFile
+import zipfile
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 QODER_MANIFEST = ROOT / ".qoder-plugin" / "plugin.json"
 
 
-def find_qoder_cli():
+def find_qoder_cli(config_dir):
     """Avoid mistaking the Qoder IDE launcher for the Qoder agent CLI."""
     for name in ("qodercli", "qoder"):
         executable = shutil.which(name)
         if not executable:
             continue
         result = subprocess.run(
-            [executable, "plugins", "--help"],
+            [executable, "--config-dir", config_dir, "plugins", "--help"],
+            timeout=30,
             check=False,
             capture_output=True,
             text=True,
@@ -27,9 +28,6 @@ def find_qoder_cli():
         if result.returncode == 0 and "Manage plugins" in result.stdout:
             return executable
     return None
-
-
-QODER_EXECUTABLE = find_qoder_cli()
 
 
 class QoderPluginTest(unittest.TestCase):
@@ -60,13 +58,14 @@ class QoderPluginTest(unittest.TestCase):
                     output_dir,
                 ],
                 cwd=ROOT,
+                timeout=30,
                 check=True,
                 capture_output=True,
                 text=True,
             )
-            archive_path = Path(result.stdout.strip())
+            archive_path = pathlib.Path(result.stdout.strip())
             self.assertTrue(archive_path.is_file())
-            with ZipFile(archive_path) as archive:
+            with zipfile.ZipFile(archive_path) as archive:
                 names = set(archive.namelist())
             self.assertIn(".qoder-plugin/plugin.json", names)
             self.assertIn("skills/i-have-adhd/SKILL.md", names)
@@ -76,18 +75,18 @@ class QoderPluginTest(unittest.TestCase):
             self.assertIn("hooks/always-on.ps1", names)
             self.assertNotIn(".cursor/skills/i-have-adhd/SKILL.md", names)
 
-    @unittest.skipUnless(
-        QODER_EXECUTABLE,
-        "qoder or qodercli is required for native plugin validation",
-    )
     def test_qoder_cli_validates_installs_and_lists_plugin(self):
         with tempfile.TemporaryDirectory(
             prefix="i-have-adhd-qoder-config-",
         ) as config_dir:
-            command = [QODER_EXECUTABLE, "--config-dir", config_dir]
+            executable = find_qoder_cli(config_dir)
+            if not executable:
+                self.skipTest("qoder or qodercli is required for native validation")
+            command = [executable, "--config-dir", config_dir]
             subprocess.run(
                 [*command, "plugins", "validate", str(ROOT)],
                 cwd=ROOT,
+                timeout=30,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -95,6 +94,7 @@ class QoderPluginTest(unittest.TestCase):
             subprocess.run(
                 [*command, "plugins", "install", str(ROOT)],
                 cwd=ROOT,
+                timeout=30,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -102,6 +102,7 @@ class QoderPluginTest(unittest.TestCase):
             listed = subprocess.run(
                 [*command, "plugins", "list", "--json"],
                 cwd=ROOT,
+                timeout=30,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -126,6 +127,7 @@ class QoderPluginTest(unittest.TestCase):
             skills = subprocess.run(
                 [*command, "skills", "list", "--all"],
                 cwd=ROOT,
+                timeout=30,
                 check=True,
                 capture_output=True,
                 text=True,

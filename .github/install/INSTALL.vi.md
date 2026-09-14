@@ -194,7 +194,9 @@ Clone kho rồi tạo gói ZIP cho Qoder:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Trong **Extensions → Plugins → Add Plugins → Upload Plugin**, tải lên `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin nhận tệp ZIP, không nhận thư mục đã clone.
+Qoder IDE hiện hỗ trợ nhập thư mục đã clone qua **Plugins → + Create Plugin → import from a local folder**. ZIP bên dưới là tùy chọn cho các phiên bản có chức năng tải ZIP lên. [Hướng dẫn chính thức](https://docs.qoder.com/extensions/plugins).
+
+`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
 
 ### Xác minh và kích hoạt
 

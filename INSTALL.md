@@ -318,9 +318,9 @@ Clone the repository and build the bounded Qoder package:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-In Qoder, open **Extensions → Plugins → Add Plugins → Upload Plugin**, then
-upload `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin accepts a
-ZIP package, not the cloned directory.
+Current Qoder IDE supports importing the cloned folder through **Plugins → + Create Plugin → import from a local folder**. The ZIP below is optional for versions that offer ZIP upload. [Official instructions](https://docs.qoder.com/extensions/plugins).
+
+`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
 
 ### Verify and activate
 
