@@ -46,6 +46,7 @@ When debugging or changing one integration, begin with its entry point:
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `hooks/hooks.json` |
 | Qoder | `.qoder-plugin/plugin.json`, `skills/i-have-adhd/SKILL.md`, `scripts/package_qoder_plugin.py` |
+| Grok | `plugin.json`, `skills/i-have-adhd/SKILL.md`, `INSTALL.md` |
 | Pi | `package.json` (`pi`), `extensions/i-have-adhd.ts` |
 | OMP | `package.json` (`omp`), `extensions/i-have-adhd.ts`, `extensions/context-compat.ts` |
 | OpenCode | `opencode.json`, `.opencode/plugins/i-have-adhd.mjs`, `.opencode/command/i-have-adhd.md` |
