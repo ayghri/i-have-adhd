@@ -212,6 +212,70 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 </details>
 
 <details>
+<summary><strong>Qoder IDE and Qoder CLI</strong></summary>
+
+Qoder فایل اصلی `skills/i-have-adhd/SKILL.md` را مستقیماً با قالب بومی پلاگین بارگذاری می‌کند و نسخه جداگانه‌ای از قوانین نگهداری نمی‌شود.
+
+### نصب (CLI)
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+در نسخه‌های قدیمی‌تر ممکن است نام فایل اجرایی `qodercli` باشد؛ همان زیرفرمان‌ها را با این نام اجرا کنید.
+
+### نصب (IDE)
+
+مخزن را clone کنید و بسته ZIP مخصوص Qoder را بسازید:
+
+```bash
+python3 i-have-adhd/scripts/package_qoder_plugin.py
+```
+
+در Qoder مسیر **Extensions → Plugins → Add Plugins → Upload Plugin** را باز کنید و فایل `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip` را بارگذاری کنید. Upload Plugin فایل ZIP می‌پذیرد، نه دایرکتوری clone‌شده.
+
+### بررسی و فعال‌سازی
+
+```bash
+qoder plugins list
+```
+
+در یک task جدید Qoder، `/` را تایپ و `/i-have-adhd` را انتخاب کنید. قوانین تا زمانی که `stop adhd mode` یا `normal mode` بگویید فعال می‌مانند.
+
+Qoder ممکن است Skill نصب‌شده را بر اساس توضیحات آن به‌صورت خودکار انتخاب کند. مستندات رسمی فقط `name` و `description` را برای metadata مهارت ثبت کرده‌اند و `disable-model-invocation` را مستند نکرده‌اند.
+
+### به‌روزرسانی
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+### حذف نصب
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+### همیشه فعال (اختیاری)
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+یک task جدید Qoder شروع کنید. هوک `SessionStart` قوانین اصلی را از پیام اول و پس از resume، clear یا compact دوباره تزریق می‌کند. برای بازگشت به حالت فعال‌سازی دستی:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 Gemini CLI بازارچه (marketplace) پلاگین ندارد، بنابراین دو روش بومی وجود دارد: یک **دستور سفارشی** (اختیاری، تا زمانی که فراخوانی نکنید خاموش است) یا یک **افزونه** (پس از نصب همیشه فعال است). روش دستور با حالت پیش‌فرض این مهارت همخوانی دارد؛ مگر اینکه بخواهید قوانین در هر نشست اعمال شوند، این روش را انتخاب کنید.

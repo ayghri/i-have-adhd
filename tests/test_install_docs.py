@@ -29,6 +29,39 @@ class ZedInstallPathTest(unittest.TestCase):
                 self.assertIn("~/.agents/skills/i-have-adhd", section)
 
 
+class QoderInstallDocsTest(unittest.TestCase):
+    def test_qoder_install_and_lifecycle_are_documented(self):
+        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
+        for path in [ROOT / "INSTALL.md", *translations]:
+            with self.subTest(file=path.name):
+                text = path.read_text(encoding="utf8")
+                self.assertRegex(
+                    text,
+                    r"<summary><strong>Qoder IDE (?:and|e|và|및|和|/) Qoder CLI</strong></summary>",
+                )
+                self.assertIn("qoder plugins validate ./i-have-adhd", text)
+                self.assertIn("qoder plugins install ./i-have-adhd", text)
+                self.assertIn("qoder plugins list", text)
+                self.assertIn("qoder plugins uninstall i-have-adhd", text)
+                self.assertIn(
+                    "python3 i-have-adhd/scripts/package_qoder_plugin.py",
+                    text,
+                )
+                self.assertIn(
+                    "i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip",
+                    text,
+                )
+                self.assertIn(
+                    'touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"',
+                    text,
+                )
+                self.assertIn(
+                    'rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"',
+                    text,
+                )
+                self.assertIn("/i-have-adhd", text)
+
+
 class GrokInstallPathTest(unittest.TestCase):
     def test_grok_install_commands(self):
         text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
