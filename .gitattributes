@@ -1,0 +1,2 @@
+# Preserve LF line endings so POSIX shells can parse scripts after checkout.
+*.sh text eol=lf
