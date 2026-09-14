@@ -223,7 +223,7 @@ class EndToEndTest(unittest.TestCase):
                             # Reads the prompt from stdin, not argv: a trailing
                             # option such as `--tools ""` otherwise swallows a
                             # prompt appended to the command line.
-                            "command": ["sh", "-c", f"cat > {captured}; cat {payload}"],
+                            "command": ["sh", "-c", f"cat > {captured.as_posix()}; cat {payload.as_posix()}"],
                             "response_format": "text",
                         }
                     }
@@ -291,7 +291,7 @@ class EndToEndTest(unittest.TestCase):
                                 # `blocker` omitted for the casual-message group.
                                 f'p=$(cat); case "$p" in *casual-message*)'
                                 f' echo \'{{"A":{{"correctness":3}},"B":{{"correctness":3}}}}\';;'
-                                f" *) cat {good};; esac",
+                                f" *) cat {good.as_posix()};; esac",
                             ],
                             "response_format": "text",
                         }
@@ -387,7 +387,7 @@ class EndToEndTest(unittest.TestCase):
                             "command": [
                                 "sh",
                                 "-c",
-                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {verdict};; esac',
+                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {verdict.as_posix()};; esac',
                             ],
                             "response_format": "text",
                         }
