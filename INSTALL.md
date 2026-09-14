@@ -1,9 +1,41 @@
 # How to install
 
 <details>
-<summary><strong>Antigravity (<code>agy</code>)</strong></summary>
+<summary><strong>Antigravity (<code>agy</code> / IDE)</strong></summary>
 
-### Install
+Antigravity supports both **on-demand skill invocation** (`/i-have-adhd`) and **always-on rules** (`GEMINI.md`).
+
+### Option 1: On-demand (Workspace)
+
+Zero-config when this repository is checked out: `.agents/skills/i-have-adhd/` is discovered automatically.
+
+To add to another project:
+```bash
+mkdir -p .agents/skills/i-have-adhd
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/SKILL.md \
+  -o .agents/skills/i-have-adhd/SKILL.md
+```
+
+### Option 2: On-demand (Desktop IDE / Global)
+
+Install into Antigravity's global built-in skills directory:
+
+**macOS / Linux:**
+```bash
+mkdir -p ~/.gemini/antigravity/builtin/skills/i-have-adhd
+curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/SKILL.md \
+  -o ~/.gemini/antigravity/builtin/skills/i-have-adhd/SKILL.md
+```
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.gemini\antigravity\builtin\skills\i-have-adhd"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/SKILL.md" -OutFile "$HOME\.gemini\antigravity\builtin\skills\i-have-adhd\SKILL.md"
+```
+
+Start an Antigravity conversation and type `/i-have-adhd` or say "use adhd mode".
+
+### Option 3: CLI Plugin (`agy`)
 
 ```bash
 agy plugin install https://github.com/ayghri/i-have-adhd
