@@ -48,5 +48,26 @@ class GrokInstallPathTest(unittest.TestCase):
         self.assertNotIn("~/.claude/.i-have-adhd-always", section)
 
 
+class CopilotInstallPathTest(unittest.TestCase):
+    def test_copilot_personal_skill_paths(self):
+        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
+        self.assertTrue(translations, "No translated installation guides found")
+        command = "npx skills add ayghri/i-have-adhd -a github-copilot -g"
+
+        for path in [ROOT / "INSTALL.md", *translations]:
+            with self.subTest(file=path.name):
+                text = path.read_text(encoding="utf8")
+                self.assertIn(command, text)
+                command_index = text.index(command)
+                section_start = text.rfind("<details>", 0, command_index)
+                section_end = text.index("</details>", command_index)
+                self.assertNotEqual(-1, section_start)
+                section = text[section_start:section_end]
+
+                self.assertIn("~/.copilot/skills/", section)
+                self.assertIn("~/.agents/skills/", section)
+                self.assertNotIn("~/.claude/skills/", section)
+
+
 if __name__ == "__main__":
     unittest.main()

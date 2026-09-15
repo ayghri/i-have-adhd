@@ -222,7 +222,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # command route
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
-O Copilot lê Agent Skills nativamente: usa o mesmo `SKILL.md`, sem conversão. No projeto, ele verifica `.github/skills/`, `.claude/skills/` e `.agents/skills/`; globalmente, `~/.copilot/skills/`, `~/.claude/skills/` e `~/.agents/skills/`.
+O Copilot lê Agent Skills nativamente: usa o mesmo `SKILL.md`, sem conversão. No projeto, ele verifica `.github/skills/`, `.claude/skills/` e `.agents/skills/`; globalmente, `~/.copilot/skills/` e `~/.agents/skills/`.
 
 ### Instalar
 

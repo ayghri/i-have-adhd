@@ -275,7 +275,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # 命令方式
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
-Copilot 原生读取 Agent Skills：直接使用同一个 `SKILL.md`，无需转换。它会扫描项目中的 `.github/skills/`、`.claude/skills/` 和 `.agents/skills/`，以及全局的 `~/.copilot/skills/`、`~/.claude/skills/` 和 `~/.agents/skills/`。
+Copilot 原生读取 Agent Skills：直接使用同一个 `SKILL.md`，无需转换。它会扫描项目中的 `.github/skills/`、`.claude/skills/` 和 `.agents/skills/`，以及全局的 `~/.copilot/skills/` 和 `~/.agents/skills/`。
 
 ### 安装
 
