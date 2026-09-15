@@ -262,7 +262,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # روش دستور
 <details>
 <summary><strong>GitHub Copilot (در VS Code و Copilot CLI)</strong></summary>
 
-Copilot مهارت‌های عامل (Agent Skills) را به صورت بومی می‌خواند: همان فایل `SKILL.md` بدون نیاز به تبدیل. این ابزار پوشه‌های `.github/skills/`، `.claude/skills/` و `.agents/skills/` در پروژه، و همچنین `~/.copilot/skills/`، `~/.claude/skills/` و `~/.agents/skills/` را به صورت سراسری اسکن می‌کند.
+Copilot مهارت‌های عامل (Agent Skills) را به صورت بومی می‌خواند: همان فایل `SKILL.md` بدون نیاز به تبدیل. این ابزار پوشه‌های `.github/skills/`، `.claude/skills/` و `.agents/skills/` در پروژه، و همچنین `~/.copilot/skills/` و `~/.agents/skills/` را به صورت سراسری اسکن می‌کند.
 
 ### نصب
 

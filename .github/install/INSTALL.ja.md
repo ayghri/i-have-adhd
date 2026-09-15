@@ -222,7 +222,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # コマンド方式
 <details>
 <summary><strong>GitHub Copilot (VS Code および Copilot CLI)</strong></summary>
 
-Copilot は Agent Skills をネイティブに読み込むため、変換不要でそのまま `SKILL.md` を利用できます。プロジェクト内では `.github/skills/`、`.claude/skills/`、`.agents/skills/` を、グローバル環境では `~/.copilot/skills/`、`~/.claude/skills/`、`~/.agents/skills/` をスキャンします。
+Copilot は Agent Skills をネイティブに読み込むため、変換不要でそのまま `SKILL.md` を利用できます。プロジェクト内では `.github/skills/`、`.claude/skills/`、`.agents/skills/` を、グローバル環境では `~/.copilot/skills/` と `~/.agents/skills/` をスキャンします。
 
 ### インストール
 
