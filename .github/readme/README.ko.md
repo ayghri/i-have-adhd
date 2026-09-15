@@ -16,7 +16,8 @@
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <strong title="한국어" aria-label="한국어">🇰🇷</strong> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
-  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
 </p>
 
 
