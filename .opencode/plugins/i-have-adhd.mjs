@@ -23,6 +23,15 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const skillsDir = path.resolve(__dirname, '../../skills');
 const skillPath = path.join(skillsDir, 'i-have-adhd', 'SKILL.md');
+const commandPath = path.join(__dirname, '..', 'command', 'i-have-adhd.md');
+
+// JSON is valid YAML frontmatter; share native command metadata without a YAML dependency.
+async function commandDefinition() {
+  const raw = await fs.promises.readFile(commandPath, 'utf8');
+  const match = raw.match(/^---[^\S\r\n]*\r?\n([\s\S]*?)\r?\n---[^\S\r\n]*(?:\r?\n|$)([\s\S]*)$/);
+  if (!match) throw new Error('Missing command frontmatter');
+  return { ...JSON.parse(match[1]), template: match[2].trim() };
+}
 
 // Always-on opt-in flag, mirroring Claude Code's ~/.claude/.i-have-adhd-always
 // but under OpenCode's config dir so the two tools stay independent.
@@ -50,6 +59,16 @@ export default async () => {
       config.skills = config.skills || {};
       config.skills.paths = config.skills.paths || [];
       if (!config.skills.paths.includes(skillsDir)) config.skills.paths.push(skillsDir);
+
+      // Global installs need a command entry; preserve native or user-defined commands.
+      try {
+        config.command = config.command || {};
+        if (!config.command['i-have-adhd']) {
+          config.command['i-have-adhd'] = await commandDefinition();
+        }
+      } catch (e) {
+        // Missing or malformed command files must not break skill discovery.
+      }
     },
 
     // Always-on: append the ruleset to the system prompt every turn while the

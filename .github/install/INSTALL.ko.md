@@ -96,13 +96,19 @@ claude plugin marketplace remove i-have-adhd
 touch ~/.claude/.i-have-adhd-always
 ```
 
+사용자 지정 Claude 설정 디렉터리를 사용한다면, 대신 그곳에 플래그 파일을 만드세요:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 필요할 때만 켜는 방식으로 돌아가려면:
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-훅은 플래그 파일이 있을 때만 실행되므로 플러그인 설치만으로는 아무것도 바뀌지 않습니다. 설정 디렉터리를 옮겼다면 `$CLAUDE_CONFIG_DIR`를 따릅니다. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
+훅은 플래그 파일이 있을 때만 실행되므로 플러그인 설치만으로는 아무것도 바뀌지 않습니다. "stop adhd mode"는 현재 세션에서 계속 비활성화합니다.
 
 </details>
 
@@ -513,7 +519,8 @@ https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd
-cp -R i-have-adhd/skills/i-have-adhd ~/.config/zed/skills/
+mkdir -p ~/.agents/skills
+cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
 
 ### 확인
@@ -526,7 +533,7 @@ Agent Panel에서 Skills 관리자를 열어 `i-have-adhd`가 목록에 있는�
 
 ### 제거
 
-Skills 관리자에서 `i-have-adhd`를 제거하거나 `~/.config/zed/skills/i-have-adhd`를 삭제하세요.
+Skills 관리자에서 `i-have-adhd`를 제거하거나 `~/.agents/skills/i-have-adhd`를 삭제하세요.
 
 ### 항상 활성화(선택 사항)
 

@@ -96,13 +96,19 @@ Hook `SessionStart` tải toàn bộ bộ quy tắc khi bắt đầu mỗi phiê
 touch ~/.claude/.i-have-adhd-always
 ```
 
+Nếu bạn dùng thư mục cấu hình Claude tùy chỉnh, hãy tạo tệp cờ ở đó thay vào đó:
+
+```bash
+touch "$CLAUDE_CONFIG_DIR/.i-have-adhd-always"
+```
+
 Để trở lại chế độ bật khi cần:
 
 ```bash
 rm ~/.claude/.i-have-adhd-always
 ```
 
-Hook chỉ chạy khi tệp cờ tồn tại, vì vậy chỉ cài plugin sẽ không tự thay đổi gì. Hook tôn trọng `$CLAUDE_CONFIG_DIR` nếu bạn đã chuyển thư mục cấu hình. "stop adhd mode" vẫn tắt chế độ này cho phiên hiện tại.
+Hook chỉ chạy khi tệp cờ tồn tại, vì vậy chỉ cài plugin sẽ không tự thay đổi gì. "stop adhd mode" vẫn tắt chế độ này cho phiên hiện tại.
 
 </details>
 
@@ -513,7 +519,8 @@ Muốn dùng hệ thống tệp? Clone repo và đặt thư mục skill vào th�
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd
-cp -R i-have-adhd/skills/i-have-adhd ~/.config/zed/skills/
+mkdir -p ~/.agents/skills
+cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
 
 ### Xác minh
@@ -526,7 +533,7 @@ Nhập lại từ cùng URL (ghi đè), hoặc sao chép lại thư mục sau `g
 
 ### Gỡ cài đặt
 
-Xóa `i-have-adhd` khỏi trình quản lý Skills, hoặc xóa `~/.config/zed/skills/i-have-adhd`.
+Xóa `i-have-adhd` khỏi trình quản lý Skills, hoặc xóa `~/.agents/skills/i-have-adhd`.
 
 ### Luôn bật (không bắt buộc)
 

@@ -14,7 +14,9 @@
   <a href=".github/readme/README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href=".github/readme/README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href=".github/readme/README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
-  <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a>
+  <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <a href=".github/readme/README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
+  <a href=".github/readme/README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
 </p>
 
 
@@ -99,7 +101,7 @@ Design docs live in [`docs/`](./docs): the spiky-profile taxonomy ([DOMAINS.md](
 6. Specific time estimates (minutes, not "a bit").
 7. Make wins visible.
 8. Matter-of-fact errors.
-9. Cap lists at 5 items.
+9. Cap lists to 5 items.
 10. No preamble. No recap. No closers.
 
 ## Tune it
