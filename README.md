@@ -52,7 +52,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## After
 
-> Run `npm install jsonwebtoken@latest`, then edit `src/auth.ts:42`.
+> Edit `src/auth.ts:42` to update the token validation.
 >
 > 1. Open `src/auth.ts`
 > 2. Replace `verifyToken` (lines 42–58) with the snippet below
