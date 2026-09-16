@@ -1,5 +1,11 @@
 # How to install
 
+For multiple agents, the optional [unified installation manager](MANAGE_INSTALL.md)
+provides preview-first install, update, removal, both activation modes and
+portable Markdown export from a reviewed checkout. Its capability matrix
+distinguishes automatic filesystem routes from guided native/UI procedures.
+Existing methods below remain supported.
+
 <details>
 <summary><strong>Antigravity (<code>agy</code>)</strong></summary>
 
