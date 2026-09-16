@@ -98,6 +98,10 @@ Restart your coding assistant, then re-invoke `/i-have-adhd`.
 
 Loosely based on *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. Rostain. Adapted for how an LLM should respond, not how a human should organize their day.
 
+## Contributing
+
+Improvements to the skill, rules, documentation, and translations are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for authorship disclosure, labeling, and verification requirements before opening a pull request.
+
 ## License
 
 [MIT](LICENSE).
