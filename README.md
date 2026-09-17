@@ -65,6 +65,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 </tr>
 </table>
 
+Soft target for agent replies: under ~4 lines when a short answer works. Expand only when the task needs more detail.
 
 ## The rules
 
