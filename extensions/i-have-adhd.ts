@@ -39,6 +39,15 @@ type AdhdConfig = {
   hideStatus?: boolean;
 };
 
+// OMP retains the extension instance across these transitions. Pi's type surface
+// does not include all OMP event names; both runtimes accept named subscriptions.
+type OmpSessionLifecycleAPI = {
+  on(
+    event: "session_switch" | "session_branch",
+    handler: (event: unknown, ctx: ExtensionContext) => void,
+  ): void;
+};
+
 function loadConfig(): AdhdConfig {
   try {
     return JSON.parse(
@@ -236,5 +245,8 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
 
   pi.on("session_start", async (_event, ctx) => restoreState(ctx));
   pi.on("session_tree", async (_event, ctx) => restoreState(ctx));
+  const ompLifecycle = pi as unknown as OmpSessionLifecycleAPI;
+  ompLifecycle.on("session_switch", (_event, ctx) => restoreState(ctx));
+  ompLifecycle.on("session_branch", (_event, ctx) => restoreState(ctx));
   pi.on("session_compact", async (_event, ctx) => syncContext(ctx));
 }

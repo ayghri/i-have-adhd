@@ -3,6 +3,7 @@
 
 import argparse
 from contextlib import contextmanager
+from decimal import Decimal, ROUND_DOWN
 import json
 import math
 import shlex
@@ -376,6 +377,24 @@ def _usage_tokens(usage: Optional[dict[str, Any]]) -> tuple[int | None, int | No
     return _reported_token_total(input_values), usage.get("output_tokens")
 
 
+def _valid_cost(cost: Any) -> bool:
+    return (type(cost) is int and cost >= 0) or (
+        type(cost) is float and math.isfinite(cost) and cost >= 0
+    )
+
+
+def _budget_cost(cost: Any, allow_unmetered: bool) -> Decimal:
+    if _valid_cost(cost):
+        return Decimal(str(cost))
+    if allow_unmetered:
+        return Decimal(0)
+    raise RuntimeError(
+        "Unknown or invalid dollar cost; stopping before further calls. Reconcile "
+        "cost_usd in the responses/attempt-costs files before resuming, or use "
+        "--allow-unmetered only when the provider has a separate hard spending cap."
+    )
+
+
 def run_evaluations(args: argparse.Namespace) -> int:
     cases = load_cases(args.cases)
     errors = validate_cases(cases)
@@ -393,20 +412,34 @@ def run_evaluations(args: argparse.Namespace) -> int:
             f"The {response_format!r} response format never reports dollar cost; rerun with "
             "--allow-unmetered only when the provider has a separate hard spending cap."
         )
-    reported_cost = 0.0
-    prior_rows = read_jsonl(args.output) if args.output.exists() else []
-    done = completed_keys(prior_rows)
-    reported_cost = sum(
-        float(row.get("cost_usd") or 0)
-        for row in prior_rows
-        if row.get("condition") == args.condition and row.get("runner") == args.runner
-    )
-
     if args.budget_usd <= 0 or args.budget_usd > 25:
         raise ValueError("--budget-usd must be greater than 0 and no more than 25")
 
+    prior_rows = read_jsonl(args.output) if args.output.exists() else []
+    done = completed_keys(prior_rows)
+    # Failed/uncertain attempts consume budget but must never complete an answer.
+    costs_path = args.output.with_name(args.output.name + ".attempt-costs.jsonl")
+    prior_attempts = read_jsonl(costs_path) if costs_path.exists() else []
+    for row in prior_attempts:
+        if (
+            row.get("condition") not in CONDITIONS
+            or not isinstance(row.get("runner"), str)
+            or not row["runner"]
+        ):
+            raise ValueError(f"{costs_path}: invalid attempt cost scope")
+    reported_cost = sum(
+        (_budget_cost(row.get("cost_usd"), args.allow_unmetered)
+         for row in [*prior_rows, *prior_attempts]
+         if row.get("condition") == args.condition and row.get("runner") == args.runner),
+        Decimal(0),
+    )
+    budget = Decimal(str(args.budget_usd))
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("a", encoding="utf-8") as destination:
+    with (
+        args.output.open("a", encoding="utf-8") as destination,
+        costs_path.open("a", encoding="utf-8") as costs,
+    ):
         for trial in range(1, args.trials + 1):
             for case in cases:
                 if args.case and case["id"] not in args.case:
@@ -415,17 +448,19 @@ def run_evaluations(args: argparse.Namespace) -> int:
                 if key in done:
                     print(f"skip completed {args.condition} trial {trial}: {case['id']}")
                     continue
-                remaining = args.budget_usd - reported_cost
-                if remaining <= 0:
-                    print("Budget exhausted; stopping.", file=sys.stderr)
-                    return 2
                 prompt = _condition_prompt(case["prompt"], args.condition, args.condition_skill)
-                invocation = [*command]
-                if runner.get("budget_flag"):
-                    invocation.extend([runner["budget_flag"], f"{remaining:.4f}"])
-                invocation.append(prompt)
                 completed = None
                 for attempt in range(args.retries + 1):
+                    remaining = budget - reported_cost
+                    if runner.get("budget_flag") and remaining > 0:
+                        remaining = remaining.quantize(Decimal("0.0001"), rounding=ROUND_DOWN)
+                    if remaining <= 0:
+                        print("Budget exhausted; stopping.", file=sys.stderr)
+                        return 2
+                    invocation = [*command]
+                    if runner.get("budget_flag"):
+                        invocation.extend([runner["budget_flag"], f"{remaining:.4f}"])
+                    invocation.append(prompt)
                     with _neutral_cwd() as cwd:
                         completed = subprocess.run(
                             invocation,
@@ -435,30 +470,38 @@ def run_evaluations(args: argparse.Namespace) -> int:
                             cwd=cwd,
                             stdin=subprocess.DEVNULL,
                         )
+                    parse_error = None
+                    try:
+                        text, usage, cost = _parse_response(completed.stdout, response_format)
+                    except (ValueError, TypeError, AttributeError) as exc:
+                        parse_error = exc
+                        text, usage, cost = "", {}, None
+                    if not _valid_cost(cost):
+                        cost = None
+                    if (
+                        completed.returncode or parse_error
+                        or (cost is None and not args.allow_unmetered)
+                    ):
+                        costs.write(json.dumps({
+                            "case_id": case["id"], "trial": trial,
+                            "condition": args.condition, "runner": args.runner,
+                            "returncode": completed.returncode, "cost_usd": cost,
+                        }) + "\n")
+                        costs.flush()
+                    reported_cost += _budget_cost(cost, args.allow_unmetered)
                     if completed.returncode == 0:
+                        if parse_error:
+                            raise RuntimeError("Could not parse runner response") from parse_error
                         break
+                    if attempt == args.retries:
+                        detail = text or completed.stderr.strip() or completed.stdout.strip()
+                        raise RuntimeError(
+                            f"Runner failed after {args.retries + 1} attempts "
+                            f"({shlex.join(invocation[:-1])}):\n{detail}"
+                        )
                     if attempt < args.retries:
                         time.sleep(min(2**attempt, 5))
                 assert completed is not None
-                if completed.returncode:
-                    detail = completed.stderr.strip() or completed.stdout.strip()
-                    if completed.stdout.strip():
-                        try:
-                            parsed_text, _, _ = _parse_response(completed.stdout, response_format)
-                            detail = parsed_text or detail
-                        except (ValueError, json.JSONDecodeError):
-                            pass
-                    raise RuntimeError(
-                        f"Runner failed after {args.retries + 1} attempts "
-                        f"({shlex.join(invocation[:-1])}):\n{detail}"
-                    )
-                text, usage, cost = _parse_response(completed.stdout, response_format)
-                if cost is None and not args.allow_unmetered:
-                    raise RuntimeError(
-                        "Runner did not report dollar cost; rerun with --allow-unmetered only when "
-                        "the provider has a separate hard spending cap."
-                    )
-                reported_cost += float(cost or 0)
                 row = {
                     "case_id": case["id"],
                     "trial": trial,
