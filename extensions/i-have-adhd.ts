@@ -124,6 +124,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   const alwaysOnFlag = join(getAgentDir(), ".i-have-adhd-always");
   const config = loadConfig();
   let enabled = false;
+  let pendingContextRestore = false;
 
   const updateStatus = (ctx: ExtensionContext): void => {
     if (!enabled || config.hideStatus) {
@@ -140,34 +141,34 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
    * Keep the conversation in sync with the current mode, the way the Claude Code
    * SessionStart hook does: inject the ruleset once, never per request.
    */
-  const syncContext = (ctx: ExtensionContext): void => {
+  const contextSyncMessage = (ctx: ExtensionContext) => {
     const injected = rulesAreInContext(ctx);
 
     if (enabled && !injected) {
-      pi.sendMessage(
-        {
-          customType: RULES_MESSAGE_TYPE,
-          content: `${RULES_HEADER}\n\n${rules}`,
-          display: false,
-        },
-        { triggerTurn: false },
-      );
-      return;
+      return {
+        customType: RULES_MESSAGE_TYPE,
+        content: `${RULES_HEADER}\n\n${rules}`,
+        display: false,
+      };
     }
 
     if (!enabled && injected) {
-      pi.sendMessage(
-        {
-          customType: DISABLED_MESSAGE_TYPE,
-          content: DISABLED_NOTICE,
-          display: false,
-        },
-        { triggerTurn: false },
-      );
+      return {
+        customType: DISABLED_MESSAGE_TYPE,
+        content: DISABLED_NOTICE,
+        display: false,
+      };
     }
   };
 
-  const restoreState = (ctx: ExtensionContext): void => {
+  const syncContext = (ctx: ExtensionContext): void => {
+    const message = contextSyncMessage(ctx);
+    if (message) {
+      pi.sendMessage(message, { triggerTurn: false });
+    }
+  };
+
+  const restoreState = (ctx: ExtensionContext, deferContext = false): void => {
     const savedState = getSavedState(ctx);
     const enabledByDefault =
       pi.getFlag("adhd") === true ||
@@ -176,7 +177,8 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
 
     enabled = savedState ?? enabledByDefault;
     updateStatus(ctx);
-    syncContext(ctx);
+    pendingContextRestore = deferContext;
+    if (!deferContext) syncContext(ctx);
   };
 
   const setEnabled = (nextEnabled: boolean, ctx: ExtensionContext): void => {
@@ -246,7 +248,24 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   pi.on("session_start", async (_event, ctx) => restoreState(ctx));
   pi.on("session_tree", async (_event, ctx) => restoreState(ctx));
   const ompLifecycle = pi as unknown as OmpSessionLifecycleAPI;
-  ompLifecycle.on("session_switch", (_event, ctx) => restoreState(ctx));
-  ompLifecycle.on("session_branch", (_event, ctx) => restoreState(ctx));
-  pi.on("session_compact", async (_event, ctx) => syncContext(ctx));
+  // OMP restores a previously captured live-message snapshot AFTER these events.
+  // Sending here would persist a marker that the next prompt never receives.
+  ompLifecycle.on("session_switch", (_event, ctx) => restoreState(ctx, true));
+  ompLifecycle.on("session_branch", (_event, ctx) => restoreState(ctx, true));
+  pi.on("before_agent_start", async (_event, ctx) => {
+    if (!pendingContextRestore) return;
+    const message = contextSyncMessage(ctx);
+    if (!message) {
+      pendingContextRestore = false;
+      return;
+    }
+    // The runtime adds this to the prompt and persists it on delivery. Keep the
+    // pending flag until context confirms delivery: preparation can be abandoned.
+    return { message };
+  });
+  pi.on("session_compact", async (_event, ctx) => {
+    // Compaction may occur after before_agent_start but before its message lands.
+    // The pending return path supplies the marker without queuing a second copy.
+    if (!pendingContextRestore) syncContext(ctx);
+  });
 }
