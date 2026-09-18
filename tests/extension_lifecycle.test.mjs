@@ -65,12 +65,24 @@ function host({ runtime = "omp", defaultOn = false } = {}) {
     messages.push(entry);
     liveMessages.push(entry);
   };
+  const deliver = async (message) => {
+    liveMessages.push(inContext(message));
+    // OMP announces message_end while its persistence operation may be queued.
+    // Delivery acknowledgment must use the event, not assume history was flushed.
+    await handlers.get("message_end")?.({
+      type: "message_end", message: { role: "custom", ...message },
+    }, ctx);
+    messages.push(inContext(message));
+  };
   const flush = async () => { await Promise.all(sends.splice(0)); };
-  const compact = async () => {
+  const compact = async ({ inFlight = false } = {}) => {
+    const wasPreparing = preparing;
+    preparing ||= inFlight;
     messages = [];
     liveMessages = [];
     await handlers.get("session_compact")?.({}, ctx);
     await flush();
+    preparing = wasPreparing;
   };
   initialize({
     registerFlag() {}, getFlag: () => defaultOn,
@@ -120,9 +132,12 @@ function host({ runtime = "omp", defaultOn = false } = {}) {
       if (compactAfterPrepare) await compact();
       // The supported returned-message contract joins the prompt after restore
       // and persists on delivery; abandoned preparation must not consume it.
-      if (commit && result?.message) persist(result.message);
+      if (commit && result?.message) await deliver(result.message);
       preparing = false;
       return result;
+    },
+    deliverQueued: async () => {
+      for (const message of queuedMessages.splice(0)) await deliver(message);
     },
     snapshot: () => ({ status, states: branch.map((entry) => entry.data.enabled),
       markers: messages.map((message) => message.customType),
@@ -209,7 +224,14 @@ for (const event of ["session_switch", "session_branch"]) {
     h.replace();
     await h.emit(event, { reason: "resume" });
     assert.match(h.snapshot().status, /ADHD ON/);
+    await h.startAgent({ commit: false });
+    assert.deepEqual(h.snapshot().markers, []);
     await h.startAgent();
+    assert.deepEqual(h.snapshot().liveMarkers, ["i-have-adhd-rules"]);
+    // The ongoing tool loop can compact before any further before_agent_start.
+    await h.compact({ inFlight: true });
+    assert.deepEqual(h.snapshot().queuedMarkers, ["i-have-adhd-rules"]);
+    await h.deliverQueued();
     assert.deepEqual(h.snapshot().liveMarkers, ["i-have-adhd-rules"]);
     await h.startAgent();
     assert.deepEqual(h.snapshot().markers, ["i-have-adhd-rules"]);
@@ -223,10 +245,14 @@ for (const event of ["session_switch", "session_branch"]) {
     h.replace([saved(false)], [rules]);
     await h.emit(event, { reason: "resume" });
     assert.equal(h.snapshot().status, undefined);
+    await h.startAgent({ commit: false });
+    assert.deepEqual(h.snapshot().markers, ["i-have-adhd-rules"]);
     await h.startAgent();
     assert.deepEqual(h.snapshot().liveMarkers, ["i-have-adhd-rules", "i-have-adhd-disabled"]);
+    await h.compact({ inFlight: true });
+    assert.deepEqual(h.snapshot().queuedMarkers, []);
     await h.startAgent();
-    assert.deepEqual(h.snapshot().markers, ["i-have-adhd-rules", "i-have-adhd-disabled"]);
+    assert.deepEqual(h.snapshot().markers, []);
     assert.deepEqual(h.snapshot().queuedMarkers, []);
   });
 }
@@ -252,6 +278,19 @@ test("OMP compaction during pending preparation does not queue duplicate rules",
   assert.deepEqual(h.snapshot().liveMarkers, ["i-have-adhd-rules"]);
   await h.startAgent();
   assert.deepEqual(h.snapshot().markers, ["i-have-adhd-rules"]);
+});
+
+test("OMP unrelated or opposite-marker delivery does not consume an abandoned restoration", async () => {
+  const h = host({ defaultOn: true });
+  await h.emit("session_start");
+  h.replace();
+  await h.emit("session_switch", { reason: "resume" });
+  await h.startAgent({ commit: false });
+  await h.emit("message_end", { message: { role: "user", content: "Next task" } });
+  await h.emit("message_end", { message: { role: "custom", customType: "i-have-adhd-disabled" } });
+  await h.startAgent({ compactAfterPrepare: true });
+  assert.deepEqual(h.snapshot().queuedMarkers, []);
+  assert.deepEqual(h.snapshot().liveMarkers, ["i-have-adhd-rules"]);
 });
 
 test("Pi start/tree, compaction, skill alias, and stop controls remain compatible", async () => {

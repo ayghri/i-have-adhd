@@ -260,8 +260,17 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       return;
     }
     // The runtime adds this to the prompt and persists it on delivery. Keep the
-    // pending flag until context confirms delivery: preparation can be abandoned.
+    // pending flag until delivery is acknowledged: preparation can be abandoned.
     return { message };
+  });
+  pi.on("message_end", async (event) => {
+    if (!pendingContextRestore || event.message.role !== "custom") return;
+    const expectedMarker = enabled ? RULES_MESSAGE_TYPE : DISABLED_MESSAGE_TYPE;
+    if (event.message.customType === expectedMarker) {
+      // OMP can notify before persistence flushes. The delivered message itself
+      // confirms restoration, so same-turn compaction may now re-inject rules.
+      pendingContextRestore = false;
+    }
   });
   pi.on("session_compact", async (_event, ctx) => {
     // Compaction may occur after before_agent_start but before its message lands.
