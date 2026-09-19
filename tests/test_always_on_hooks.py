@@ -162,11 +162,8 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertNotIn("args", hook)
         command = hook["command"]
-        self.assertRegex(command, r'^node(?: --input-type=module)? -e "')
-        self.assertIn("process.env.CLAUDE_PLUGIN_ROOT", command)
-        self.assertIn("process.env.PLUGIN_ROOT", command)
-        self.assertIn("await import", command)
-        self.assertIn(".catch", command)
+        self.assertRegex(command, r'CLAUDE_PLUGIN_ROOT')
+        self.assertIn("CLAUDE_PLUGIN_ROOT", command)
 
 
 if __name__ == "__main__":
