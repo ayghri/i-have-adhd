@@ -32,6 +32,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 或 🔗 [查看安装说明](../install/INSTALL.zh-CN.md)
 
+支持的运行时：Claude Code · Codex · Kiro · Gemini CLI · Qwen · Kimi · OpenCode · Pi · OMP · Antigravity
+
 ## 功能
 
 一个给编程助手用的技能，让它别把答案埋进长篇大论。行动优先。步骤编号。不说“希望这能帮到你！”
