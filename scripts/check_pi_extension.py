@@ -236,6 +236,7 @@ def main() -> None:
                 capture_output=True,
                 text=True,
             )
+            Path(agent_dir, "i-have-adhd.json").write_text("null\n", encoding="utf8")
         extension_args = (
             []
             if args.runtime == "pi"
