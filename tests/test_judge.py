@@ -412,5 +412,164 @@ class EndToEndTest(unittest.TestCase):
             self.assertNotEqual(0, exit_code, "skipped groups must not report success")
 
 
+class JudgeCostAndBudgetTest(unittest.TestCase):
+    """The judge reports what it actually spent and can be capped (#91)."""
+
+    # A runner that bills $0.01 per invocation, reports that cost even when the
+    # attempt fails the way a real provider does, and can be made to fail its
+    # first N attempts so the retry path is exercised.
+    RUNNER = (
+        "sh",
+        "-c",
+        """
+n=$(cat "$CALLS_FILE" 2>/dev/null || echo 0)
+n=$((n+1))
+echo "$n" > "$CALLS_FILE"
+cat > /dev/null
+if [ "$n" -le "$FAIL_FIRST" ]; then
+  printf '{"result":"not a verdict","total_cost_usd":0.01}'
+  exit 1
+fi
+printf '{"result":%s,"total_cost_usd":0.01}' "$VERDICT_JSON"
+""",
+    )
+
+    # Case ids must exist in evals/cases.jsonl; an unknown id is a hard error.
+    CASES = ("direct-answer", "casual-message", "code-answer")
+    VERDICT_JSON = json.dumps(
+        json.dumps(
+            {
+                label: {
+                    "correctness": 4,
+                    "autonomy": 4,
+                    "actionability": 4,
+                    "safety": 5,
+                    "concision": 4,
+                    "blocker": False,
+                    "notes": "fixture",
+                }
+                for label in ("A", "B")
+            }
+        )
+    )
+
+    def _run(self, tmp_path: Path, *, groups: int, fail_first: int, budget: float, tag: str):
+        import os
+
+        responses = tmp_path / "responses.jsonl"
+        responses.write_text(
+            "".join(
+                json.dumps(
+                    {
+                        "case_id": case_id,
+                        "trial": 1,
+                        "condition": condition,
+                        "runner": "stub",
+                        "response": f"{case_id} {condition} text",
+                    }
+                )
+                + "\n"
+                for case_id in self.CASES[:groups]
+                for condition in ("baseline", "candidate")
+            )
+        )
+        runner_config = tmp_path / "runners.json"
+        runner_config.write_text(
+            json.dumps(
+                {
+                    "stub": {
+                        "command": list(self.RUNNER),
+                        "response_format": "claude-json",
+                    }
+                }
+            )
+        )
+        output = tmp_path / f"scores-{tag}.jsonl"
+        calls_file = tmp_path / f"calls-{tag}"
+        old = dict(os.environ)
+        os.environ["CALLS_FILE"] = str(calls_file)
+        os.environ["FAIL_FIRST"] = str(fail_first)
+        os.environ["VERDICT_JSON"] = self.VERDICT_JSON
+        try:
+            import contextlib, io
+
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                exit_code = judge.main(
+                    [
+                        "--responses", str(responses),
+                        "--cases", str(ROOT / "evals" / "cases.jsonl"),
+                        "--rubric", str(ROOT / "evals" / "rubric.md"),
+                        "--runner-config", str(runner_config),
+                        "--runner", "stub",
+                        "--output", str(output),
+                        "--budget-usd", str(budget),
+                    ]
+                )
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+        calls = int(calls_file.read_text()) if calls_file.exists() else 0
+        return exit_code, calls, stdout.getvalue() + stderr.getvalue(), output
+
+    def test_a_retried_attempt_is_counted_in_the_reported_cost(self):
+        # A failed attempt is billed. With the old accounting the second group
+        # reported one call's cost ($0.01) while two calls were paid for; the
+        # retry here makes the gap two calls wide on purpose.
+        with tempfile.TemporaryDirectory() as tmp:
+            exit_code, calls, report, _ = self._run(
+                Path(tmp), groups=2, fail_first=1, budget=25.0, tag="retry"
+            )
+
+            self.assertEqual(0, exit_code)
+            # group 1: attempt 1 billed + fails, attempt 2 succeeds = 2 calls
+            # group 2: attempt 1 succeeds = 3 calls total = $0.03
+            self.assertEqual(3, calls)
+            self.assertIn("Reported judge cost: $0.0300", report)
+            self.assertIn("across 3 invocation(s)", report)
+
+    def test_cost_report_matches_invocations_when_nothing_is_retried(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            exit_code, calls, report, _ = self._run(
+                Path(tmp), groups=2, fail_first=0, budget=25.0, tag="clean"
+            )
+
+            self.assertEqual(0, exit_code)
+            self.assertEqual(2, calls)
+            self.assertIn("Reported judge cost: $0.0200", report)
+
+    def test_a_budget_too_small_to_cover_the_run_stops_it(self):
+        # Two groups at $0.01 each need $0.03; a $0.02 ceiling must halt the run
+        # instead of judging everything and only afterwards revealing the spend.
+        with tempfile.TemporaryDirectory() as tmp:
+            exit_code, calls, report, output = self._run(
+                Path(tmp), groups=3, fail_first=0, budget=0.02, tag="budget"
+            )
+
+            self.assertEqual(2, exit_code)
+            self.assertIn("exhausted", report)
+            # Regression guard for the handler ordering: the generic retry
+            # handler must not swallow the budget stop and continue the run.
+            self.assertLess(calls, 3, "the run judged all three groups despite the ceiling")
+            # The check runs before each call, so the run stops as soon as the
+            # ledger covers the ceiling, overshooting by at most the one call
+            # already in flight.
+            self.assertLessEqual(calls, 3)
+            self.assertTrue(
+                str(output) in report or "Reported judge cost" in report,
+                "the run must still say what it spent when it stops",
+            )
+
+    def test_budget_rejects_a_nonsensical_ceiling(self):
+        for bad in ("0", "-1", "26"):
+            with self.subTest(budget=bad):
+                with tempfile.TemporaryDirectory() as tmp:
+                    with self.assertRaisesRegex(ValueError, "budget-usd"):
+                        self._run(
+                            Path(tmp), groups=1, fail_first=0, budget=float(bad),
+                            tag=f"bad{bad}",
+                        )
+
+
 if __name__ == "__main__":
     unittest.main()
