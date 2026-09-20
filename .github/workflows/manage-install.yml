@@ -1,0 +1,35 @@
+name: Unified installer
+
+on:
+  pull_request:
+    paths:
+      - scripts/manage_install.py
+      - tests/test_manage_install.py
+      - skills/**
+      - INSTALL.md
+      - MANAGE_INSTALL.md
+      - .github/workflows/manage-install.yml
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest tests.test_manage_install -v
+      - run: python scripts/run_evals.py validate
