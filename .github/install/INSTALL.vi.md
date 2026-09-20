@@ -222,7 +222,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # command route
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
-Copilot đọc Agent Skills trực tiếp: cùng một `SKILL.md`, không cần chuyển đổi. Trong dự án, Copilot quét `.github/skills/`, `.claude/skills/`, `.agents/skills/`; trên toàn hệ thống, nó quét `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/`.
+Copilot đọc Agent Skills trực tiếp: cùng một `SKILL.md`, không cần chuyển đổi. Trong dự án, Copilot quét `.github/skills/`, `.claude/skills/`, `.agents/skills/`; trên toàn hệ thống, nó quét `~/.copilot/skills/`, `~/.agents/skills/`.
 
 ### Cài đặt
 

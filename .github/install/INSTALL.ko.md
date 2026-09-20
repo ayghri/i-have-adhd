@@ -222,7 +222,7 @@ rm ~/.gemini/commands/i-have-adhd.toml     # command route
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
-Copilot은 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변환 없이 읽습니다. 프로젝트의 `.github/skills/`, `.claude/skills/`, `.agents/skills/`와 전역의 `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/`를 검색합니다.
+Copilot은 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변환 없이 읽습니다. 프로젝트의 `.github/skills/`, `.claude/skills/`, `.agents/skills/`와 전역의 `~/.copilot/skills/`, `~/.agents/skills/`를 검색합니다.
 
 ### 설치
 
