@@ -42,6 +42,8 @@ class OpenCodePluginTest(unittest.TestCase):
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             env=env,
         )
 
@@ -49,7 +51,9 @@ class OpenCodePluginTest(unittest.TestCase):
         (self.config_dir / "opencode" / ".i-have-adhd-always").touch()
 
     def write_skill(self, text):
-        (self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md").write_text(text)
+        (self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md").write_text(
+            text, encoding="utf-8"
+        )
 
     def test_silent_without_opt_in_flag(self):
         result = self.run_plugin()
@@ -123,7 +127,7 @@ class OpenCodePluginTest(unittest.TestCase):
         command = self.plugin_root / ".opencode/command/i-have-adhd.md"
         for text in ["---\n{broken}\n---\nBody", '---\n{"description":"unclosed"}\nBody']:
             with self.subTest(text=text):
-                command.write_text(text)
+                command.write_text(text, encoding="utf-8")
                 result = self.run_plugin("config")
                 self.assertEqual(0, result.returncode, result.stderr)
                 config = json.loads(result.stdout)

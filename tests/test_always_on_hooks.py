@@ -50,11 +50,15 @@ class AlwaysOnHookTest(unittest.TestCase):
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             env=env,
         )
 
     def run_codex_hook(self, plugin_root=None):
-        config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+        config = json.loads(
+            (ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8")
+        )
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
         env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
@@ -76,6 +80,8 @@ class AlwaysOnHookTest(unittest.TestCase):
             ),
             shell=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
 
     @staticmethod
@@ -157,7 +163,9 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual("", result.stdout)
 
     def test_hook_uses_a_shared_claude_and_codex_launcher(self):
-        config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+        config = json.loads(
+            (ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8")
+        )
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
 
         self.assertNotIn("args", hook)

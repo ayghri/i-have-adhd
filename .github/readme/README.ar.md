@@ -5,7 +5,7 @@
   <strong align="center">إجابات موجزة ومناسبة للمصابين باضطراب فرط الحركة وتشتت الانتباه. لا حاجة إلى تشخيص؛ يمكن للجميع استخدامها!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="الترخيص"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="الترخيص"></a>
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 انسخ النص التالي والصقه في موجّه سطر الأوامر:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/aixinwudi/i-have-adhd-cn, refer to the repo's AGENTS.md for instructions.
 ```
 
 أو 🔗 [راجع تعليمات التثبيت](../install/INSTALL.ar.md).

@@ -5,13 +5,13 @@
   <strong align="center">对 ADHD 友好的输出。无需确诊 ADHD！</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="许可证"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <strong title="简体中文" aria-label="简体中文">🇨🇳</strong> ·
-  <a href="README.id.md" title="Bahasa Indonesia" aria-label="Bahasa Indonesia">🇮🇩</a> ·
+  <a href="README.en.md" title="English" aria-label="English">🇬🇧</a> ·
+  <a href="README.es.md" title="Español" aria-label="Español">🇪🇸</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
@@ -22,20 +22,37 @@
 </p>
 
 
+## 这个中文版改了什么
+
+- **上游项目**：[ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd)。本仓库是它的中文 fork：[aixinwudi/i-have-adhd-cn](https://github.com/aixinwudi/i-have-adhd-cn)。
+- **默认用简体中文回复。** 上游版本是英文规则，装上后模型倾向于跟着用英文回答；这里的技能文件全部改成了中文，并明确写了语言规则：默认中文，用户换语言就跟着换，代码、命令、路径和报错原文不翻译。
+- **所有会注入到模型上下文里的文字都翻成了中文**：技能正文、hook 注入的横幅、OpenCode 插件与命令、Gemini 命令、Pi/OMP 扩展、各家插件清单里的描述。
+- **英文原文保留**：`README.en` 与 `INSTALL.en` 分别在 [.github/readme/](README.en.md) 和 [.github/install/](../install/INSTALL.en.md)。
+
+只想要中文输出、不想要其他改动的，直接装这个 fork 就行。
+
 ## 安装
 
-复制粘贴到你的 CLI 对话框中：
+复制粘贴到你的 CLI 对话框：
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+从 https://github.com/aixinwudi/i-have-adhd-cn 安装 i-have-adhd 技能/插件，具体步骤参考仓库的 AGENTS.md。
 ```
 
-或 🔗 [查看安装说明](../install/INSTALL.zh-CN.md)
+Codex 里的最短路径（本仓库地址）：
+
+```text
+codex plugin marketplace add aixinwudi/i-have-adhd-cn --ref main
+codex plugin add i-have-adhd@i-have-adhd
+```
+
+然后输入 `$i-have-adhd` 调用。其他运行环境（Claude Code、Grok、Gemini、Copilot、Zed、OpenCode、Pi、OMP、Qwen、Kimi 等）见 🔗 [安装说明](../install/INSTALL.zh-CN.md)。
 
 ## 功能
 
 一个给编程助手用的技能，让它别把答案埋进长篇大论。行动优先。步骤编号。不说“希望这能帮到你！”
 
+[Kacper Rutkiewicz | AI Made Simple](https://youtu.be/NEl8kPWZP_Y) 讲解过这个技能的早期版本。
 
 ## 有什么变化
 
@@ -69,7 +86,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## 规则
 
-共 10 条规则。完整内容见 [SKILL.md](../../skills/i-have-adhd/SKILL.md)。
+10 条规则。完整内容见 [SKILL.md](../../skills/i-have-adhd/SKILL.md)。
 
 1. 先说下一步行动。
 2. 多步骤任务使用编号。
@@ -82,6 +99,8 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 9. 每个列表最多 5 项。
 10. 不写开场白、回顾或结束语。
 
+另外一条本 fork 新增的规则：默认用简体中文输出；用户使用其他语言时跟随用户的语言，代码、命令、路径和报错原文保持原样。
+
 ## 自定义
 
 Fork 此仓库，编辑 `skills/i-have-adhd/SKILL.md`，然后换成你的副本：
@@ -93,7 +112,15 @@ claude plugin marketplace add <your-username>/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
-重启 Claude Code，然后再次调用 `/i-have-adhd`。
+改完 `skills/i-have-adhd/SKILL.md` 后，别忘了同步 Cursor 用的镜像文件：
+
+```bash
+cp skills/i-have-adhd/SKILL.md .cursor/skills/i-have-adhd/SKILL.md
+```
+
+重启你的编程助手，然后再次调用 `/i-have-adhd`。
+
+想把默认语言改回英文，就删掉 `SKILL.md` 里的“输出语言”小节，或者在那一节里写上你想要的语言。
 
 ## 致谢
 

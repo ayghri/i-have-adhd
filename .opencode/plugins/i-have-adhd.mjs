@@ -84,9 +84,9 @@ export default async () => {
       try { body = rulesetBody(); } catch (e) { return; }
 
       const header =
-        'ADHD MODE ACTIVE (always-on). The ruleset below applies to every ' +
-        'response. "stop adhd mode" or "normal mode" turns it off for this ' +
-        'session; delete ' + flagPath + ' to turn always-on off for good.';
+        'ADHD MODE ACTIVE (always-on) —— ADHD 模式已常驻开启，下面的规则对每一条回复生效。' +
+        '说“停止 ADHD 模式”或“正常模式”（stop adhd mode / normal mode）关闭本次会话的规则；删除 ' +
+        flagPath + ' 可永久关闭常驻模式。';
       const injected = header + '\n\n' + body;
 
       if (output.system.length > 0) {

@@ -6,7 +6,7 @@
 ### 설치
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/aixinwudi/i-have-adhd-cn
 ```
 
 ### 확인
@@ -19,7 +19,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/aixinwudi/i-have-adhd-cn
 ```
 
 ### 제거
@@ -61,7 +61,7 @@ agy plugin uninstall i-have-adhd
 ### 설치
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
+claude plugin marketplace add aixinwudi/i-have-adhd-cn
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
@@ -119,7 +119,7 @@ rm ~/.claude/.i-have-adhd-always
 ### 설치
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
+codex plugin marketplace add aixinwudi/i-have-adhd-cn --ref main
 codex plugin add i-have-adhd@i-have-adhd
 ```
 
@@ -180,7 +180,7 @@ Gemini CLI에는 플러그인 마켓플레이스가 없어 두 가지 기본 방
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/aixinwudi/i-have-adhd-cn/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -189,7 +189,7 @@ curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-ha
 ### 설치 (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/aixinwudi/i-have-adhd-cn
 ```
 
 확장 프로그램은 전체 스킬을 가져오는 `GEMINI.md`를 불러오므로 첫 메시지부터 규칙이 적용됩니다. `git`이 설치되어 있어야 합니다.
@@ -227,14 +227,14 @@ Copilot은 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변환 �
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # 이 프로젝트
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # 모든 프로젝트
+npx skills add aixinwudi/i-have-adhd-cn -a github-copilot        # 이 프로젝트
+npx skills add aixinwudi/i-have-adhd-cn -a github-copilot -g     # 모든 프로젝트
 ```
 
 CLI 없이 설치하려면 스킬 폴더를 Copilot이 검색하는 디렉터리 중 하나에 복사하세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/aixinwudi/i-have-adhd-cn i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -266,7 +266,7 @@ npx skills remove i-have-adhd
 
 ### 활성화 참고 사항
 
-Copilot은 `disable-model-invocation`을 따릅니다. Claude Code와 마찬가지로 스킬을 호출하기 전에는 아무 규칙도 적용되지 않습니다([#60](https://github.com/ayghri/i-have-adhd/pull/60)에서 테스트).
+Copilot은 `disable-model-invocation`을 따릅니다. Claude Code와 마찬가지로 스킬을 호출하기 전에는 아무 규칙도 적용되지 않습니다([#60](https://github.com/aixinwudi/i-have-adhd-cn/pull/60)에서 테스트).
 
 ### 항상 활성화(선택 사항)
 
@@ -299,7 +299,7 @@ Copilot은 `disable-model-invocation`을 따릅니다. Claude Code와 마찬가�
 ### 설치
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install aixinwudi/i-have-adhd-cn/skills/i-have-adhd
 ```
 
 `/i-have-adhd`를 입력하세요. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
@@ -307,9 +307,9 @@ hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 먼저 둘러보려면 이 저장소를 스킬 소스("tap")로 추가한 뒤 검색하고 설치하세요:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add aixinwudi/i-have-adhd-cn
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install aixinwudi/i-have-adhd-cn/skills/i-have-adhd
 ```
 
 ### 확인
@@ -330,7 +330,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-tap도 제거하려면 `hermes skills tap remove ayghri/i-have-adhd`를 실행하세요.
+tap도 제거하려면 `hermes skills tap remove aixinwudi/i-have-adhd-cn`를 실행하세요.
 
 ### 항상 활성화(선택 사항)
 
@@ -366,7 +366,7 @@ Kimi Code 세션을 시작한 뒤 다음을 수행하세요.
 
 1. `/plugins`를 실행합니다.
 2. **Custom**을 선택합니다.
-3. `https://github.com/ayghri/i-have-adhd`를 붙여넣고 Enter를 누릅니다.
+3. `https://github.com/aixinwudi/i-have-adhd-cn`를 붙여넣고 Enter를 누릅니다.
 4. **Trust and install**을 선택합니다.
 
 slash 명령 `/skill:i-have-adhd`로 이 스킬을 명시적으로 호출하세요.
@@ -390,13 +390,13 @@ Pi는 Agent Skills 표준을 구현하므로 같은 `SKILL.md`를 변환 없이 
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+npx skills add aixinwudi/i-have-adhd-cn -a pi -y
 ```
 
 파일 시스템 방식을 선호한다면 Pi는 `~/.pi/agent/skills/`와 `~/.agents/skills/`(전역), `.pi/skills/`와 `.agents/skills/`(프로젝트)에서 스킬을 찾습니다:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/aixinwudi/i-have-adhd-cn i-have-adhd
 mkdir -p ~/.pi/agent/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
 ```
@@ -465,7 +465,7 @@ npx skills remove i-have-adhd
 ### 설치
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install aixinwudi/i-have-adhd-cn
 ```
 
 Qwen Code는 GitHub 축약 표기를 지원하며 이 저장소를 네이티브 확장으로 설치합니다. 확장은 `skills/` 아래의 스킬을 검색합니다.
@@ -510,7 +510,7 @@ Zed의 Agent는 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변�
 Agent Panel에서 Skills 관리자를 열고 **Create skill from URL**(명령 팔레트에서는 `agent: create skill from url`)을 선택한 뒤 다음을 붙여넣으세요:
 
 ```
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/aixinwudi/i-have-adhd-cn/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 모든 프로젝트에서 사용하려면 **User** 범위에, 한 프로젝트에서만 사용하려면 **Project** 범위에 저장하세요. 그런 다음 Agent Panel에서 `/i-have-adhd`를 입력하세요.
@@ -518,7 +518,7 @@ https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 파일 시스템 방식을 선호한다면 저장소를 클론하고 스킬 폴더를 사용자 skills 디렉터리에 넣으세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/aixinwudi/i-have-adhd-cn i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -568,10 +568,10 @@ Agent Skills를 읽는 모든 실행 환경에서 작동합니다. `-a <agent>`�
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # this workspace
-npx skills add ayghri/i-have-adhd -g               # 모든 프로젝트
-npx skills add ayghri/i-have-adhd -a cursor -y     # one agent only
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add aixinwudi/i-have-adhd-cn                  # this workspace
+npx skills add aixinwudi/i-have-adhd-cn -g               # 모든 프로젝트
+npx skills add aixinwudi/i-have-adhd-cn -a cursor -y     # one agent only
+npx skills add aixinwudi/i-have-adhd-cn -a opencode -y
 ```
 
 새 에이전트 채팅에서 `/i-have-adhd`를 입력하세요.
@@ -579,7 +579,7 @@ npx skills add ayghri/i-have-adhd -a opencode -y
 CLI 없이 설치하려면 에이전트가 검색하는 경로에 스킬 폴더를 복사하세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/aixinwudi/i-have-adhd-cn i-have-adhd
 mkdir -p ~/.cursor/skills     # Cursor. OpenCode는 .agents/skills, 다른 에이전트는 자체 경로 사용
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```

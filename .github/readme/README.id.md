@@ -5,7 +5,7 @@
   <strong align="center">Respons yang ramah bagi kamu yang memiliki ADHD. Tanpa perlu diagnosis!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="Lisensi"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="Lisensi"></a>
 </p>
 
 <p align="center">

@@ -1,4 +1,4 @@
-# SessionStart hook fallback for Windows PowerShell. Injects the full
+﻿# SessionStart hook fallback for Windows PowerShell. Injects the full
 # i-have-adhd ruleset when the user has opted in by creating
 # $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
 # Never blocks session start: any failure exits 0.
@@ -41,9 +41,10 @@ try {
     ""
   }
 
-  $banner = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
-    '"stop adhd mode" turns it off for this session; delete '
-  [Console]::Out.Write($banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n")
+  $banner = 'ADHD MODE ACTIVE (always-on) —— ADHD 模式已常驻开启，' +
+    '下面的规则对每一条回复生效。' +
+    '说“停止 ADHD 模式”或“正常模式”（stop adhd mode / normal mode）关闭本次会话的规则；删除 '
+  [Console]::Out.Write($banner + $flagPath + " 可永久关闭常驻模式。`n`n" + $body + "`n")
 } catch {
   # Never block session start.
   exit 0

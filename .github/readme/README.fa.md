@@ -5,7 +5,7 @@
   <strong align="center">خروجی‌های سازگار با ADHD. نیازی به تشخیص پزشکی نیست!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="مجوز"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="مجوز"></a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 به طور خلاصه، در اکثر ابزارها می‌توانید با دستور زیر شروع کنید:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/aixinwudi/i-have-adhd-cn, refer to the repo's AGENTS.md for instructions.
 ```
 
 🔗 [مشاهده راهنمای نصب](../install/INSTALL.fa.md)

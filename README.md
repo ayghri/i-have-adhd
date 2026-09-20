@@ -2,15 +2,15 @@
   <img src="./logo.png" alt="i-have-adhd" width="140" />
 </p>
 <p align="center">
-  <strong align="center">ADHD-friendly outputs. No ADHD diagnosis needed!</strong>
+  <strong align="center">对 ADHD 友好的输出。无需确诊 ADHD！</strong>
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
-  <strong title="English" aria-label="English">🇬🇧</strong> ·
-  <a href=".github/readme/README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <strong title="简体中文" aria-label="简体中文">🇨🇳</strong> ·
+  <a href=".github/readme/README.en.md" title="English" aria-label="English">🇬🇧</a> ·
   <a href=".github/readme/README.es.md" title="Español" aria-label="Español">🇪🇸</a> ·
   <a href=".github/readme/README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href=".github/readme/README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
@@ -22,85 +22,112 @@
 </p>
 
 
-## Install
+## 这个中文版改了什么
 
-Copy/paste into your CLI prompt:
+- **上游项目**：[ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd)。本仓库是它的中文 fork：[aixinwudi/i-have-adhd-cn](https://github.com/aixinwudi/i-have-adhd-cn)。
+- **默认用简体中文回复。** 上游版本是英文规则，装上后模型倾向于跟着用英文回答；这里的技能文件全部改成了中文，并明确写了语言规则：默认中文，用户换语言就跟着换，代码、命令、路径和报错原文不翻译。
+- **所有会注入到模型上下文里的文字都翻成了中文**：技能正文、hook 注入的横幅、OpenCode 插件与命令、Gemini 命令、Pi/OMP 扩展、各家插件清单里的描述。
+- **英文原文保留**：`README.en` 与 `INSTALL.en` 分别在 [.github/readme/](.github/readme/README.en.md) 和 [.github/install/](.github/install/INSTALL.en.md)。
+
+只想要中文输出、不想要其他改动的，直接装这个 fork 就行。
+
+## 安装
+
+复制粘贴到你的 CLI 对话框：
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+从 https://github.com/aixinwudi/i-have-adhd-cn 安装 i-have-adhd 技能/插件，具体步骤参考仓库的 AGENTS.md。
 ```
 
-Or 🔗 [check the installation instructions](INSTALL.md).
+Codex 里的最短路径（本仓库地址）：
 
-## What it does
+```text
+codex plugin marketplace add aixinwudi/i-have-adhd-cn --ref main
+codex plugin add i-have-adhd@i-have-adhd
+```
 
-A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"
+然后输入 `$i-have-adhd` 调用。其他运行环境（Claude Code、Grok、Gemini、Copilot、Zed、OpenCode、Pi、OMP、Qwen、Kimi 等）见 🔗 [安装说明](INSTALL.md)。
 
-[Kacper Rutkiewicz | AI Made Simple](https://youtu.be/NEl8kPWZP_Y) has made a good breakdown of an earlier version of the skill.
-## What changes
+## 功能
+
+一个给编程助手用的技能，让它别把答案埋进长篇大论。行动优先。步骤编号。不说“希望这能帮到你！”
+
+[Kacper Rutkiewicz | AI Made Simple](https://youtu.be/NEl8kPWZP_Y) 讲解过这个技能的早期版本。
+
+## 有什么变化
 
 
 <table>
 <tr>
 <td width="50%">
 
-## Before
+## 之前
 
-> Great question! Let me think about this. Your auth flow has a few moving pieces: the middleware, the token verification, and the cookie handling. Looking at `src/auth.ts`, the `verifyToken` function (around lines 42-58) seems to be using an older `jsonwebtoken` API. One approach would be to update the package and rewrite that function. After making the change, you'd want to run the auth tests to confirm nothing breaks. By the way, you might also want to look at your dependency versions overall. Hope this helps! Let me know if you want to dig deeper.
+> 问得好！让我想一想。你的身份验证流程包含几个环节：中间件、令牌验证和 Cookie 处理。查看 `src/auth.ts` 后，`verifyToken` 函数（大约第 42–58 行）似乎使用了旧版 `jsonwebtoken` API。一种做法是升级这个包并重写该函数。完成修改后，你需要运行身份验证测试，确认没有破坏任何功能。顺便一提，你可能还想整体检查一下依赖版本。希望这能帮到你！如果你想进一步研究，请告诉我。
 
 </td>
 
 <td width="50%">
 
-## After
+## 之后
 
-> Run `npm install jsonwebtoken@latest`, then edit `src/auth.ts:42`.
+> 运行 `npm install jsonwebtoken@latest`，然后编辑 `src/auth.ts:42`。
 >
-> 1. Open `src/auth.ts`
-> 2. Replace `verifyToken` (lines 42–58) with the snippet below
-> 3. Run `npm test -- auth.spec.ts`
+> 1. 打开 `src/auth.ts`
+> 2. 将 `verifyToken`（第 42–58 行）替换为下面的代码片段
+> 3. 运行 `npm test -- auth.spec.ts`
 >
-> Next: paste the first failing line if any test fails.
+> 下一步：如果有测试失败，请粘贴第一行报错。
 
 </td>
 </tr>
 </table>
 
 
-## The rules
+## 规则
 
-10 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
+10 条规则。完整内容见 [SKILL.md](./skills/i-have-adhd/SKILL.md)。
 
-1. Lead with the next action.
-2. Number multi-step tasks.
-3. End with one concrete next step.
-4. Suppress tangents.
-5. Restate state every turn.
-6. Specific time estimates (minutes, not "a bit").
-7. Make wins visible.
-8. Matter-of-fact errors.
-9. Cap lists to 5 items.
-10. No preamble. No recap. No closers.
+1. 先说下一步行动。
+2. 多步骤任务使用编号。
+3. 以一个具体的下一步收尾。
+4. 抑制离题内容。
+5. 每轮重述当前状态。
+6. 给出具体的时间估计（以分钟计，不说“一会儿”）。
+7. 让完成的工作看得见。
+8. 就事论事地报告错误。
+9. 每个列表最多 5 项。
+10. 不写开场白、回顾或结束语。
 
-## Tune it
+另外一条本 fork 新增的规则：默认用简体中文输出；用户使用其他语言时跟随用户的语言，代码、命令、路径和报错原文保持原样。
 
-Fork, edit `skills/i-have-adhd/SKILL.md`, then swap your copy in:
+## 自定义
+
+Fork 此仓库，编辑 `skills/i-have-adhd/SKILL.md`，然后换成你的副本：
 
 ```bash
-claude plugin uninstall i-have-adhd            # drop the upstream copy first:
-claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
+claude plugin uninstall i-have-adhd            # 先移除上游副本：
+claude plugin marketplace remove i-have-adhd   # fork 与上游使用相同名称
 claude plugin marketplace add <your-username>/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
-Restart your coding assistant, then re-invoke `/i-have-adhd`.
+改完 `skills/i-have-adhd/SKILL.md` 后，别忘了同步 Cursor 用的镜像文件：
 
-## Credits
+```bash
+cp skills/i-have-adhd/SKILL.md .cursor/skills/i-have-adhd/SKILL.md
+```
 
-Loosely based on *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. Rostain. Adapted for how an LLM should respond, not how a human should organize their day.
+重启你的编程助手，然后再次调用 `/i-have-adhd`。
 
-## License
+想把默认语言改回英文，就删掉 `SKILL.md` 里的“输出语言”小节，或者在那一节里写上你想要的语言。
 
-[MIT](LICENSE).
+## 致谢
 
-Star ⭐ if it saved you one scroll past one "Great question!"
+内容大致参考 J. Russell Ramsay 和 Anthony L. Rostain 所著的 *The Adult ADHD Tool Kit*。本技能针对 LLM 应如何回应进行了改编，而不是教人们如何安排日常生活。
+
+## 许可证
+
+[MIT](LICENSE)。
+
+如果它帮你省下一次滚动、少看一句“问得好！”，请点个 Star ⭐

@@ -5,7 +5,7 @@
   <strong align="center">ADHD 친화적인 출력. ADHD 진단은 필요 없어요!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
