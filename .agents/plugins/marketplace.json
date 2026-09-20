@@ -1,14 +1,14 @@
 {
   "name": "i-have-adhd",
   "interface": {
-    "displayName": "I Have ADHD"
+    "displayName": "I Have ADHD（ADHD 友好输出）"
   },
   "plugins": [
     {
       "name": "i-have-adhd",
       "source": {
         "source": "url",
-        "url": "https://github.com/ayghri/i-have-adhd.git",
+        "url": "https://github.com/aixinwudi/i-have-adhd-cn.git",
         "ref": "main"
       },
       "policy": {

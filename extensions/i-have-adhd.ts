@@ -23,12 +23,18 @@ const STATE_ENTRY_TYPE = "i-have-adhd-state";
 const RULES_MESSAGE_TYPE = "i-have-adhd-rules";
 const DISABLED_MESSAGE_TYPE = "i-have-adhd-disabled";
 const STATUS_KEY = "i-have-adhd";
-const DISABLE_CONFIRMATION = "ADHD mode disabled.";
-const STOP_PHRASES = new Set(["stop adhd mode", "normal mode"]);
+const DISABLE_CONFIRMATION = "ADHD 模式已关闭。";
+const STOP_PHRASES = new Set([
+  "stop adhd mode",
+  "normal mode",
+  "停止 adhd 模式",
+  "停止adhd模式",
+  "正常模式",
+]);
 const RULES_HEADER =
-  'ADHD MODE ACTIVE. The ruleset below applies to every response until turned off. "stop adhd mode" or "normal mode" turns it off for this session.';
+  'ADHD MODE ACTIVE —— ADHD 模式已开启，下面的规则对每一条回复生效，直到被关闭。说“停止 ADHD 模式”或“正常模式”（stop adhd mode / normal mode）可关闭本次会话的规则。';
 const DISABLED_NOTICE =
-  "ADHD MODE OFF. Ignore the i-have-adhd ruleset injected earlier in this conversation and return to your default response style.";
+  "ADHD MODE OFF —— ADHD 模式已关闭。忽略本次对话早先注入的 i-have-adhd 规则，回到你的默认回复风格。";
 
 type AdhdModeState = {
   enabled: boolean;
@@ -123,7 +129,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     }
 
     const dot = ctx.ui.theme.fg("success", "●");
-    const label = ctx.ui.theme.fg("accent", "ADHD ON");
+    const label = ctx.ui.theme.fg("accent", "ADHD 已开启");
     ctx.ui.setStatus(STATUS_KEY, `${dot} ${label}`);
   };
 
@@ -175,17 +181,17 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     pi.appendEntry(STATE_ENTRY_TYPE, { enabled } satisfies AdhdModeState);
     updateStatus(ctx);
     syncContext(ctx);
-    ctx.ui.notify(`ADHD mode ${enabled ? "enabled" : "disabled"}`, "info");
+    ctx.ui.notify(`ADHD 模式${enabled ? "已开启" : "已关闭"}`, "info");
   };
 
   pi.registerFlag("adhd", {
-    description: "Start with ADHD-friendly output enabled",
+    description: "启动时就开启 ADHD 友好输出",
     type: "boolean",
     default: false,
   });
 
   pi.registerCommand("i-have-adhd", {
-    description: "Toggle ADHD-friendly output for this session",
+    description: "为本次会话切换 ADHD 友好输出",
     handler: async (args, ctx) => {
       const argument = args.trim().toLowerCase();
 
@@ -204,7 +210,7 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
         return;
       }
 
-      ctx.ui.notify("Usage: /i-have-adhd [on|off]", "warning");
+      ctx.ui.notify("用法：/i-have-adhd [on|off]", "warning");
     },
   });
 

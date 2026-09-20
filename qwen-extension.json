@@ -1,6 +1,6 @@
 {
   "name": "i-have-adhd",
   "version": "0.3.0",
-  "description": "ADHD-friendly output shaping for Qwen Code: action first, numbered steps, no tangents, and visible progress.",
+  "description": "为 Qwen Code 提供 ADHD 友好的输出塑形：行动优先、步骤编号、不跑题、进展可见，并且默认用中文回复。",
   "skills": "skills"
 }

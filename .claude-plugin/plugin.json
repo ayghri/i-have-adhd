@@ -1,7 +1,7 @@
 {
   "name": "i-have-adhd",
   "version": "0.3.0",
-  "description": "Shape Claude Code output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible.",
+  "description": "为 ADHD 读者塑形 Claude Code 输出：先说下一步行动、步骤编号、压掉离题内容、重述状态、让成果可见，并默认用中文回复。",
   "author": {
     "name": "Ayoub G.",
     "url": "https://github.com/ayghri"

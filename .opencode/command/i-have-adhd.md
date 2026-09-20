@@ -1,8 +1,8 @@
 ---
-{"description": "Shape output for a reader with ADHD for the rest of this session"}
+{"description": "为 ADHD 读者塑形输出，本次会话内持续生效"}
 ---
 
-Use the `i-have-adhd` skill and apply its ruleset to every response for the
-rest of this session: lead with the next action, number multi-step work,
-restate state across turns, suppress tangents, give concrete time estimates,
-and make wins visible. These rules persist until I say "stop adhd mode" or "normal mode".
+使用 `i-have-adhd` 技能，把它的规则应用到本次会话剩下的每一条回复：
+先说下一步行动，多步骤任务编号，跨轮次重述状态，压掉离题内容，
+给出具体时间估计，让已完成的工作看得见。
+这些规则一直生效，直到我说“停止 ADHD 模式”或“正常模式”（stop adhd mode）。

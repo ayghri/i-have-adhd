@@ -5,7 +5,7 @@
   <strong align="center">ADHDに配慮した簡潔な出力。（診断済みかは関係なく、誰でも気軽に使えます！）</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="ライセンス"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="ライセンス"></a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 CLIのプロンプトに以下をコピー＆ペーストしてください：
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/aixinwudi/i-have-adhd-cn, refer to the repo's AGENTS.md for instructions.
 ```
 
 または、🔗 [インストール手順を確認する](../install/INSTALL.ja.md)。

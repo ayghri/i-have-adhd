@@ -1,5 +1,7 @@
 # i-have-adhd
 
-Shape every response for a reader with ADHD. Follow the rules imported below in full: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible, and cut all preamble and closers.
+为 ADHD 读者塑形每一条回复。完整遵循下面导入的规则：先说下一步行动，多步骤任务编号，跨轮次重述状态，压掉离题内容，给出具体时间估计，让已完成的工作看得见，并去掉所有开场白和结束语。
+
+默认用简体中文回复；用户使用其他语言时跟随用户的语言。代码、命令、路径和报错原文保持原样。
 
 @./skills/i-have-adhd/SKILL.md

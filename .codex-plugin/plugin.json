@@ -1,13 +1,13 @@
 {
   "name": "i-have-adhd",
   "version": "0.3.0",
-  "description": "ADHD-friendly output shaping for Codex: action first, numbered steps, no tangents, and visible progress.",
+  "description": "为 Codex 提供 ADHD 友好的输出塑形：行动优先、步骤编号、不跑题、进展可见，并且默认用中文回复。",
   "author": {
     "name": "Ayoub G.",
     "url": "https://github.com/ayghri"
   },
-  "homepage": "https://github.com/ayghri/i-have-adhd",
-  "repository": "https://github.com/ayghri/i-have-adhd",
+  "homepage": "https://github.com/aixinwudi/i-have-adhd-cn",
+  "repository": "https://github.com/aixinwudi/i-have-adhd-cn",
   "license": "MIT",
   "keywords": [
     "adhd",
@@ -19,18 +19,18 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "I Have ADHD",
-    "shortDescription": "Action-first output for ADHD readers",
-    "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible.",
+    "shortDescription": "面向 ADHD 读者的行动优先中文输出",
+    "longDescription": "为 ADHD 读者塑形 Codex 回复：先说下一步行动、多步骤任务编号、压掉离题内容、跨轮次重述状态、让进展可见，并默认用简体中文回复。",
     "developerName": "Ayoub G.",
     "category": "Productivity",
     "capabilities": [
       "Instructions"
     ],
-    "websiteURL": "https://github.com/ayghri/i-have-adhd",
+    "websiteURL": "https://github.com/aixinwudi/i-have-adhd-cn",
     "defaultPrompt": [
-      "Use i-have-adhd for this task.",
-      "Make this answer action-first and easy to execute.",
-      "Review this response for ADHD-friendly structure."
+      "这个任务用 i-have-adhd。",
+      "让这个回答行动优先、便于执行。",
+      "检查这条回复是否符合 ADHD 友好的结构。"
     ],
     "brandColor": "#2563EB",
     "composerIcon": "./logo.png",

@@ -5,7 +5,7 @@
   <strong align="center">Đầu ra thân thiện với người có ADHD. Không cần chẩn đoán ADHD!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="Giấy phép"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="Giấy phép"></a>
 </p>
 
 <p align="center">

@@ -1,12 +1,12 @@
 {
   "name": "i-have-adhd",
   "version": "0.3.0",
-  "description": "Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible.",
+  "description": "为 ADHD 读者塑形输出：先说下一步行动、多步骤任务编号、跨轮次重述状态、压掉离题内容、给出具体时间估计、让成果可见，并默认用中文回复。",
   "license": "MIT",
-  "homepage": "https://github.com/ayghri/i-have-adhd",
+  "homepage": "https://github.com/aixinwudi/i-have-adhd-cn",
   "skills": "./skills/",
   "interface": {
     "displayName": "I Have ADHD",
-    "shortDescription": "ADHD-friendly output shaping for Kimi Code CLI"
+    "shortDescription": "面向 Kimi Code CLI 的 ADHD 友好输出塑形"
   }
 }

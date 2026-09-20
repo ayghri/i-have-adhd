@@ -5,7 +5,7 @@
   <strong align="center">Respuestas adaptadas para TDAH. ¡No se necesita diagnóstico de TDAH!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/aixinwudi/i-have-adhd-cn?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 Copia/pega en tu línea de comandos:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/aixinwudi/i-have-adhd-cn, refer to the repo's AGENTS.md for instructions.
 ```
 
 O 🔗 [consulta las instrucciones de instalación](../../INSTALL.md).
