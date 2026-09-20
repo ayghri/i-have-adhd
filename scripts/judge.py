@@ -143,10 +143,26 @@ def parse_judge_scores(
 
 
 def group_responses(rows: list[dict[str, Any]]) -> dict[tuple, dict[str, str]]:
-    """Collect responses into {(case_id, trial): {condition: response}} groups."""
+    """Collect responses into {(case_id, trial): {condition: response}} groups.
+
+    A condition may appear at most once per group. One (case, trial) can carry
+    rows from several runner invocations -- `run_evals.py` keys its own resume on
+    `(case_id, trial, condition, runner)`, so a file with two runners is a shape
+    the harness produces. Collapsing those rows into one dict silently grades one
+    runner's answers under the other runner's name and reports success, so the
+    collision is raised instead of overwritten.
+    """
     groups: dict[tuple, dict[str, str]] = defaultdict(dict)
     for row in rows:
-        groups[(row["case_id"], row["trial"])][row["condition"]] = row["response"]
+        key = (row["case_id"], row["trial"])
+        condition = row["condition"]
+        if condition in groups[key]:
+            raise ValueError(
+                f"{row['case_id']}/trial {row['trial']}: two responses for the "
+                f"{condition} condition. Judge one runner's responses per file "
+                f"(run_evals.py keys completed rows by runner as well)."
+            )
+        groups[key][condition] = row["response"]
     return dict(groups)
 
 
@@ -280,10 +296,33 @@ def main(argv: Optional[list[str]] = None) -> int:
             file=sys.stderr,
         )
 
-    judged: set[tuple] = set()
+    # Which conditions each already-written group covers. Keying only on
+    # (case_id, trial) would skip a group judged in an earlier pass under a
+    # narrower --conditions, leaving a requested condition ungraded while the
+    # run still exits 0. A group is either complete for this run (skipped) or
+    # absent; a partially covered one cannot be re-judged without writing
+    # duplicate rows for the conditions that are already there, and the scorer
+    # rejects duplicates, so it stops the run instead.
+    written: dict[tuple, set[str]] = defaultdict(set)
     if args.output.exists():
-        judged = {(row["case_id"], row["trial"]) for row in run_evals.read_jsonl(args.output)}
-
+        for row in run_evals.read_jsonl(args.output):
+            written[(row["case_id"], row["trial"])].add(row["condition"])
+    partial = sorted(
+        key for key in complete if written[key] and not required.issubset(written[key])
+    )
+    if partial:
+        missing = {
+            key: sorted(required - written[key]) for key in partial
+        }
+        raise ValueError(
+            f"{args.output} already holds scores for "
+            + ", ".join(
+                f"{case_id}/trial {trial} without {', '.join(missing[(case_id, trial)])}"
+                for case_id, trial in partial
+            )
+            + ". Judge into a fresh --output file, or remove those rows first: "
+            "re-judging would write duplicate rows for the conditions already present."
+        )
     config = json.loads(args.runner_config.read_text(encoding="utf-8"))
     runner = config[args.runner]
     command = list(runner["command"])
@@ -295,7 +334,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     with args.output.open("a", encoding="utf-8") as destination:
         for key in sorted(complete):
             case_id, trial = key
-            if key in judged:
+            pending = required - written[key]
+            if not pending:
                 print(f"skip judged {case_id}/trial {trial}")
                 continue
             if case_id not in cases:
