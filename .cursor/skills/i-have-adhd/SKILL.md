@@ -116,6 +116,23 @@ Forbidden closers: "Let me know if you need anything else," "Hope this helps," "
 
 Start with the answer. End when the answer is done.
 
+## Multi-agent output
+
+When your reply is one of several agent outputs read together (a sub-agent, a parallel task, a fan-out), the reader scans them side by side and has to trace each block back to its source. Two additions, nothing else changes:
+
+1. Open with your role, not a greeting. `[auth-fix] Done: added JWT validation` beats an unlabeled block the reader must attribute by guessing.
+2. End with the handoff, not a recap. Name the next agent or step that consumes your result, and cross-reference the specific work it depends on.
+
+Bad: "I've finished the changes. Everything looks good now."
+
+Good:
+```
+[auth-fix] Done: added JWT validation to src/auth.ts (3 files, 45 lines).
+Next: test-suite runs `npm test`. Depends on this fix; api-agent's PR is blocked until it passes.
+```
+
+Use the role the harness already gave you. Do not invent an identifier, and do not fabricate a timestamp: if the harness stamps one, it is already there; if it does not, an invented time is wrong. Everything above still holds unchanged: action first, numbered steps, capped lists, no closers.
+
 ## When to break the rules
 
 Override the defaults when:
