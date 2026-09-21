@@ -172,6 +172,72 @@ Ngoại lệ: giải thích đầy đủ khi được yêu cầu. Xác nhận tr
 </details>
 
 <details>
+<summary><strong>Qoder IDE và Qoder CLI</strong></summary>
+
+Qoder tải trực tiếp `skills/i-have-adhd/SKILL.md` chuẩn qua định dạng plugin gốc. Không duy trì bản sao quy tắc riêng cho Qoder.
+
+### Cài đặt (CLI)
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+Các bản Qoder CLI cũ có thể dùng tên lệnh `qodercli`; hãy dùng cùng các lệnh con với tên đó.
+
+### Cài đặt (IDE)
+
+Clone kho rồi tạo gói ZIP cho Qoder:
+
+```bash
+python3 i-have-adhd/scripts/package_qoder_plugin.py
+```
+
+Qoder IDE hiện hỗ trợ nhập thư mục đã clone qua **Plugins → + Create Plugin → import from a local folder**. ZIP bên dưới là tùy chọn cho các phiên bản có chức năng tải ZIP lên. [Hướng dẫn chính thức](https://docs.qoder.com/extensions/plugins).
+
+`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+
+### Xác minh và kích hoạt
+
+```bash
+qoder plugins list
+```
+
+Trong tác vụ Qoder mới, gõ `/` và chọn `/i-have-adhd`. Quy tắc duy trì đến khi bạn nói `stop adhd mode` hoặc `normal mode`.
+
+Qoder cũng có thể tự chọn Skill đã cài khi yêu cầu khớp với mô tả. Tài liệu chính thức chỉ nêu `name` và `description` là siêu dữ liệu Skill, không nêu `disable-model-invocation`.
+
+### Cập nhật
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+### Gỡ cài đặt
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+### Luôn bật (không bắt buộc)
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+Bắt đầu tác vụ Qoder mới. Hook `SessionStart` chèn quy tắc chuẩn từ tin nhắn đầu tiên và chèn lại sau khi tiếp tục, xóa hoặc nén ngữ cảnh. Để trở lại chế độ theo yêu cầu:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 Gemini CLI không có chợ plugin nên có hai cách tích hợp sẵn: **lệnh tùy chỉnh** (chỉ bật khi gọi) hoặc **extension** (luôn bật sau khi cài). Cách dùng lệnh phù hợp với hành vi mặc định của skill; hãy chọn cách này trừ khi bạn muốn áp dụng quy tắc cho mọi phiên.
@@ -632,8 +698,8 @@ Ngoại lệ: giải thích đầy đủ khi được yêu cầu. Xác nhận tr
 
 ## Cơ chế kích hoạt
 
-1. **Đã cài nhưng chưa gọi.** Trong Claude Code, Qwen Code và Codex, không có gì xảy ra cho đến khi bạn gọi skill một cách rõ ràng. Claude Code và Qwen Code tuân theo `disable-model-invocation: true` trong `SKILL.md`; Codex tuân theo `policy.allow_implicit_invocation: false` trong `agents/openai.yaml`. Các môi trường khác có thể tải mô tả của từng skill khi khởi động và tự kích hoạt.
-2. **Bạn gọi skill một cách rõ ràng.** Gõ `/i-have-adhd` trong Claude Code hoặc Qwen Code, hoặc `$i-have-adhd` trong Codex. Quy tắc bật trong phiên đó. "stop adhd mode" hoặc "normal mode" sẽ tắt chúng.
+1. **Đã cài nhưng chưa gọi.** Trong Claude Code, Qwen Code và Codex, không có gì xảy ra cho đến khi gọi rõ ràng. Claude Code và Qwen Code tuân theo `disable-model-invocation: true`; Codex tuân theo `policy.allow_implicit_invocation: false`. Qoder và các môi trường khác có thể tự chọn Skill đã cài dựa trên mô tả.
+2. **Bạn gọi skill một cách rõ ràng.** Gõ `/i-have-adhd` trong Claude Code, Qwen Code hoặc Qoder, hoặc `$i-have-adhd` trong Codex. Quy tắc bật trong phiên đó. "stop adhd mode" hoặc "normal mode" sẽ tắt chúng.
 3. **Bạn tạo `~/.claude/.i-have-adhd-always`** (Claude Code). Hook `SessionStart` tải toàn bộ quy tắc từ tin nhắn đầu tiên trong mọi phiên.
 4. **Bạn thêm đoạn luôn bật ở trên** (các môi trường khác). Điều này giữ quy tắc cốt lõi trong ngữ cảnh lâu dài của agent.
 
