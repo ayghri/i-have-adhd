@@ -28,10 +28,11 @@ Agents may read and reference any GitHub issue or pull request. Commenting has n
 | --- | --- | --- |
 | Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 10 ADHD-friendly response rules. |
 | Skill mirror | `.cursor/skills/i-have-adhd/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
+| Antigravity mirror | `.agents/skills/i-have-adhd/SKILL.md` | Antigravity on-demand skill mirror; keep it synchronized with canonical skill. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
-| OpenCode | `opencode.json`, `.opencode/` | OpenCode plugin and command entry points. |
+| OpenCode | `opencode.json`, `.opencode/plugins/i-have-adhd.mjs`, `.opencode/command/i-have-adhd.md` | OpenCode plugin and command entry points. |
 | Other runtimes | `qwen-extension.json`, `kimi.plugin.json`, `gemini-extension.json`, `GEMINI.md`, `plugin.json` | Qwen, Kimi, Gemini, and additional plugin metadata. |
 | Documentation | `README.md`, `INSTALL.md`, `.github/readme/`, `.github/install/` | User-facing overview, installation, and translations. |
 | Verification | `tests/`, `scripts/` | Unit tests, compatibility checks, and evaluation tooling. |
@@ -43,6 +44,7 @@ When debugging or changing one integration, begin with its entry point:
 
 | Runtime | Read first |
 | --- | --- |
+| Antigravity | `plugin.json`, `.agents/skills/i-have-adhd/SKILL.md`, `GEMINI.md` |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `hooks/hooks.json` |
 | Grok | `plugin.json`, `skills/i-have-adhd/SKILL.md`, `INSTALL.md` |
@@ -53,7 +55,7 @@ When debugging or changing one integration, begin with its entry point:
 
 ## Source-of-truth rules
 
-- Change `skills/i-have-adhd/SKILL.md` first when changing skill behavior, then synchronize the `.cursor` mirror.
+- Change `skills/i-have-adhd/SKILL.md` first when changing skill behavior, then synchronize the `.cursor` and `.agents` mirrors.
 - Treat manifests and hook declarations as runtime contracts. Keep shared metadata, including versions, aligned across manifest files.
 - Keep installation and behavior claims in `README.md`, `INSTALL.md`, and their localized counterparts accurate.
 - Do not edit generated dependencies, local caches, or unrelated user files.
