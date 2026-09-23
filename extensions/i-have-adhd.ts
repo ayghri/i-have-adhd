@@ -79,20 +79,23 @@ function loadRules(): string {
 }
 
 function getSavedState(ctx: ExtensionContext): boolean | undefined {
-  let savedState: boolean | undefined;
+  const branch = ctx.sessionManager.getBranch();
 
-  for (const entry of ctx.sessionManager.getBranch()) {
+  // State entries are append-only. The newest entry wins, so walk backwards
+  // and avoid inspecting the stale history after the current state.
+  for (let index = branch.length - 1; index >= 0; index--) {
+    const entry = branch[index];
     if (entry.type !== "custom" || entry.customType !== STATE_ENTRY_TYPE) {
       continue;
     }
 
     const data = entry.data as Partial<AdhdModeState> | undefined;
     if (typeof data?.enabled === "boolean") {
-      savedState = data.enabled;
+      return data.enabled;
     }
   }
 
-  return savedState;
+  return undefined;
 }
 
 /**
