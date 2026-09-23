@@ -113,6 +113,28 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertEqual(1, len(set(outputs.values())))
 
+    def test_runtimes_trim_trailing_blank_lines_from_the_body(self):
+        # The sh hook drops trailing newlines through command substitution and
+        # the Node hook through an explicit replace, so a skill file ending in
+        # blank lines must not make the runtimes disagree on the banner.
+        skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
+        skill_path.write_text("---\nname: fixture\n---\nFixture body.\n\n\n")
+        (self.config_dir / ".i-have-adhd-always").touch()
+        outputs = {}
+
+        for name, command in self.runtimes():
+            with self.subTest(runtime=name):
+                result = self.run_hook(command)
+                self.assertEqual(0, result.returncode)
+                self.assertEqual("", result.stderr)
+                normalized = self.normalize(result.stdout)
+                self.assertTrue(
+                    normalized.endswith("\n\nFixture body.\n"), repr(normalized)
+                )
+                outputs[name] = normalized
+
+        self.assertEqual(1, len(set(outputs.values())))
+
     def test_runtimes_keep_content_when_frontmatter_is_unclosed(self):
         # An opening --- with no closing delimiter is not frontmatter. Keeping
         # the whole file beats injecting a banner that promises "the ruleset
