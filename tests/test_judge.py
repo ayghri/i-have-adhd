@@ -47,6 +47,14 @@ class GroupingTest(unittest.TestCase):
         self.assertEqual({"baseline": "51", "candidate": "102"}, groups[("direct-answer", 1)])
         self.assertEqual({"baseline": "again"}, groups[("direct-answer", 2)])
 
+    def test_responses_group_handles_missing_or_null_response(self):
+        rows = [
+            {"case_id": "direct-answer", "trial": 1, "condition": "baseline", "response": None},
+            {"case_id": "direct-answer", "trial": 1, "condition": "candidate"},
+        ]
+        groups = judge.group_responses(rows)
+        self.assertEqual({"baseline": "", "candidate": ""}, groups[("direct-answer", 1)])
+
     def test_groups_missing_a_condition_are_partitioned_out_not_dropped(self):
         groups = {
             ("direct-answer", 1): {"baseline": "x", "candidate": "y"},

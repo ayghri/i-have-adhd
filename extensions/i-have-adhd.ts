@@ -41,9 +41,10 @@ type AdhdConfig = {
 
 function loadConfig(): AdhdConfig {
   try {
-    return JSON.parse(
+    const parsed = JSON.parse(
       readFileSync(join(getAgentDir(), "i-have-adhd.json"), "utf8"),
     );
+    return parsed && typeof parsed === "object" ? (parsed as AdhdConfig) : {};
   } catch {
     return {};
   }

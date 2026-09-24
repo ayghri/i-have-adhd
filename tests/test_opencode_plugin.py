@@ -18,7 +18,7 @@ class OpenCodePluginTest(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
-        self.plugin_root = Path(self.temp_dir.name) / "plugin"
+        self.plugin_root = Path(self.temp_dir.name).resolve() / "plugin"
         shutil.copytree(ROOT / ".opencode", self.plugin_root / ".opencode")
         shutil.copytree(ROOT / "skills", self.plugin_root / "skills")
         # The plugin reads its flag from $XDG_CONFIG_HOME/opencode/.i-have-adhd-always.

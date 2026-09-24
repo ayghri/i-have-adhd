@@ -146,7 +146,7 @@ def group_responses(rows: list[dict[str, Any]]) -> dict[tuple, dict[str, str]]:
     """Collect responses into {(case_id, trial): {condition: response}} groups."""
     groups: dict[tuple, dict[str, str]] = defaultdict(dict)
     for row in rows:
-        groups[(row["case_id"], row["trial"])][row["condition"]] = row["response"]
+        groups[(row["case_id"], row["trial"])][row["condition"]] = str(row.get("response") or "")
     return dict(groups)
 
 

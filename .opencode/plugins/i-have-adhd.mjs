@@ -76,6 +76,8 @@ export default async () => {
     // model honours the skill's own Persistence rules); deleting the flag
     // turns always-on off for good.
     'experimental.chat.system.transform': async (_input, output) => {
+      if (!output || !Array.isArray(output.system)) return;
+
       let on = false;
       try { on = fs.existsSync(flagPath); } catch (e) {}
       if (!on) return;

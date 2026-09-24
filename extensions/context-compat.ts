@@ -23,7 +23,7 @@ export function contextMessages(
 
   try {
     if (typeof compatible.buildSessionContext === "function") {
-      const messages = compatible.buildSessionContext().messages;
+      const messages = compatible.buildSessionContext()?.messages;
       return Array.isArray(messages) ? messages : [];
     }
 
