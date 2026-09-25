@@ -130,6 +130,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### 卸载
@@ -804,7 +805,7 @@ npx skills remove i-have-adhd -g    # 如果全局安装
 
 **自动补全中没有 `/i-have-adhd`。** 重启智能体。插件索引在启动时读取。
 
-**始终启用标志无效。** 更新插件（`claude plugin marketplace update i-have-adhd`）并重启。钩子在启动时读取，且该标志需要包含 `hooks/hooks.json` 的插件版本。
+**始终启用标志无效。** 更新插件（先运行 `claude plugin marketplace update i-have-adhd`，再运行 `claude plugin update i-have-adhd@i-have-adhd`）并重启。钩子在启动时读取，且该标志需要包含 `hooks/hooks.json` 的插件版本。
 
 **`claude plugin marketplace add` 失败。** 使用 `owner/repo` 格式。本地路径必须指向仓库根目录，而不是 `.claude-plugin/`。
 

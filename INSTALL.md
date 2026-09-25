@@ -135,7 +135,12 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
+
+The first command refreshes the marketplace listing. The second updates the installed plugin. Restart Claude Code to load it.
+
+`claude plugin update` skips a plugin whose `version` has not changed. If you maintain a fork, bump `version` in `.claude-plugin/plugin.json` after you edit the rules.
 
 ### Uninstall
 
@@ -876,7 +881,7 @@ In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not tur
 
 **`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup. On Grok, also run `grok plugin enable i-have-adhd` and confirm the install used `--trust`.
 
-**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`, then `claude plugin update i-have-adhd@i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
 

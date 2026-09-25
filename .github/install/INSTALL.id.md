@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### Uninstal
@@ -640,7 +641,7 @@ Di Claude Code, Qwen Code, dan Codex gak ada jalan tengah: jikalau Anda tidak me
 
 **`/i-have-adhd` tidak muncul di pelengkapan otomatis (autocomplete).** Mulai ulang agen Anda. Indeks plugin dibaca saat startup.
 
-**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
+**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update i-have-adhd`, lalu `claude plugin update i-have-adhd@i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
 
 **`claude plugin marketplace add` gagal.** Gunakan format `owner/repo`. Jalur lokal harus mengarah ke root repositori, bukan ke `.claude-plugin/`.
 

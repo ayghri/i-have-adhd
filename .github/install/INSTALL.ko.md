@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### 제거
@@ -643,7 +644,7 @@ Claude Code, Qwen Code, Codex에는 중간 상태가 없습니다. 켜지 않았
 
 **자동 완성에 `/i-have-adhd`가 없습니다.** 에이전트를 다시 시작하세요. 플러그인 인덱스는 시작 시 읽힙니다.
 
-**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
+**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update i-have-adhd` 실행 후 `claude plugin update i-have-adhd@i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
 
 **`claude plugin marketplace add`가 실패합니다.** `owner/repo` 형식을 사용하세요. 로컬 경로는 `.claude-plugin/`이 아니라 저장소 루트를 가리켜야 합니다.
 

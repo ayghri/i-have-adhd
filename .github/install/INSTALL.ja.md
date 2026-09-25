@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### アンインストール
@@ -754,7 +755,7 @@ Claude Code、Qwen Code、Codex には中間状態がありません。有効化
 
 **`/i-have-adhd` が自動補完に表示されない →** エージェントを再起動してください。プラグインのインデックスは起動時に読み込まれます。
 
-**常時有効フラグが効かない →** プラグインを更新（`claude plugin marketplace update i-have-adhd`）して再起動してください。フックは起動時に読み込まれるほか、フラグの認識には `hooks/hooks.json` が含まれるバージョンが必要です。
+**常時有効フラグが効かない →** プラグインを更新（`claude plugin marketplace update i-have-adhd` の後に `claude plugin update i-have-adhd@i-have-adhd`）して再起動してください。フックは起動時に読み込まれるほか、フラグの認識には `hooks/hooks.json` が含まれるバージョンが必要です。
 
 **`claude plugin marketplace add` が失敗する →** `owner/repo` 形式を使用してください。ローカルパスを指定する場合は `.claude-plugin/` ではなくリポジトリのルートを指す必要があります。
 
