@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### Desinstalar
@@ -643,7 +644,7 @@ No Claude Code, Qwen Code e Codex não há meio-termo: se você não ativou, est
 
 **`/i-have-adhd` não aparece no preenchimento automático.** Reinicie o agente. O índice de plugins é lido na inicialização.
 
-**A flag de sempre ativo não funciona.** Atualize o plugin (`claude plugin marketplace update i-have-adhd`) e reinicie. Hooks são lidos na inicialização, e a flag exige a versão que inclui `hooks/hooks.json`.
+**A flag de sempre ativo não funciona.** Atualize o plugin (`claude plugin marketplace update i-have-adhd` e depois `claude plugin update i-have-adhd@i-have-adhd`) e reinicie. Hooks são lidos na inicialização, e a flag exige a versão que inclui `hooks/hooks.json`.
 
 **`claude plugin marketplace add` falha.** Use o formato `owner/repo`. Um caminho local deve apontar para a raiz do repositório, não para `.claude-plugin/`.
 
