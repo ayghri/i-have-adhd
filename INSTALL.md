@@ -508,62 +508,99 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode loads this repository as a server plugin: `.opencode/plugins/i-have-adhd.mjs` registers the `skills/` entry point and the `/i-have-adhd` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin — the plugin adds the `/i-have-adhd` command and the always-on flag.
+# OpenCode
 
-### Install
+OpenCode reads `skills/i-have-adhd/SKILL.md` natively, so the ruleset is available
+to the `skill` tool with no plugin at all. The plugin adds two things on top: the
+`/i-have-adhd` slash command for a global install, and the always-on flag.
 
-Clone the repo and point OpenCode at the plugin. An absolute path shares one checkout across every project:
+## Install
+
+### Skill only (no plugin)
+
+Copy the skill into your global skills directory. OpenCode discovers
+`~/.config/opencode/skills/` and every project already gets the ruleset through the
+`skill` tool. Ask for it in plain words ("use the i-have-adhd skill").
+
+```bash
+mkdir -p ~/.config/opencode/skills/i-have-adhd
+cp skills/i-have-adhd/SKILL.md ~/.config/opencode/skills/i-have-adhd/SKILL.md
+```
+
+### Skill and `/i-have-adhd` command (no plugin)
+
+Also copy the command file. A global install has no project-scope
+`.opencode/commands/` directory, so `/i-have-adhd` is otherwise missing from the
+`/` menu (see #140).
+
+```bash
+mkdir -p ~/.config/opencode/commands
+cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
+```
+
+This is the recommended global install: two files, no plugin, no build step.
+
+### Plugin (adds always-on)
+
+The plugin registers the skill and the command itself and adds the always-on
+flag. OpenCode V2 loads a plugin that sits in a discovered `.opencode/plugins/`
+directory, so expose the vendored checkout with a one-line loader:
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+mkdir -p ~/.config/opencode/plugins
+cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+export { default } from "file://$HOME/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs";
+EOF
 ```
 
-Add to your `opencode.json` (global: `~/.config/opencode/opencode.json`):
+The loader re-exports the vendored module so its `__dirname` — and therefore its
+`../../skills` and `../command/i-have-adhd.md` lookups — stay inside the checkout.
+Replace `file://$HOME/...` with an absolute `file:///` URL; a loader is used
+because OpenCode 2.0.18 rejects file paths in `plugins`
+(`configured plugin path must be a directory`) and ignores configured directory
+paths.
 
-```json
-{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
-```
+To run OpenCode from a checkout instead, use the root `opencode.json`, which wires
+the plugin for that directory.
 
-Or run OpenCode from the checkout — it ships a root `opencode.json` with the plugin already wired up.
-
-Start a new session and turn on ADHD-friendly output for the session:
-
-```text
-/i-have-adhd
-```
-
-Rules stay on until `stop adhd mode` or `normal mode`.
-
-### Verify
+## Verify
 
 Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
 
-### Update
+## Update
 
 ```bash
 git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
 
-### Uninstall
+If you used the copy-based install, re-copy `SKILL.md` and
+`.opencode/command/i-have-adhd.md` after pulling.
 
-Remove the `plugin` entry from `opencode.json`.
+## Uninstall
 
-### Always-on (optional)
+Remove `~/.config/opencode/plugins/i-have-adhd.js`, and whichever of
+`~/.config/opencode/skills/i-have-adhd/` and
+`~/.config/opencode/commands/i-have-adhd.md` you created.
+
+## Always-on (optional)
+
+Requires the plugin.
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always
 ```
 
-While the flag exists, the plugin appends the full ruleset to the system prompt every turn — the OpenCode equivalent of the Claude Code `SessionStart` hook. `stop adhd mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+While the flag exists, the plugin appends the full ruleset to the system prompt
+every turn — the OpenCode equivalent of the Claude Code `SessionStart` hook.
+`stop adhd mode` or `normal mode` disables it for the current session; delete the
+flag to turn always-on off for good:
 
 ```bash
 rm ~/.config/opencode/.i-have-adhd-always
 ```
 
-</details>
 
-
-<details>
 <summary><strong>Pi</strong></summary>
 
 Pi discovers this repository as a native package: `extensions/` provides the session-persistent mode and `skills/` keeps the Agent Skills entry point available.
