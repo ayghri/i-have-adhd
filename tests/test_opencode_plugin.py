@@ -13,7 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 @unittest.skipUnless(shutil.which("node"), "node is required for the OpenCode plugin")
 class OpenCodePluginTest(unittest.TestCase):
     """Mirror tests/test_always_on_hooks.py for the OpenCode server plugin: the
-    always-on flag gates injection, and frontmatter stripping matches the hooks."""
+    always-on flag gates injection, and frontmatter stripping matches the hooks.
+
+    OpenCode V2 replaced the V1 `config` mutation hook with `ctx.skill.transform`
+    and `ctx.command.transform`, so registration is asserted through those."""
 
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
@@ -25,7 +28,7 @@ class OpenCodePluginTest(unittest.TestCase):
         self.config_dir = Path(self.temp_dir.name) / "config"
         (self.config_dir / "opencode").mkdir(parents=True)
 
-    def run_plugin(self, mode=None, config=None):
+    def run_plugin(self, mode=None):
         env = os.environ.copy()
         env["XDG_CONFIG_HOME"] = str(self.config_dir)
         args = [
@@ -35,8 +38,6 @@ class OpenCodePluginTest(unittest.TestCase):
         ]
         if mode:
             args.append(mode)
-        if config is not None:
-            args.append(json.dumps(config))
         return subprocess.run(
             args,
             check=False,
@@ -71,64 +72,49 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("Fixture body, fence never closed.", result.stdout)
 
-    def test_config_hook_registers_the_slash_command(self):
+    def test_setup_registers_the_slash_command(self):
         # Regression test for #140: a global install (plugin loaded from a
         # path outside any checkout, no project-scope .opencode/command/
         # directory in play) must still get /i-have-adhd, because OpenCode's
         # skill-sourced commands are not surfaced in the TUI's `/` menu.
-        result = self.run_plugin(mode="config")
+        result = self.run_plugin(mode="command")
         self.assertEqual(0, result.returncode, result.stderr)
-        config = json.loads(result.stdout)
-        command = config["command"]["i-have-adhd"]
+        command = json.loads(result.stdout)[0]
+        self.assertEqual("i-have-adhd", command["name"])
         self.assertIn("ADHD", command["description"])
         self.assertIn("stop adhd mode", command["template"])
 
-    def test_config_hook_still_registers_the_skills_path(self):
-        result = self.run_plugin(mode="config")
+    def test_setup_registers_the_skill(self):
+        result = self.run_plugin(mode="skill")
         self.assertEqual(0, result.returncode, result.stderr)
-        config = json.loads(result.stdout)
-        self.assertIn(str(self.plugin_root / "skills"), config["skills"]["paths"])
+        skill = json.loads(result.stdout)[0]
+        self.assertEqual("i-have-adhd", skill["id"])
+        self.assertEqual(
+            str(self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"), skill["path"]
+        )
+        self.assertIn("ADHD", skill["description"])
+        self.assertNotIn("---", skill["content"])
 
-    def test_config_preserves_existing_command(self):
-        custom = {"description": "User command", "template": "Keep this", "agent": "plan"}
-        result = self.run_plugin("config", {"command": {"i-have-adhd": custom}})
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertEqual(custom, json.loads(result.stdout)["command"]["i-have-adhd"])
-
-    def test_repeated_config_does_not_duplicate_skill_paths(self):
-        result = self.run_plugin("config")
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertEqual([str(self.plugin_root / "skills")], json.loads(result.stdout)["skills"]["paths"])
-
-    def test_command_preserves_metadata_and_trims_template(self):
-        metadata = {"description": 'ADHD: "focus"\nnext line', "agent": "plan",
-                    "model": "fixture/model", "subtask": True}
-        command = self.plugin_root / ".opencode/command/i-have-adhd.md"
-        command.write_bytes(("---  \r\n" + json.dumps(metadata) +
-                             "\r\n--- \t\r\n\r\nUse the skill.\r\n\r\n").encode())
-        result = self.run_plugin("config")
-        self.assertEqual(0, result.returncode, result.stderr)
-        self.assertEqual({**metadata, "template": "Use the skill."},
-                         json.loads(result.stdout)["command"]["i-have-adhd"])
-
-    def test_missing_command_keeps_skill_discovery(self):
+    def test_missing_command_keeps_skill_registration(self):
         (self.plugin_root / ".opencode/command/i-have-adhd.md").unlink()
-        result = self.run_plugin("config")
+        result = self.run_plugin(mode="command")
         self.assertEqual(0, result.returncode, result.stderr)
-        config = json.loads(result.stdout)
-        self.assertNotIn("i-have-adhd", config["command"])
-        self.assertEqual([str(self.plugin_root / "skills")], config["skills"]["paths"])
+        self.assertEqual([], json.loads(result.stdout))
+        result = self.run_plugin(mode="skill")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("i-have-adhd", json.loads(result.stdout)[0]["id"])
 
-    def test_malformed_command_does_not_leak_frontmatter_into_prompt(self):
+    def test_malformed_command_keeps_skill_registration(self):
         command = self.plugin_root / ".opencode/command/i-have-adhd.md"
         for text in ["---\n{broken}\n---\nBody", '---\n{"description":"unclosed"}\nBody']:
             with self.subTest(text=text):
                 command.write_text(text)
-                result = self.run_plugin("config")
+                result = self.run_plugin(mode="command")
                 self.assertEqual(0, result.returncode, result.stderr)
-                config = json.loads(result.stdout)
-                self.assertNotIn("i-have-adhd", config["command"])
-                self.assertEqual([str(self.plugin_root / "skills")], config["skills"]["paths"])
+                self.assertEqual([], json.loads(result.stdout))
+                result = self.run_plugin(mode="skill")
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertEqual("i-have-adhd", json.loads(result.stdout)[0]["id"])
 
 
 if __name__ == "__main__":
