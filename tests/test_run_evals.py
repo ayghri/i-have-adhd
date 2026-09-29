@@ -146,6 +146,39 @@ class EvaluationHarnessTest(unittest.TestCase):
                     self.assertEqual(2, raised.exception.code)
                     self.assertFalse(output.exists())
 
+    def test_run_rejects_non_finite_budget_before_invoking_runner(self):
+        completed = subprocess.CompletedProcess(
+            args=["claude"],
+            returncode=0,
+            stdout=json.dumps({"result": "ok", "usage": {}, "total_cost_usd": 0.01}),
+            stderr="",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "responses.jsonl"
+            args = run_evals._build_parser().parse_args(
+                [
+                    "run",
+                    "--runner",
+                    "claude",
+                    "--condition",
+                    "baseline",
+                    "--case",
+                    "direct-answer",
+                    "--budget-usd",
+                    "nan",
+                    "--output",
+                    str(output),
+                ]
+            )
+            with mock.patch.object(
+                run_evals.subprocess, "run", return_value=completed
+            ) as runner:
+                with self.assertRaisesRegex(ValueError, "budget-usd"):
+                    run_evals.run_evaluations(args)
+
+            runner.assert_not_called()
+            self.assertFalse(output.exists())
+
     def test_candidate_blocker_fails_release_gate(self):
         rows = []
         for condition in ("baseline", "candidate"):
