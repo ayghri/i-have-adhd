@@ -64,6 +64,17 @@ def load_cases(path: Path = DEFAULT_CASES) -> list[dict[str, Any]]:
     return read_jsonl(path)
 
 
+def _positive_int(value: str) -> int:
+    """Parse a positive CLI count, rejecting empty evaluation matrices."""
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a positive integer") from exc
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
 def completed_keys(rows: list[dict[str, Any]]) -> set[tuple[str, int, str, str]]:
     keys: set[tuple[str, int, str, str]] = set()
     for row in rows:
@@ -107,7 +118,11 @@ def _validate_score(row: dict[str, Any], index: int) -> None:
         raise ValueError(f"Score row {index}: unsupported condition {row['condition']!r}")
     for metric in WEIGHTS:
         value = row[metric]
-        if not isinstance(value, (int, float)) or not 1 <= value <= 5:
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not 1 <= value <= 5
+        ):
             raise ValueError(f"Score row {index}: {metric} must be between 1 and 5")
     if not isinstance(row["blocker"], bool):
         raise ValueError(f"Score row {index}: blocker must be boolean")
@@ -377,6 +392,8 @@ def _usage_tokens(usage: Optional[dict[str, Any]]) -> tuple[int | None, int | No
 
 
 def run_evaluations(args: argparse.Namespace) -> int:
+    if type(args.trials) is not int or args.trials < 1:
+        raise ValueError("--trials must be a positive integer")
     cases = load_cases(args.cases)
     errors = validate_cases(cases)
     if errors:
@@ -484,7 +501,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     plan = subparsers.add_parser("plan", help="Print the paired run matrix as JSONL")
     plan.add_argument("--cases", type=Path, default=DEFAULT_CASES)
-    plan.add_argument("--trials", type=int, default=3)
+    plan.add_argument("--trials", type=_positive_int, default=3)
     plan.add_argument("--include-comparator", action="store_true")
 
     score = subparsers.add_parser("score", help="Aggregate manually judged score rows")
@@ -502,7 +519,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--condition", choices=sorted(CONDITIONS), required=True)
     run.add_argument("--condition-skill", type=Path)
     run.add_argument("--case", action="append")
-    run.add_argument("--trials", type=int, default=3)
+    run.add_argument("--trials", type=_positive_int, default=3)
     run.add_argument("--retries", type=int, default=2)
     run.add_argument("--budget-usd", type=float, default=25.0)
     run.add_argument("--allow-unmetered", action="store_true")

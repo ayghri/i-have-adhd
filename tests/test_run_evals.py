@@ -120,6 +120,32 @@ class EvaluationHarnessTest(unittest.TestCase):
         self.assertAlmostEqual(4.0, summary["conditions"]["candidate"]["weighted_score"])
         self.assertTrue(summary["release_gate"]["passed"])
 
+    def test_score_summary_rejects_boolean_dimension_values(self):
+        rows = [
+            self._score_row("direct-answer", "baseline", True),
+            self._score_row("direct-answer", "candidate", 4),
+        ]
+
+        with self.assertRaisesRegex(ValueError, "correctness must be between 1 and 5"):
+            run_evals.summarize_scores(rows)
+
+    def test_plan_and_run_reject_non_positive_trial_counts(self):
+        for trials in ("0", "-1"):
+            with self.subTest(trials=trials):
+                with self.assertRaises(SystemExit) as raised:
+                    run_evals.main(["plan", "--trials", trials])
+                self.assertEqual(2, raised.exception.code)
+
+                with tempfile.TemporaryDirectory() as tmp:
+                    output = Path(tmp) / "responses.jsonl"
+                    with self.assertRaises(SystemExit) as raised:
+                        run_evals.main([
+                            "run", "--runner", "claude", "--condition", "baseline",
+                            "--trials", trials, "--output", str(output),
+                        ])
+                    self.assertEqual(2, raised.exception.code)
+                    self.assertFalse(output.exists())
+
     def test_candidate_blocker_fails_release_gate(self):
         rows = []
         for condition in ("baseline", "candidate"):
