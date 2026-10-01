@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{ [ -f \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.sh\" ] && sh \"${CLAUDE_PLUGIN_ROOT}/hooks/always-on.sh\"; } || true",
+            "command": "root=\"${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}\"; if [ -n \"$root\" ] && [ -f \"$root/hooks/always-on.sh\" ]; then sh \"$root/hooks/always-on.sh\"; fi; exit 0",
             "timeout": 30,
             "statusMessage": "Checking i-have-adhd always-on flag..."
           }

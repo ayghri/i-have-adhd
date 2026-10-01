@@ -162,8 +162,23 @@ class AlwaysOnHookTest(unittest.TestCase):
 
         self.assertNotIn("args", hook)
         command = hook["command"]
-        self.assertRegex(command, r'CLAUDE_PLUGIN_ROOT')
+
+        # Claude Code exports CLAUDE_PLUGIN_ROOT; the Codex CLI exports
+        # PLUGIN_ROOT. The launcher must honour both or the always-on flag
+        # silently stops being checked on one of the two runtimes.
         self.assertIn("CLAUDE_PLUGIN_ROOT", command)
+        # A bare substring check would be satisfied by CLAUDE_PLUGIN_ROOT
+        # itself, so require PLUGIN_ROOT to stand on its own.
+        self.assertRegex(command, r'(?<![A-Za-z_])PLUGIN_ROOT\b')
+        self.assertRegex(command, r'\$\{CLAUDE_PLUGIN_ROOT:-\$PLUGIN_ROOT\}')
+
+        # The launcher must stay runnable without Node installed.
+        self.assertNotIn("node", command)
+
+        # It must actually run the hook via sh and report success, rather
+        # than swallowing a missing script and exiting quietly.
+        self.assertRegex(command, r'sh\s+"\$\{?root\}?/hooks/always-on\.sh"')
+        self.assertIn("exit 0", command)
 
 
 if __name__ == "__main__":
