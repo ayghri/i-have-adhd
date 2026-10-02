@@ -53,30 +53,48 @@ class AlwaysOnHookTest(unittest.TestCase):
             env=env,
         )
 
-    def run_codex_hook(self, plugin_root=None):
+    def run_launcher(self, command, env):
+        # Run a hooks.json command the way Claude Code actually runs a
+        # shell-form hook: `sh -c` on macOS/Linux, Git Bash on Windows.
+        # subprocess.run(shell=True) resolves to cmd.exe on Windows, which is
+        # a shell Claude Code never selects, so a POSIX launcher would be
+        # asserted against the wrong interpreter and fail for a reason no user
+        # would ever hit. Prefer a real POSIX shell and skip rather than
+        # pretend cmd.exe is a supported runtime.
+        payload = json.dumps(
+            {
+                "session_id": "test-session",
+                "cwd": str(self.plugin_root),
+                "hook_event_name": "SessionStart",
+                "source": "startup",
+            }
+        )
+        kwargs = dict(
+            check=False,
+            capture_output=True,
+            env=env,
+            input=payload,
+            text=True,
+        )
+        if sh := shutil.which("sh"):
+            return subprocess.run([sh, "-c", command], **kwargs)
+        return subprocess.run(command, shell=True, **kwargs)
+
+    def run_codex_hook(self, plugin_root=None, root_vars=None):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
         env = os.environ.copy()
         env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
         plugin_root = plugin_root or self.plugin_root
-        env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
-        env["PLUGIN_ROOT"] = str(plugin_root)
-        return subprocess.run(
-            hook["command"],
-            check=False,
-            capture_output=True,
-            env=env,
-            input=json.dumps(
-                {
-                    "session_id": "test-session",
-                    "cwd": str(self.plugin_root),
-                    "hook_event_name": "SessionStart",
-                    "source": "startup",
-                }
-            ),
-            shell=True,
-            text=True,
-        )
+        if root_vars is None:
+            env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
+            env["PLUGIN_ROOT"] = str(plugin_root)
+        else:
+            # root_vars names the variables the runtime is assumed to export,
+            # so a launcher that reads only one of them can be caught.
+            for name, value in root_vars.items():
+                env[name] = str(value)
+        return self.run_launcher(hook["command"], env)
 
     @staticmethod
     def normalize(stdout):
@@ -156,6 +174,30 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertEqual("", result.stderr)
         self.assertEqual("", result.stdout)
 
+    def test_launcher_honours_the_codex_plugin_root_variable(self):
+        # The Codex CLI exports PLUGIN_ROOT and does not set
+        # CLAUDE_PLUGIN_ROOT. Proving the launcher reads PLUGIN_ROOT through
+        # behaviour, rather than by matching the command text, keeps this test
+        # meaningful if the launcher is ever rewritten.
+        if not shutil.which("sh"):
+            self.skipTest("no POSIX shell available to run the launcher")
+
+        (self.config_dir / ".i-have-adhd-always").touch()
+        result = self.run_codex_hook(root_vars={"PLUGIN_ROOT": self.plugin_root})
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
+
+    def test_launcher_honours_the_claude_plugin_root_variable(self):
+        if not shutil.which("sh"):
+            self.skipTest("no POSIX shell available to run the launcher")
+
+        (self.config_dir / ".i-have-adhd-always").touch()
+        result = self.run_codex_hook(root_vars={"CLAUDE_PLUGIN_ROOT": self.plugin_root})
+
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
+
     def test_hook_uses_a_shared_claude_and_codex_launcher(self):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
@@ -163,21 +205,12 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertNotIn("args", hook)
         command = hook["command"]
 
-        # Claude Code exports CLAUDE_PLUGIN_ROOT; the Codex CLI exports
-        # PLUGIN_ROOT. The launcher must honour both or the always-on flag
-        # silently stops being checked on one of the two runtimes.
-        self.assertIn("CLAUDE_PLUGIN_ROOT", command)
-        # A bare substring check would be satisfied by CLAUDE_PLUGIN_ROOT
-        # itself, so require PLUGIN_ROOT to stand on its own.
-        self.assertRegex(command, r'(?<![A-Za-z_])PLUGIN_ROOT\b')
-        self.assertRegex(command, r'\$\{CLAUDE_PLUGIN_ROOT:-\$PLUGIN_ROOT\}')
-
-        # The launcher must stay runnable without Node installed.
+        # The launcher must stay runnable on machines where Node is absent,
+        # which is the whole point of this hook (issue #221).
         self.assertNotIn("node", command)
 
-        # It must actually run the hook via sh and report success, rather
-        # than swallowing a missing script and exiting quietly.
-        self.assertRegex(command, r'sh\s+"\$\{?root\}?/hooks/always-on\.sh"')
+        # It must invoke the POSIX hook script and never block session start.
+        self.assertIn("always-on.sh", command)
         self.assertIn("exit 0", command)
 
 
