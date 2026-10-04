@@ -11,12 +11,14 @@
 <p align="center">
   <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <a href="README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <a href="README.id.md" title="Bahasa Indonesia" aria-label="Bahasa Indonesia">🇮🇩</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <strong title="한국어" aria-label="한국어">🇰🇷</strong> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
-  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
 </p>
 
 
