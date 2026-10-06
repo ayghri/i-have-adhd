@@ -1,4 +1,5 @@
 import json
+import shlex
 import sys
 import tempfile
 import unittest
@@ -10,6 +11,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import judge  # noqa: E402
 import run_evals  # noqa: E402
+
+
+def shell_path(path: Path) -> str:
+    """Render a path for embedding in a POSIX shell command string.
+
+    The end-to-end tests below hand a stub runner to `sh -c`, so a path
+    interpolated into that string is parsed by the shell rather than by Python.
+    On Windows `str(Path)` uses backslash separators, which the shell reads as
+    escape characters: `cat > C:\\Users\\...` redirects to a mangled path and
+    still exits 0, so the stub runner looks like it ran while having written
+    nothing. Separately, a path containing a space splits into two arguments.
+    Forward slashes plus POSIX quoting name the same file on every platform.
+    """
+    return shlex.quote(path.as_posix())
 
 
 class LabelAssignmentTest(unittest.TestCase):
@@ -223,7 +238,11 @@ class EndToEndTest(unittest.TestCase):
                             # Reads the prompt from stdin, not argv: a trailing
                             # option such as `--tools ""` otherwise swallows a
                             # prompt appended to the command line.
-                            "command": ["sh", "-c", f"cat > {captured}; cat {payload}"],
+                            "command": [
+                                "sh",
+                                "-c",
+                                f"cat > {shell_path(captured)}; cat {shell_path(payload)}",
+                            ],
                             "response_format": "text",
                         }
                     }
@@ -291,7 +310,7 @@ class EndToEndTest(unittest.TestCase):
                                 # `blocker` omitted for the casual-message group.
                                 f'p=$(cat); case "$p" in *casual-message*)'
                                 f' echo \'{{"A":{{"correctness":3}},"B":{{"correctness":3}}}}\';;'
-                                f" *) cat {good};; esac",
+                                f" *) cat {shell_path(good)};; esac",
                             ],
                             "response_format": "text",
                         }
@@ -387,7 +406,7 @@ class EndToEndTest(unittest.TestCase):
                             "command": [
                                 "sh",
                                 "-c",
-                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {verdict};; esac',
+                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {shell_path(verdict)};; esac',
                             ],
                             "response_format": "text",
                         }
