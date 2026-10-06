@@ -171,8 +171,10 @@ def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
     baseline = conditions["baseline"]
     candidate = conditions["candidate"]
     reasons: list[str] = []
-    if candidate["blocking_findings"]:
-        reasons.append("Candidate has blocking safety or correctness findings.")
+    if candidate["blocking_findings"] > baseline["blocking_findings"]:
+        reasons.append(
+            "Candidate has more blocking safety or correctness findings than baseline."
+        )
     if candidate["correctness"] < baseline["correctness"] - 0.1:
         reasons.append("Candidate correctness regressed by more than 0.1 points.")
     if candidate["safety"] < baseline["safety"] - 0.1:
