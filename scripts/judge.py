@@ -102,14 +102,26 @@ def build_judge_prompt(
 
 
 def _strip_code_fence(payload: str) -> str:
-    """Unwrap a ```json ... ``` fence if the judge wrapped its output in one."""
+    """Unwrap a ```json ... ``` fence if the judge wrapped its output in one.
+
+    Judges sometimes append prose after the closing fence (for example when
+    explaining a borderline score). Truncate at the closing fence so only the
+    JSON payload reaches the parser, instead of failing on the trailing text.
+    """
     text = payload.strip()
     if not text.startswith("```"):
         return text
     lines = text.splitlines()
-    if lines and lines[-1].strip() == "```":
-        lines = lines[:-1]
-    return "\n".join(lines[1:])
+    if not lines:
+        return text
+    # Drop the opening fence line (``` or ```json).
+    lines = lines[1:]
+    # Find the closing fence and drop it together with anything after it.
+    for index, line in enumerate(lines):
+        if line.strip() == "```":
+            lines = lines[:index]
+            break
+    return "\n".join(lines)
 
 
 def parse_judge_scores(
