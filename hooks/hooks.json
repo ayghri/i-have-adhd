@@ -6,7 +6,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"(async()=>{const root=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(root)await import(require('node:url').pathToFileURL(require('node:path').join(root,'hooks','always-on.mjs')).href)})().catch(()=>{})\"",
+            "command": "node",
+            "args": [
+              "-e",
+              "(async()=>{const root=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT||process.argv[1];if(root&&!root.startsWith('$'))await import(require('node:url').pathToFileURL(require('node:path').join(root,'hooks','always-on.mjs')).href);else console.error('i-have-adhd: SessionStart always-on hook skipped (missing CLAUDE_PLUGIN_ROOT)')})().catch(()=>{})",
+              "${CLAUDE_PLUGIN_ROOT}"
+            ],
             "timeout": 30,
             "statusMessage": "Checking i-have-adhd always-on flag..."
           }
