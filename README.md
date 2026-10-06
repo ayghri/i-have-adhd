@@ -18,7 +18,8 @@
   <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href=".github/readme/README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href=".github/readme/README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
-  <a href=".github/readme/README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
+  <a href=".github/readme/README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href=".github/readme/README.tr.md" title="Türkçe" aria-label="Türkçe">🇹🇷</a>
 </p>
 
 
