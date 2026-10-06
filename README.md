@@ -37,6 +37,12 @@ Or 🔗 [check the installation instructions](INSTALL.md).
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"
 
 [Kacper Rutkiewicz | AI Made Simple](https://youtu.be/NEl8kPWZP_Y) has made a good breakdown of an earlier version of the skill.
+## Demo
+
+<a href="assets/i-have-adhd-launch.mp4"><img src="assets/i-have-adhd-launch.jpg" width="280" alt="i-have-adhd launch video"></a>
+
+A 22-second 9:16 launch video with sound ([captions](assets/i-have-adhd-launch.srt)). Click the poster to play.
+
 ## What changes
 
 
