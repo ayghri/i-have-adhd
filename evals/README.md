@@ -110,4 +110,31 @@ Either way, apply the release gate:
 python3 scripts/run_evals.py score evals/results/scores.jsonl
 ```
 
+For a diagnosis of *where* the candidate moves the needle, pair the rows and
+report per-case deltas and per-dimension statistics:
+
+```bash
+python3 scripts/run_evals.py compare evals/results/scores.jsonl
+```
+
+`compare` is a paired analysis: every difference is computed within the same
+`(case_id, trial)` row, so runner and model noise cancels out. It reports:
+
+- `per_case` — for every row pair, the baseline and candidate scores and the
+  delta per dimension, plus the weighted-score delta. This is where a release
+  review spots a candidate that wins overall but regresses a specific case
+  (for example, an interaction-heavy case where the strict output shape hurts).
+- `dimensions` — for each dimension and the weighted score, the baseline and
+  candidate means with standard errors and 95% confidence intervals, and the
+  mean paired delta with its standard error, confidence interval, and
+  wins/ties/losses counts (how many rows the candidate won, tied, or lost).
+
+The `significant` flag is true only when the delta confidence interval does
+not straddle zero: the observed difference is distinguishable from noise given
+the row count and variance. It is a normal approximation, adequate for the row
+counts this harness produces, and it says nothing about whether a difference
+matters — a large effect on three rows is still statistically noisy. Read it
+next to `score`'s release gate, which encodes the policy decisions
+(blockers, correctness/safety floors, beating baseline).
+
 Record the exact CLI and model versions with published results, including measured token and cost numbers. Do not compare conditions produced with different cases, models, trial counts, or rubrics.
