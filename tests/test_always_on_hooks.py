@@ -81,7 +81,7 @@ class AlwaysOnHookTest(unittest.TestCase):
     @staticmethod
     def normalize(stdout):
         # The banner embeds the flag path. On Windows the sh runtime joins it
-        # with "/" while node and PowerShell join with "\"; both name the same
+        # with "/" while node and PowerShell join with "\\"; both name the same
         # file, so unify separators (and newlines) before comparing runtimes.
         return stdout.replace("\r\n", "\n").replace("\\", "/")
 
@@ -109,6 +109,23 @@ class AlwaysOnHookTest(unittest.TestCase):
                 normalized = self.normalize(result.stdout)
                 self.assertNotIn("name: fixture", normalized)
                 self.assertIn("\n\nFixture body.\n", normalized)
+                outputs[name] = normalized
+
+        self.assertEqual(1, len(set(outputs.values())))
+
+    def test_runtimes_trim_trailing_blank_lines_from_skill_body(self):
+        skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
+        skill_path.write_text("---\nname: fixture\n---\nFixture body.\n\n\n")
+        (self.config_dir / ".i-have-adhd-always").touch()
+        outputs = {}
+
+        for name, command in self.runtimes():
+            with self.subTest(runtime=name):
+                result = self.run_hook(command)
+                self.assertEqual(0, result.returncode)
+                self.assertEqual("", result.stderr)
+                normalized = self.normalize(result.stdout)
+                self.assertTrue(normalized.endswith("\n\nFixture body.\n"), normalized)
                 outputs[name] = normalized
 
         self.assertEqual(1, len(set(outputs.values())))
