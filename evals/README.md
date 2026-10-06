@@ -30,7 +30,7 @@ python3 scripts/run_evals.py run \
   --output evals/results/responses.jsonl
 ```
 
-The default Claude runner reports dollar cost and receives the remaining condition budget on every call. Runners without cost reporting are rejected unless `--allow-unmetered` is supplied; use that flag only when the provider account has its own hard cap.
+The default Claude runner reports dollar cost and receives the remaining condition budget on every call. Metered runners use a $25 harness budget when `--budget-usd` is omitted. Runners without cost reporting are rejected unless `--allow-unmetered` is supplied. Because the harness cannot enforce a cumulative dollar budget for an unmetered runner, do not combine `--allow-unmetered` with an explicit `--budget-usd`; rely on the provider account's own hard spending cap instead. Unmetered runs report cost as unavailable rather than `$0.0000`.
 
 Both example runners isolate the call from the operator's own agent configuration: `--setting-sources ""` for Claude, `--ignore-user-config --ephemeral` for Codex. Keep that isolation when adding runners: without it, user-level plugins, hooks, memory, and output styles leak into every condition and shape the responses being judged. The sharpest case is this repo's own always-on flag (`~/.claude/.i-have-adhd-always`), which would inject the full i-have-adhd ruleset into the **baseline** condition and make the comparison measure the skill against itself.
 
