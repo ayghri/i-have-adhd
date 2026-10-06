@@ -1,5 +1,6 @@
 import {
   contextMessages,
+  latestMarkerContent,
   latestMarkerIsActive,
 } from "../extensions/context-compat";
 
@@ -82,6 +83,63 @@ assert(
     DISABLED,
   ),
   "Ordinary messages must not activate the rules",
+);
+
+// TASK 9 (Optimize Context Injection): latestMarkerContent backs the
+// hash-based staleness check in extensions/i-have-adhd.ts. It has to track
+// content independently of latestMarkerIsActive's own presence flag -- see
+// that function's doc comment for why the two must not be derived from
+// each other.
+
+assert(
+  latestMarkerContent(
+    [
+      { role: "custom", customType: ACTIVE, content: "old" },
+      { role: "custom", customType: ACTIVE, content: "new" },
+    ],
+    ACTIVE,
+    DISABLED,
+  ) === "new",
+  "The newest active marker's content should win over an earlier one",
+);
+
+assert(
+  latestMarkerContent(
+    [
+      { role: "custom", customType: ACTIVE, content: "old" },
+      { role: "custom", customType: DISABLED },
+    ],
+    ACTIVE,
+    DISABLED,
+  ) === undefined,
+  "A later disabled marker must cancel an earlier active marker's content",
+);
+
+assert(
+  latestMarkerContent(
+    [
+      { role: "custom", customType: ACTIVE, content: "old" },
+      { role: "custom", customType: DISABLED },
+      { role: "custom", customType: ACTIVE, content: "fresh" },
+    ],
+    ACTIVE,
+    DISABLED,
+  ) === "fresh",
+  "An active marker after a disabled one must win again",
+);
+
+assert(
+  latestMarkerContent([], ACTIVE, DISABLED) === undefined,
+  "No messages means no content",
+);
+
+assert(
+  latestMarkerContent(
+    [{ role: "custom", customType: ACTIVE }],
+    ACTIVE,
+    DISABLED,
+  ) === undefined,
+  "A marker with no content field at all must report undefined, not throw or coerce",
 );
 
 console.log("Pi/OMP context compatibility checks passed");
