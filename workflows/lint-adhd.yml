@@ -1,0 +1,84 @@
+name: Lint ADHD Responses
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  lint-pr-comments:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Lint PR title and body
+        id: lint-pr
+        continue-on-error: true
+        run: |
+          python3 << 'EOF'
+          import sys
+          sys.path.insert(0, '.')
+          from linter.adhd_linter import ADHDLinter, format_violations
+          
+          pr_title = "${{ github.event.pull_request.title }}"
+          pr_body = """${{ github.event.pull_request.body }}"""
+          
+          # Lint PR body (title is usually too short)
+          if pr_body.strip():
+              linter = ADHDLinter(pr_body)
+              violations = linter.lint()
+              
+              if violations:
+                  print("::warning::PR description has ADHD style violations:")
+                  print(format_violations(violations))
+          else:
+              print("⚠️  PR has no description")
+          EOF
+
+  lint-review-comments:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' && github.event.issue.pull_request
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Lint review comment
+        id: lint-comment
+        continue-on-error: true
+        run: |
+          python3 << 'EOF'
+          import sys
+          sys.path.insert(0, '.')
+          from linter.adhd_linter import ADHDLinter, format_violations
+          
+          comment_body = """${{ github.event.comment.body }}"""
+          
+          if comment_body.strip():
+              linter = ADHDLinter(comment_body)
+              violations = linter.lint()
+              
+              if violations:
+                  print("::notice::Review comment has ADHD style suggestions:")
+                  print(format_violations(violations))
+          EOF
