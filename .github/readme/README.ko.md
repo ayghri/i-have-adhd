@@ -18,7 +18,8 @@
   <strong title="한국어" aria-label="한국어">🇰🇷</strong> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
-  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
