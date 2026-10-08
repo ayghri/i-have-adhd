@@ -66,6 +66,8 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 </tr>
 </table>
 
+For routine answers, aim for about four short lines before any code block. The example above shows the shape of an actionable answer, not a fixed length: include the steps needed to finish the task, and explain fully when asked.
+
 
 ## The rules
 
