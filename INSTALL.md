@@ -299,6 +299,89 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 </details>
 
 <details>
+<summary><strong>Qoder IDE and Qoder CLI</strong></summary>
+
+Qoder loads the canonical `skills/i-have-adhd/SKILL.md` directly through its
+native plugin format. No Qoder-specific copy of the rules is maintained.
+
+### Install (CLI)
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+Older Qoder CLI releases may expose the executable as `qodercli`; use the same
+subcommands with that name.
+
+### Install (IDE)
+
+Clone the repository and build the bounded Qoder package:
+
+```bash
+python3 i-have-adhd/scripts/package_qoder_plugin.py
+```
+
+In Qoder IDE, open **Extensions → Plugins → Add Plugins → Upload Plugin** and
+select `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin accepts a
+ZIP package, not the cloned directory. [Official instructions](https://docs.qoder.com/qoder/plugins).
+
+### Verify and activate
+
+```bash
+qoder plugins list
+```
+
+Start a new Qoder task, type `/`, and select `/i-have-adhd`. The rules stay on
+for that task until you say `stop adhd mode` or `normal mode`.
+
+Qoder may also select an installed Skill automatically when a request matches
+its description. Qoder documents only `name` and `description` Skill metadata,
+not `disable-model-invocation`, so do not rely on that field to suppress Qoder's
+model-driven selection.
+
+### Update
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+Then start a new task so Qoder reloads the plugin inventory.
+
+### Uninstall
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+In Qoder IDE, open **Extensions → Plugins → Installed** and remove **I Have
+ADHD**.
+
+### Always-on (optional)
+
+The always-on hook requires `node` on the non-interactive hook `PATH`. The
+Skill itself does not require Node and remains available for normal `/i-have-adhd`
+invocation if the optional hook runtime is unavailable.
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+Start a new Qoder task. The plugin's `SessionStart` hook injects the canonical
+rules from the first message, and injects them again after a new task, resume,
+clear, or compaction. To return to on-demand mode:
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 Gemini CLI has no plugin marketplace, so there are two native routes: a **custom command** (opt-in, off until you invoke it) or an **extension** (always-on once installed). The command route matches this skill's default posture; pick it unless you want the rules on every session.
@@ -877,10 +960,11 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 ## How activation works
 
-1. **Installed, not invoked.** In Claude Code, Qwen Code, Codex, and Grok, nothing happens until you invoke the skill explicitly. Claude Code, Qwen Code, and Grok honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
-2. **You invoke it explicitly.** Type `/i-have-adhd` in Claude Code, Qwen Code, or Grok, or `$i-have-adhd` in Codex. Rules stay on for that session. "stop adhd mode" or "normal mode" turns them off.
+1. **Installed, not invoked.** In Claude Code, Qwen Code, Codex, and Grok, nothing happens until you invoke the skill explicitly. Claude Code, Qwen Code, and Grok honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Qoder may use the description to select an installed Skill automatically.
+2. **You invoke it explicitly.** Type `/i-have-adhd` in Claude Code, Qwen Code, Grok, or Qoder, or `$i-have-adhd` in Codex. Rules stay on for that session. "stop adhd mode" or "normal mode" turns them off.
 3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code). A `SessionStart` hook loads the full ruleset from message one, every session.
-4. **You add the always-on snippet above** (Grok, Codex, and other harnesses). Grok reads `~/.grok/AGENTS.md` and `~/.grok/rules/*.md`. Keeps the core rules in your agent's persistent context.
+4. **You touch `~/.qoder/.i-have-adhd-always`** (Qoder). Its `SessionStart` hook loads the same canonical rules from message one and after resume, clear, or compaction.
+5. **You add the always-on snippet above** (Grok, Codex, and other harnesses). Grok reads `~/.grok/AGENTS.md` and `~/.grok/rules/*.md`. Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not turn it on, it is off.
 
