@@ -194,9 +194,7 @@ qoder plugins install ./i-have-adhd
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-현재 Qoder IDE는 **Plugins → + Create Plugin → import from a local folder**에서 복제한 폴더를 가져올 수 있습니다. 아래 ZIP은 ZIP 업로드를 제공하는 버전에서 선택적으로 사용합니다. [공식 안내](https://docs.qoder.com/extensions/plugins).
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+Qoder IDE에서 **Extensions → Plugins → Add Plugins → Upload Plugin**을 열고 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`을 선택하세요. Upload Plugin은 복제한 디렉터리가 아니라 ZIP 패키지를 받습니다. [공식 안내](https://docs.qoder.com/qoder/plugins).
 
 ### 확인 및 활성화
 
@@ -224,12 +222,14 @@ qoder plugins uninstall i-have-adhd
 
 ### 항상 활성화(선택 사항)
 
+항상 켜기 Hook은 비대화형 Hook `PATH`에서 `node`를 찾을 수 있어야 합니다. Skill 자체는 Node가 필요하지 않으며 선택적 Hook 런타임을 사용할 수 없어도 `/i-have-adhd`로 계속 호출할 수 있습니다.
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-새 Qoder 작업을 시작하세요. `SessionStart` Hook이 첫 메시지부터 정식 규칙을 주입하고 재개, 초기화 또는 압축 후 다시 주입합니다. 필요할 때만 활성화하는 방식으로 돌아가려면:
+새 Qoder 작업을 시작하세요. `SessionStart` Hook이 첫 메시지부터 정식 규칙을 주입하고 새 작업, 재개, 초기화 또는 압축 후 다시 주입합니다. 필요할 때만 활성화하는 방식으로 돌아가려면:
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

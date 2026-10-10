@@ -194,9 +194,7 @@ Clone o repositório e gere o ZIP do Qoder:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-O Qoder IDE atual permite importar a pasta clonada em **Plugins → + Create Plugin → import from a local folder**. O ZIP abaixo é opcional para versões que oferecem upload de ZIP. [Instruções oficiais](https://docs.qoder.com/extensions/plugins).
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+No Qoder IDE, abra **Extensions → Plugins → Add Plugins → Upload Plugin** e selecione `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. O Upload Plugin aceita um pacote ZIP, não o diretório clonado. [Instruções oficiais](https://docs.qoder.com/qoder/plugins).
 
 ### Verificar e ativar
 
@@ -224,12 +222,14 @@ qoder plugins uninstall i-have-adhd
 
 ### Sempre ativo (opcional)
 
+O Hook sempre ativo exige que `node` esteja no `PATH` não interativo dos Hooks. A Skill em si não exige Node e continua disponível via `/i-have-adhd` se o runtime opcional do Hook não estiver disponível.
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-Inicie uma nova tarefa no Qoder. O Hook `SessionStart` injeta as regras canônicas desde a primeira mensagem e novamente após retomar, limpar ou compactar. Para voltar ao modo sob demanda:
+Inicie uma nova tarefa no Qoder. O Hook `SessionStart` injeta as regras canônicas desde a primeira mensagem e novamente após uma nova tarefa, retomar, limpar ou compactar. Para voltar ao modo sob demanda:
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

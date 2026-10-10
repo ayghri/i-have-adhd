@@ -194,9 +194,7 @@ qoder plugins install ./i-have-adhd
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-現在の Qoder IDE では **Plugins → + Create Plugin → import from a local folder** からクローンしたフォルダーをインポートできます。以下の ZIP は ZIP アップロードに対応するバージョン向けの任意の方法です。[公式手順](https://docs.qoder.com/extensions/plugins)。
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+Qoder IDE で **Extensions → Plugins → Add Plugins → Upload Plugin** を開き、`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip` を選択します。Upload Plugin が受け付けるのは ZIP パッケージであり、クローンしたディレクトリではありません。[公式手順](https://docs.qoder.com/qoder/plugins)。
 
 ### 確認と有効化
 
@@ -224,12 +222,14 @@ qoder plugins uninstall i-have-adhd
 
 ### 常時有効（任意）
 
+常時有効 Hook では、非対話 Hook の `PATH` から `node` を実行できる必要があります。Skill 自体は Node を必要とせず、任意の Hook ランタイムが利用できない場合も `/i-have-adhd` で呼び出せます。
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-新しい Qoder タスクを開始します。`SessionStart` Hook は最初のメッセージから正規ルールを注入し、再開、クリア、コンパクション後にも再注入します。オンデマンド方式に戻すには：
+新しい Qoder タスクを開始します。`SessionStart` Hook は最初のメッセージから正規ルールを注入し、新規タスク、再開、クリア、コンパクション後にも再注入します。オンデマンド方式に戻すには：
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

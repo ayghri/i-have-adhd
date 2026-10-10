@@ -247,9 +247,7 @@ qoder plugins install ./i-have-adhd
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-当前 Qoder IDE 支持通过 **Plugins → + Create Plugin → import from a local folder** 导入克隆的仓库目录。以下 ZIP 仅适用于提供 ZIP 上传功能的版本。[官方说明](https://docs.qoder.com/extensions/plugins)。
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+在 Qoder IDE 中打开 **Extensions → Plugins → Add Plugins → Upload Plugin**，选择 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`。Upload Plugin 接受 ZIP 包，不接受克隆的仓库目录。[官方说明](https://docs.qoder.com/qoder/plugins)。
 
 ### 验证和启用
 
@@ -281,12 +279,14 @@ qoder plugins uninstall i-have-adhd
 
 ### 始终启用（可选）
 
+始终启用 Hook 要求非交互 Hook 的 `PATH` 中可找到 `node`。Skill 本身不依赖 Node；即使可选 Hook 运行时不可用，仍可正常使用 `/i-have-adhd` 调用。
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-新建 Qoder 任务。插件的 `SessionStart` Hook 会从第一条消息起注入规范规则，并在恢复、清空或压缩后再次注入。恢复按需模式：
+新建 Qoder 任务。插件的 `SessionStart` Hook 会从第一条消息起注入规范规则，并在新建任务、恢复、清空或压缩后再次注入。恢复按需模式：
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

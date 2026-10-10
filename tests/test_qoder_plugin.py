@@ -1,4 +1,5 @@
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -42,6 +43,35 @@ class QoderPluginTest(unittest.TestCase):
         self.assertTrue(ROOT.joinpath("skills/i-have-adhd/SKILL.md").is_file())
         self.assertEqual("./hooks/hooks.json", self.manifest["hooks"])
         self.assertTrue(ROOT.joinpath(self.manifest["hooks"]).is_file())
+
+    def test_qoder_always_on_hook_executes_for_new_sessions(self):
+        hooks = json.loads(
+            ROOT.joinpath(self.manifest["hooks"]).read_text(encoding="utf8")
+        )["hooks"]["SessionStart"][0]
+        self.assertIn("new", hooks["matcher"].split("|"))
+
+        with tempfile.TemporaryDirectory(
+            prefix="i-have-adhd-qoder-hook-",
+        ) as config_dir:
+            pathlib.Path(config_dir, ".i-have-adhd-always").touch()
+            env = {
+                **os.environ,
+                "QODER_PLUGIN_ROOT": str(ROOT),
+                "QODER_CONFIG_DIR": config_dir,
+            }
+            result = subprocess.run(
+                hooks["hooks"][0]["command"],
+                cwd=ROOT,
+                env=env,
+                shell=True,
+                timeout=30,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertIn("ADHD MODE ACTIVE (always-on)", result.stdout)
+        self.assertIn("Lead with the next action", result.stdout)
 
     def test_manifest_metadata_matches_shared_package(self):
         for field in ("name", "version", "license", "homepage"):
@@ -119,7 +149,7 @@ class QoderPluginTest(unittest.TestCase):
             self.assertIn(
                 {
                     "event": "SessionStart",
-                    "matcher": "startup|resume|clear|compact",
+                    "matcher": "startup|resume|clear|compact|new",
                     "type": "command",
                 },
                 plugin["resources"]["hooks"],

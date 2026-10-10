@@ -318,9 +318,9 @@ Clone the repository and build the bounded Qoder package:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Current Qoder IDE supports importing the cloned folder through **Plugins → + Create Plugin → import from a local folder**. The ZIP below is optional for versions that offer ZIP upload. [Official instructions](https://docs.qoder.com/extensions/plugins).
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+In Qoder IDE, open **Extensions → Plugins → Add Plugins → Upload Plugin** and
+select `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin accepts a
+ZIP package, not the cloned directory. [Official instructions](https://docs.qoder.com/qoder/plugins).
 
 ### Verify and activate
 
@@ -357,14 +357,18 @@ ADHD**.
 
 ### Always-on (optional)
 
+The always-on hook requires `node` on the non-interactive hook `PATH`. The
+Skill itself does not require Node and remains available for normal `/i-have-adhd`
+invocation if the optional hook runtime is unavailable.
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
 Start a new Qoder task. The plugin's `SessionStart` hook injects the canonical
-rules from the first message, and injects them again after resume, clear, or
-compaction. To return to on-demand mode:
+rules from the first message, and injects them again after a new task, resume,
+clear, or compaction. To return to on-demand mode:
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

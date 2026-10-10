@@ -262,12 +262,14 @@ qoder plugins uninstall i-have-adhd
 
 ### همیشه فعال (اختیاری)
 
+هوک همیشه‌فعال نیاز دارد `node` در `PATH` غیرتعاملی هوک در دسترس باشد. خود Skill به Node نیاز ندارد و اگر runtime اختیاری هوک در دسترس نباشد، همچنان با `/i-have-adhd` قابل فراخوانی است.
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-یک task جدید Qoder شروع کنید. هوک `SessionStart` قوانین اصلی را از پیام اول و پس از resume، clear یا compact دوباره تزریق می‌کند. برای بازگشت به حالت فعال‌سازی دستی:
+یک task جدید Qoder شروع کنید. هوک `SessionStart` قوانین اصلی را از پیام اول و پس از task جدید، resume، clear یا compact دوباره تزریق می‌کند. برای بازگشت به حالت فعال‌سازی دستی:
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"

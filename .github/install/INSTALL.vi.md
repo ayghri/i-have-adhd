@@ -194,9 +194,7 @@ Clone kho rồi tạo gói ZIP cho Qoder:
 python3 i-have-adhd/scripts/package_qoder_plugin.py
 ```
 
-Qoder IDE hiện hỗ trợ nhập thư mục đã clone qua **Plugins → + Create Plugin → import from a local folder**. ZIP bên dưới là tùy chọn cho các phiên bản có chức năng tải ZIP lên. [Hướng dẫn chính thức](https://docs.qoder.com/extensions/plugins).
-
-`i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`
+Trong Qoder IDE, mở **Extensions → Plugins → Add Plugins → Upload Plugin** rồi chọn `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`. Upload Plugin nhận gói ZIP, không nhận thư mục kho đã clone. [Hướng dẫn chính thức](https://docs.qoder.com/qoder/plugins).
 
 ### Xác minh và kích hoạt
 
@@ -224,12 +222,14 @@ qoder plugins uninstall i-have-adhd
 
 ### Luôn bật (không bắt buộc)
 
+Hook luôn bật yêu cầu `node` có trong `PATH` của tiến trình Hook không tương tác. Bản thân Skill không cần Node và vẫn có thể được gọi bằng `/i-have-adhd` nếu runtime Hook tùy chọn không khả dụng.
+
 ```bash
 mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
 touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
 ```
 
-Bắt đầu tác vụ Qoder mới. Hook `SessionStart` chèn quy tắc chuẩn từ tin nhắn đầu tiên và chèn lại sau khi tiếp tục, xóa hoặc nén ngữ cảnh. Để trở lại chế độ theo yêu cầu:
+Bắt đầu tác vụ Qoder mới. Hook `SessionStart` chèn quy tắc chuẩn từ tin nhắn đầu tiên và chèn lại khi tạo tác vụ mới, tiếp tục, xóa hoặc nén ngữ cảnh. Để trở lại chế độ theo yêu cầu:
 
 ```bash
 rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
