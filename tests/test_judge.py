@@ -103,6 +103,24 @@ class ParseJudgeScoresTest(unittest.TestCase):
 
         self.assertEqual({"baseline", "candidate"}, {row["condition"] for row in rows})
 
+    def test_prose_after_closing_fence_is_truncated_not_a_parse_error(self):
+        # A judge may explain a borderline score after the JSON block. The
+        # trailing prose must not cause json.loads to fail the whole verdict.
+        payload = (
+            "```json\n"
+            + json.dumps({"A": self._verdict(3), "B": self._verdict(4)})
+            + "\n```\n"
+            + "Note: Response A was close on correctness but missed one criterion."
+        )
+
+        rows = judge.parse_judge_scores(
+            payload, ("direct-answer", 1), {"baseline": "B", "candidate": "A"}
+        )
+
+        by_condition = {row["condition"]: row for row in rows}
+        self.assertEqual(3, by_condition["candidate"]["correctness"])
+        self.assertEqual(4, by_condition["baseline"]["correctness"])
+
     def test_missing_label_names_the_label_the_judge_skipped(self):
         payload = json.dumps({"A": self._verdict(4)})
 
