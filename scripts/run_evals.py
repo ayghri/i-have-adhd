@@ -187,6 +187,147 @@ def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _weighted_score(row: dict[str, Any]) -> float:
+    return sum(float(row[metric]) * weight for metric, weight in WEIGHTS.items())
+
+
+def _sample_stddev(values: list[float]) -> Optional[float]:
+    """Sample standard deviation (ddof=1); None when fewer than two values."""
+    if len(values) < 2:
+        return None
+    mean = sum(values) / len(values)
+    variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
+    return math.sqrt(variance)
+
+
+def _standard_error(values: list[float]) -> Optional[float]:
+    """Standard error of the mean; None when the sample is too small."""
+    if not values:
+        return None
+    stddev = _sample_stddev(values)
+    if stddev is None:
+        return None
+    return stddev / math.sqrt(len(values))
+
+
+def _mean_ci95(values: list[float]) -> Optional[list[float]]:
+    """95% confidence interval for the mean, normal approximation.
+
+    The interval is [mean - 1.96 * SE, mean + 1.96 * SE]. It is a decision
+    tool rather than a claim about the population: with the observed variance
+    and row count, an interval that does not straddle zero means the paired
+    difference is material at the 95% level for this run. None when the sample
+    is too small for a variance estimate.
+    """
+    se = _standard_error(values)
+    if se is None:
+        return None
+    mean = sum(values) / len(values)
+    margin = 1.96 * se
+    return [round(mean - margin, 4), round(mean + margin, 4)]
+
+
+def summarize_paired(scores: list[dict[str, Any]]) -> dict[str, Any]:
+    """Per-case paired comparison with per-dimension statistics.
+
+    Scores are paired by (case_id, trial), so every difference below is a
+    within-row difference and runner/model noise cancels out. The output
+    carries:
+
+    - per_case: one entry per (case_id, trial) with the baseline and candidate
+      scores and the delta per dimension, plus the weighted-score delta;
+    - dimensions: for each dimension and the weighted score, the baseline and
+      candidate means with their standard errors and 95% confidence intervals,
+      and the mean paired delta with its standard error, confidence interval,
+      wins/ties/losses counts, and a `significant` flag that is true only when
+      the delta confidence interval does not straddle zero.
+
+    `significant` uses the normal approximation, which is adequate for the row
+    counts this harness produces and keeps the command free of third-party
+    dependencies. It says nothing about whether a difference matters; it only
+    separates differences that are distinguishable from noise from those that
+    are not, given the observed variance.
+    """
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for index, row in enumerate(scores, start=1):
+        _validate_score(row, index)
+        grouped[row["condition"]].append(row)
+    if "baseline" not in grouped or "candidate" not in grouped:
+        raise ValueError("Scores must include baseline and candidate conditions")
+    _check_pairing(grouped)
+
+    pairs: dict[tuple, dict[str, dict[str, Any]]] = {}
+    for condition, rows in grouped.items():
+        for row in rows:
+            key = (row["case_id"], row["trial"])
+            pairs.setdefault(key, {})[condition] = row
+
+    per_case = []
+    for key in sorted(pairs):
+        baseline = pairs[key]["baseline"]
+        candidate = pairs[key]["candidate"]
+        entry: dict[str, Any] = {
+            "case_id": key[0],
+            "trial": key[1],
+            "weighted_delta": round(_weighted_score(candidate) - _weighted_score(baseline), 4),
+            "blocker": {
+                "baseline": baseline["blocker"],
+                "candidate": candidate["blocker"],
+            },
+        }
+        for metric in WEIGHTS:
+            entry[metric] = {
+                "baseline": baseline[metric],
+                "candidate": candidate[metric],
+                "delta": candidate[metric] - baseline[metric],
+            }
+        per_case.append(entry)
+
+    def dimension_stats(metric: str, getter) -> dict[str, Any]:
+        baseline_values = [getter(pairs[key]["baseline"]) for key in sorted(pairs)]
+        candidate_values = [getter(pairs[key]["candidate"]) for key in sorted(pairs)]
+        deltas = [candidate - baseline for baseline, candidate in zip(baseline_values, candidate_values)]
+        wins = sum(1 for delta in deltas if delta > 0)
+        ties = sum(1 for delta in deltas if delta == 0)
+        losses = sum(1 for delta in deltas if delta < 0)
+        delta_mean = sum(deltas) / len(deltas)
+        ci95 = _mean_ci95(deltas)
+        return {
+            "baseline": {
+                "mean": round(sum(baseline_values) / len(baseline_values), 4),
+                "se": _standard_error(baseline_values),
+                "ci95": _mean_ci95(baseline_values),
+            },
+            "candidate": {
+                "mean": round(sum(candidate_values) / len(candidate_values), 4),
+                "se": _standard_error(candidate_values),
+                "ci95": _mean_ci95(candidate_values),
+            },
+            "delta": {
+                "mean": round(delta_mean, 4),
+                "se": _standard_error(deltas),
+                "ci95": ci95,
+                "wins": wins,
+                "ties": ties,
+                "losses": losses,
+                "significant": ci95 is not None and not (ci95[0] <= 0 <= ci95[1]),
+            },
+        }
+
+    dimensions: dict[str, Any] = {}
+    for metric in WEIGHTS:
+        dimensions[metric] = dimension_stats(metric, lambda row: row[metric])
+    dimensions["weighted_score"] = dimension_stats(
+        "weighted_score", _weighted_score
+    )
+
+    return {
+        "pairs": len(pairs),
+        "per_case": per_case,
+        "dimensions": dimensions,
+    }
+
+
 def summarize_usage(rows: list[dict[str, Any]]) -> dict[str, Any]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for index, row in enumerate(rows, start=1):
@@ -490,6 +631,11 @@ def _build_parser() -> argparse.ArgumentParser:
     score = subparsers.add_parser("score", help="Aggregate manually judged score rows")
     score.add_argument("scores", type=Path)
 
+    compare = subparsers.add_parser(
+        "compare", help="Pair scores and report per-case deltas and per-dimension statistics"
+    )
+    compare.add_argument("scores", type=Path)
+
     measure = subparsers.add_parser(
         "measure", help="Aggregate token and cost usage from recorded responses"
     )
@@ -539,6 +685,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 0
     if args.command == "score":
         print(json.dumps(summarize_scores(read_jsonl(args.scores)), indent=2))
+        return 0
+    if args.command == "compare":
+        print(json.dumps(summarize_paired(read_jsonl(args.scores)), indent=2, allow_nan=False))
         return 0
     if args.command == "measure":
         print(json.dumps(summarize_usage(read_jsonl(args.responses)), indent=2, allow_nan=False))
