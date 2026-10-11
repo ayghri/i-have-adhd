@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"(async()=>{const root=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(root)await import(require('node:url').pathToFileURL(require('node:path').join(root,'hooks','always-on.mjs')).href)})().catch(()=>{})\"",
+            "command": "node -e \"(async()=>{const fs=require('node:fs'),os=require('node:os'),path=require('node:path');const cfgDir=process.env.CLAUDE_CONFIG_DIR||path.join(os.homedir(),'.claude');const flagged=fs.existsSync(path.join(cfgDir,'.i-have-adhd-always'));const root=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(root){await import(require('node:url').pathToFileURL(path.join(root,'hooks','always-on.mjs')).href)}else if(flagged){process.stderr.write('i-have-adhd: always-on is enabled but CLAUDE_PLUGIN_ROOT/PLUGIN_ROOT was not provided to the SessionStart hook, so the ruleset was not injected this session (see https://github.com/ayghri/i-have-adhd/issues/129).\\n')}})().catch(()=>{})\"",
             "timeout": 30,
             "statusMessage": "Checking i-have-adhd always-on flag..."
           }
