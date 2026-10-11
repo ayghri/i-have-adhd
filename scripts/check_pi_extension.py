@@ -44,11 +44,12 @@ class RpcClient:
         executable: str,
         env: dict[str, str],
         *args: str,
+        cwd: Path = ROOT,
     ) -> None:
         self.stderr_file = tempfile.TemporaryFile(mode="w+t")
         self.process = subprocess.Popen(
             [executable, "--mode", "rpc", *args],
-            cwd=ROOT,
+            cwd=cwd,
             env=env,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -201,6 +202,25 @@ def latest_enabled(entries_response: dict[str, Any]) -> bool:
     return states[-1]
 
 
+def latest_mode(entries_response: dict[str, Any]) -> str | None:
+    modes = [
+        entry.get("data", {}).get("mode")
+        for entry in entries_response["data"]["entries"]
+        if entry.get("type") == "custom"
+        and entry.get("customType") == "i-have-adhd-state"
+    ]
+    return modes[-1] if modes else None
+
+
+def message_contents(entries_response: dict[str, Any], custom_type: str) -> list[str]:
+    return [
+        entry.get("content", "")
+        for entry in entries_response["data"]["entries"]
+        if entry.get("type") == "custom_message"
+        and entry.get("customType") == custom_type
+    ]
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Smoke-test the i-have-adhd extension without a model request."
@@ -251,6 +271,23 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand(\"reload-probe\", {
     description: \"Reload Pi for smoke testing\",
     handler: async (_args, ctx) => { await ctx.reload(); },
+  });
+  // Simulates "the currently active i-have-adhd ruleset injection is stale"
+  // (e.g. SKILL.md changed after it went in) without ever touching the real
+  // file: plants a fake rules message with a hash tag that cannot match the
+  // real one, becoming the newest \"i-have-adhd-rules\" marker.
+  pi.registerCommand(\"plant-stale-rules\", {
+    description: \"Plant a fake stale i-have-adhd rules injection for testing\",
+    handler: async (_args) => {
+      pi.sendMessage(
+        {
+          customType: \"i-have-adhd-rules\",
+          content: \"ADHD MODE ACTIVE (fake, planted by test). [i-have-adhd:000000000000]\",
+          display: false,
+        },
+        { triggerTurn: false },
+      );
+    },
   });
   pi.on(\"input\", async (event) => {
     if (!existsSync(passthroughProbeFlag) || event.text.trim().toLowerCase() !== \"normal mode\") {
@@ -373,6 +410,107 @@ export default function (pi: ExtensionAPI) {
             entries, _ = client.request("entries-enabled", {"type": "get_entries"})
             assert latest_enabled(entries) is True
             assert message_count(entries, "i-have-adhd-rules") == 3
+            assert latest_mode(entries) is None, "No mode should be set yet"
+
+            # Response Mode (TASK 6): setting a mode while rules are already
+            # injected must notify the model immediately, not silently wait
+            # for the next compaction-triggered re-injection.
+            mode_set, mode_set_events = client.request(
+                "mode-set-deep",
+                {"type": "prompt", "message": "/i-have-adhd deep"},
+            )
+            assert mode_set["success"] is True
+            assert any("[deep]" in (text or "") for text in status_texts(mode_set_events))
+
+            entries, _ = client.request("entries-mode-set", {"type": "get_entries"})
+            assert latest_mode(entries) == "deep"
+            assert latest_enabled(entries) is True
+            assert message_count(entries, "i-have-adhd-rules") == 3, (
+                "Setting a mode while rules are already injected must not re-inject them"
+            )
+            assert message_count(entries, "i-have-adhd-mode-changed") == 1
+            assert any(
+                'Response Mode is explicitly set to "deep"' in content
+                for content in message_contents(entries, "i-have-adhd-mode-changed")
+            ), "Mode-changed message must actually name the mode, not just exist"
+
+            # An unrecognized argument must not touch enabled/mode state.
+            bad_mode, _ = client.request(
+                "mode-invalid",
+                {"type": "prompt", "message": "/i-have-adhd sideways"},
+            )
+            assert bad_mode["success"] is True
+
+            entries, _ = client.request("entries-mode-invalid", {"type": "get_entries"})
+            assert latest_mode(entries) == "deep", "Invalid argument changed the mode"
+            assert message_count(entries, "i-have-adhd-mode-changed") == 1, (
+                "Invalid argument sent a mode-changed message"
+            )
+
+            # The mode has to survive a reload the same way `enabled` does.
+            reloaded, reload_events = client.request(
+                "reload-with-mode",
+                {"type": "prompt", "message": "/reload-probe"},
+            )
+            assert reloaded["success"] is True
+            assert any("[deep]" in (text or "") for text in status_texts(reload_events))
+
+            entries, _ = client.request("entries-reload-with-mode", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 3, (
+                "Reload must not re-inject rules that are already present"
+            )
+
+            # Setting a mode while ADHD is off must turn it on (a mode with
+            # no active ruleset would have nothing to modify).
+            explicit_off, _ = client.request(
+                "off-before-mode",
+                {"type": "prompt", "message": "/i-have-adhd off"},
+            )
+            assert explicit_off["success"] is True
+
+            mode_from_off, mode_from_off_events = client.request(
+                "mode-set-from-off",
+                {"type": "prompt", "message": "/i-have-adhd compact"},
+            )
+            assert mode_from_off["success"] is True
+            assert any("[compact]" in (text or "") for text in status_texts(mode_from_off_events))
+
+            entries, _ = client.request("entries-mode-from-off", {"type": "get_entries"})
+            assert latest_enabled(entries) is True
+            assert latest_mode(entries) == "compact"
+            # Off (no re-injection) then re-enabled by the mode command: one
+            # more injection than the 3 seen before turning off.
+            assert message_count(entries, "i-have-adhd-rules") == 4
+            # The fresh injection from the off->mode path must not ALSO get
+            # a redundant standalone mode-changed message on top of it (the
+            # rules injection already carries the mode note).
+            assert message_count(entries, "i-have-adhd-mode-changed") == 1
+            assert any(
+                'Response Mode is explicitly set to "compact"' in content
+                for content in message_contents(entries, "i-have-adhd-rules")
+            ), "Fresh rules injection must fold in the active mode"
+
+            # A hard off has to reset the mode, matching the disabled
+            # notice's own promise to "return to your default response
+            # style" -- a pinned mode must not silently resurrect on the
+            # next enable.
+            off_after_mode, _ = client.request(
+                "off-after-mode",
+                {"type": "prompt", "message": "/i-have-adhd off"},
+            )
+            assert off_after_mode["success"] is True
+
+            back_on, _ = client.request(
+                "on-after-mode-reset",
+                {"type": "prompt", "message": "/i-have-adhd"},
+            )
+            assert back_on["success"] is True
+
+            entries, _ = client.request("entries-mode-reset", {"type": "get_entries"})
+            assert latest_enabled(entries) is True
+            assert latest_mode(entries) is None, (
+                "Mode from before the hard off resurrected instead of resetting"
+            )
 
             stopped, stop_events = client.request(
                 "stop-phrase",
@@ -400,6 +538,261 @@ export default function (pi: ExtensionAPI) {
             ), "Disabled mode swallowed ordinary input"
         finally:
             client.close()
+
+        # TASK 9 (Optimize Context Injection): a stale-but-present ruleset
+        # injection (SKILL.md changed since it went in -- simulated here
+        # without touching the real file) must be replaced, not left as-is,
+        # the next time something re-checks context (a reload, here).
+        # Isolated in its own session so this doesn't perturb the message
+        # counts the block above already asserted exact values for.
+        stale = RpcClient(
+            executable,
+            env,
+            "--no-session",
+            *extension_args,
+            "-e",
+            str(reload_probe),
+            "--adhd",
+        )
+        try:
+            entries, _ = stale.request("stale-startup", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 1
+
+            planted, _ = stale.request(
+                "stale-plant",
+                {"type": "prompt", "message": "/plant-stale-rules"},
+            )
+            assert planted["success"] is True
+
+            entries, _ = stale.request("stale-planted", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 2
+            assert "[i-have-adhd:000000000000]" in message_contents(
+                entries, "i-have-adhd-rules"
+            )[-1], "Planted fake message did not become the latest rules marker"
+
+            reloaded, _ = stale.request(
+                "stale-reload",
+                {"type": "prompt", "message": "/reload-probe"},
+            )
+            assert reloaded["success"] is True
+
+            entries, _ = stale.request("stale-after-reload", {"type": "get_entries"})
+            assert message_count(entries, "i-have-adhd-rules") == 3, (
+                "A stale injection must be replaced with a fresh one, not left alone"
+            )
+            assert "[i-have-adhd:000000000000]" not in message_contents(
+                entries, "i-have-adhd-rules"
+            )[-1], "Reload kept serving the planted stale content instead of refreshing it"
+        finally:
+            stale.close()
+
+        # TASK 10 (User Profiles/Preferences): .i-have-adhd.json in the
+        # project root (cwd) or the reader's home directory, project winning
+        # when both exist -- see "Preferences (optional)" in SKILL.md. Each
+        # sub-case gets its own project/home temp dir pair and RPC session so
+        # a stray file from one case can't leak into the next.
+        if args.runtime == "pi":
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as home_only_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as home_only_home,
+            ):
+                Path(home_only_home, ".i-have-adhd.json").write_text(
+                    json.dumps(
+                        {
+                            "mode": "audit",
+                            "preferences": {
+                                "max_steps": 2,
+                                "show_estimates": False,
+                                # Not a valid explain_reasoning level: must be
+                                # dropped on its own, without rejecting the
+                                # valid fields alongside it.
+                                "explain_reasoning": "loud",
+                            },
+                            "coding": {"show_changed_files": True},
+                        }
+                    ),
+                    encoding="utf8",
+                )
+                home_env = dict(env)
+                home_env["HOME"] = home_only_home
+
+                home_only = RpcClient(
+                    executable,
+                    home_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(home_only_project),
+                )
+                try:
+                    entries, startup_events = home_only.request(
+                        "prefs-home-only-startup", {"type": "get_entries"}
+                    )
+                    assert any(
+                        "[audit]" in (text or "")
+                        for text in status_texts(startup_events)
+                    ), "mode from the home-directory preferences file did not seed a fresh session"
+
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert 'Response Mode is explicitly set to "audit"' in rules_content, (
+                        "mode from the preferences file did not fold into the rules injection"
+                    )
+                    assert "Cap numbered steps (rule 2) at 2" in rules_content
+                    assert "Skip rule 6" in rules_content
+                    assert "list the changed files" in rules_content
+                    # These two phrases are unique to the directive lines
+                    # generated for a valid explain_reasoning value (as
+                    # opposed to SKILL.md's own similarly-worded prose
+                    # describing the schema, which is always present) -- so
+                    # their absence here actually proves the invalid value
+                    # ("loud") was dropped rather than applied.
+                    assert "regardless of the active Response Mode" not in rules_content, (
+                        "An invalid explain_reasoning value should be dropped, not applied"
+                    )
+                    assert "without waiting to be asked" not in rules_content
+                finally:
+                    home_only.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as override_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as override_home,
+            ):
+                Path(override_project, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 3}}),
+                    encoding="utf8",
+                )
+                Path(override_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 7}}),
+                    encoding="utf8",
+                )
+                override_env = dict(env)
+                override_env["HOME"] = override_home
+
+                override = RpcClient(
+                    executable,
+                    override_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(override_project),
+                )
+                try:
+                    entries, _ = override.request(
+                        "prefs-project-override", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "Cap numbered steps (rule 2) at 3" in rules_content, (
+                        "Project-level preferences must win over the home-directory file"
+                    )
+                    assert "Cap numbered steps (rule 2) at 7" not in rules_content
+                finally:
+                    override.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as fallback_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as fallback_home,
+            ):
+                Path(fallback_project, ".i-have-adhd.json").write_text(
+                    "{ not valid json",
+                    encoding="utf8",
+                )
+                Path(fallback_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 5}}),
+                    encoding="utf8",
+                )
+                fallback_env = dict(env)
+                fallback_env["HOME"] = fallback_home
+
+                fallback = RpcClient(
+                    executable,
+                    fallback_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(fallback_project),
+                )
+                try:
+                    entries, _ = fallback.request(
+                        "prefs-invalid-project-falls-back", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "Cap numbered steps (rule 2) at 5" in rules_content, (
+                        "An unparseable project-level file should fall back to a valid "
+                        "home-directory one instead of giving up on preferences entirely"
+                    )
+                finally:
+                    fallback.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as typo_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as typo_home,
+            ):
+                # Valid JSON, but every field is either misspelled or the
+                # wrong type -- distinct from the previous case's unparseable
+                # JSON. This must NOT fall through to the home file: the
+                # project file was read successfully, it just validated to
+                # no fields at all (see loadUserPreferences's doc comment).
+                Path(typo_project, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_step": 2, "show_estimates": "no"}}),
+                    encoding="utf8",
+                )
+                Path(typo_home, ".i-have-adhd.json").write_text(
+                    json.dumps({"preferences": {"max_steps": 5}}),
+                    encoding="utf8",
+                )
+                typo_env = dict(env)
+                typo_env["HOME"] = typo_home
+
+                typo = RpcClient(
+                    executable,
+                    typo_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(typo_project),
+                )
+                try:
+                    entries, _ = typo.request(
+                        "prefs-project-parses-with-no-valid-fields",
+                        {"type": "get_entries"},
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "User preferences" not in rules_content, (
+                        "A project file with only invalid fields must not fall through "
+                        "to a valid home-directory file"
+                    )
+                    assert "Cap numbered steps (rule 2) at 5" not in rules_content
+                finally:
+                    typo.close()
+
+            with (
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-project-") as no_prefs_project,
+                tempfile.TemporaryDirectory(prefix="i-have-adhd-home-") as no_prefs_home,
+            ):
+                # Both cwd and HOME point at empty temp dirs -- the real
+                # machine's actual home directory must never be consulted by
+                # this test, preference file or not.
+                no_prefs_env = dict(env)
+                no_prefs_env["HOME"] = no_prefs_home
+
+                no_prefs = RpcClient(
+                    executable,
+                    no_prefs_env,
+                    "--no-session",
+                    *extension_args,
+                    "--adhd",
+                    cwd=Path(no_prefs_project),
+                )
+                try:
+                    entries, _ = no_prefs.request(
+                        "prefs-absent", {"type": "get_entries"}
+                    )
+                    rules_content = message_contents(entries, "i-have-adhd-rules")[-1]
+                    assert "User preferences" not in rules_content, (
+                        "No preferences file must add no extra note to the injected ruleset"
+                    )
+                finally:
+                    no_prefs.close()
 
         if args.runtime == "pi":
             Path(agent_dir, ".i-have-adhd-always").touch()
