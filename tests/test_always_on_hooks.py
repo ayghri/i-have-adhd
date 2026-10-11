@@ -61,8 +61,9 @@ class AlwaysOnHookTest(unittest.TestCase):
         plugin_root = plugin_root or self.plugin_root
         env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
         env["PLUGIN_ROOT"] = str(plugin_root)
+        cmd = [hook["command"]] + hook.get("args", [])
         return subprocess.run(
-            hook["command"],
+            cmd,
             check=False,
             capture_output=True,
             env=env,
@@ -74,7 +75,6 @@ class AlwaysOnHookTest(unittest.TestCase):
                     "source": "startup",
                 }
             ),
-            shell=True,
             text=True,
         )
 
@@ -160,13 +160,16 @@ class AlwaysOnHookTest(unittest.TestCase):
         config = json.loads((ROOT / "hooks" / "hooks.json").read_text())
         hook = config["hooks"]["SessionStart"][0]["hooks"][0]
 
-        self.assertNotIn("args", hook)
-        command = hook["command"]
-        self.assertRegex(command, r'^node(?: --input-type=module)? -e "')
-        self.assertIn("process.env.CLAUDE_PLUGIN_ROOT", command)
-        self.assertIn("process.env.PLUGIN_ROOT", command)
-        self.assertIn("await import", command)
-        self.assertIn(".catch", command)
+        self.assertIn("args", hook)
+        self.assertEqual("node", hook["command"])
+        args = hook["args"]
+        self.assertEqual("-e", args[0])
+        self.assertIn("process.env.CLAUDE_PLUGIN_ROOT", args[1])
+        self.assertIn("process.env.PLUGIN_ROOT", args[1])
+        self.assertIn("process.argv[1]", args[1])
+        self.assertIn("await import", args[1])
+        self.assertIn(".catch", args[1])
+        self.assertEqual("${CLAUDE_PLUGIN_ROOT}", args[2])
 
 
 if __name__ == "__main__":
