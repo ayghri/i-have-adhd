@@ -5,7 +5,7 @@
   <strong align="center">ADHD-friendly outputs. No ADHD diagnosis needed!</strong>
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/lamka02sk/i-have-adhd-lite?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -28,10 +28,8 @@
 Copy/paste into your CLI prompt:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd-lite skill/plugin from https://github.com/lamka02sk/i-have-adhd-lite, refer to the repo's AGENTS.md for instructions.
 ```
-
-Or 🔗 [check the installation instructions](INSTALL.md).
 
 ## What it does
 
@@ -70,31 +68,20 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## The rules
 
-10 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
+8 rules. Full text in [SKILL.md](./skills/i-have-adhd/SKILL.md).
 
 1. Lead with the next action.
 2. Number multi-step tasks.
-3. End with one concrete next step.
-4. Suppress tangents.
-5. Restate state every turn.
-6. Specific time estimates (minutes, not "a bit").
-7. Make wins visible.
-8. Matter-of-fact errors.
-9. Cap lists to 5 items.
-10. No preamble. No recap. No closers.
+3. Suppress tangents.
+4. Restate state every turn.
+5. Make wins visible.
+6. Matter-of-fact errors.
+7. Cap lists to 5 items.
+8. No preamble. No recap. No closers.
 
 ## Tune it
 
-Fork, edit `skills/i-have-adhd/SKILL.md`, then swap your copy in:
-
-```bash
-claude plugin uninstall i-have-adhd            # drop the upstream copy first:
-claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
-claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
-```
-
-Restart your coding assistant, then re-invoke `/i-have-adhd`.
+Fork, edit `skills/i-have-adhd/SKILL.md` to customize the rules.
 
 ## Credits
 
