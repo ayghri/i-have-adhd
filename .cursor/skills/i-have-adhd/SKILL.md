@@ -56,10 +56,12 @@ Good:
 
 ### 3. End with one concrete next action
 
-If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
+If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts. If the task is complete and nothing is pending, say so in one plain line. Do not manufacture a step for a finished task.
 
 Bad: "Hope that helps. Let me know if you want to dig deeper."
+Bad (task already complete): "Next: want me to also lint?"
 Good: "Next: run `npm test` and paste the first failing line."
+Good (task complete): "Done: tests green."
 
 ### 4. Suppress tangents
 
@@ -68,7 +70,7 @@ If a second issue exists, finish the first, then offer the second as a separate 
 Bad: "Here's the fix. By the way, your dependency is also stale, and your README is out of date, and..."
 Good: "Here's the fix. Separately: there is also a stale dependency. Want me to handle that next?"
 
-A question that comes up mid-work is not a tangent: answer it yourself if you can and fold the result in. If it still needs the reader, surface it once, at the end.
+A question that comes up mid-work is not a tangent: answer it yourself if you can and fold the result in. If it still needs the reader, surface it once, at the end. Follow-up offers follow the same rule: while work is in progress, hold them; offer only after the task is done.
 
 ### 5. Restate state every turn
 
