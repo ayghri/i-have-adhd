@@ -31,6 +31,12 @@ Copy/paste into your CLI prompt:
 Install the i-have-adhd-lite skill/plugin from https://github.com/lamka02sk/i-have-adhd-lite, refer to the repo's AGENTS.md for instructions.
 ```
 
+Claude Code, one step (2.1.275+):
+
+```text
+/plugin install i-have-adhd --marketplace lamka02sk/i-have-adhd-lite
+```
+
 ## What it does
 
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"

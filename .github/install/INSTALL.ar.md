@@ -132,8 +132,8 @@ claude plugin list
 ### تحديث
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update i-have-adhd-lite
+claude plugin update i-have-adhd@i-have-adhd-lite
 ```
 
 ### إلغاء التثبيت
@@ -880,7 +880,7 @@ npx skills remove i-have-adhd -g    # إذا ثُبّتت عالميًا
 
 **`/i-have-adhd` ليس في وضع الإكمال التلقائي.** أعد تشغيل الوكيل. تتم قراءة فهرس المكوّن الإضافي عند بدء التشغيل. في Grok، شغّل أيضًا `grok plugin enable i-have-adhd` وتأكد من أن التثبيت استخدم `--trust`.
 
-**علامة التشغيل الدائم ليس لها أي تأثير.** قم بتحديث المكوّن الإضافي (`claude plugin marketplace update i-have-adhd` ثم `claude plugin update i-have-adhd@i-have-adhd`) وأعد التشغيل. تتم قراءة الخطافات عند بدء التشغيل، ويتطلب ملف العلامة إصدارًا من المكوّن الإضافي يتضمن `hooks/hooks.json`. لا يقرأ Grok ملف `~/.claude/.i-have-adhd-always`؛ ضع كتلة التشغيل الدائم بدلاً من ذلك في `~/.grok/AGENTS.md` أو `~/.grok/rules/i-have-adhd.md`.
+**علامة التشغيل الدائم ليس لها أي تأثير.** قم بتحديث المكوّن الإضافي (`claude plugin marketplace update i-have-adhd-lite` ثم `claude plugin update i-have-adhd@i-have-adhd-lite`) وأعد التشغيل. تتم قراءة الخطافات عند بدء التشغيل، ويتطلب ملف العلامة إصدارًا من المكوّن الإضافي يتضمن `hooks/hooks.json`. لا يقرأ Grok ملف `~/.claude/.i-have-adhd-always`؛ ضع كتلة التشغيل الدائم بدلاً من ذلك في `~/.grok/AGENTS.md` أو `~/.grok/rules/i-have-adhd.md`.
 
 **فشل `claude plugin marketplace add`.** استخدم نموذج `owner/repo`. يجب أن يشير المسار المحلي إلى جذر المستودع، وليس إلى `.claude-plugin/`.
 

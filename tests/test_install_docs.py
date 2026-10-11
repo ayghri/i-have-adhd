@@ -13,8 +13,8 @@ class ClaudeCodeUpdateTest(unittest.TestCase):
         # `claude plugin marketplace update` refreshes only the marketplace
         # listing; the installed copy stays at its old version until
         # `claude plugin update` runs, so the docs must never offer the first alone.
-        refresh = "claude plugin marketplace update i-have-adhd"
-        update = "claude plugin update i-have-adhd@i-have-adhd"
+        refresh = "claude plugin marketplace update i-have-adhd-lite"
+        update = "claude plugin update i-have-adhd@i-have-adhd-lite"
         translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
         self.assertTrue(translations, "No translated installation guides found")
         for path in [ROOT / "INSTALL.md", *translations]:
@@ -57,7 +57,7 @@ class GrokInstallPathTest(unittest.TestCase):
         self.assertIn("</details>", section)
         section = section.split("</details>", 1)[0]
 
-        self.assertIn("grok plugin install ayghri/i-have-adhd --trust", section)
+        self.assertIn("grok plugin install lamka02sk/i-have-adhd-lite --trust", section)
         self.assertIn("grok plugin enable i-have-adhd", section)
         self.assertIn("grok plugin update i-have-adhd", section)
         self.assertIn("grok plugin uninstall i-have-adhd --confirm", section)

@@ -76,8 +76,8 @@ claude plugin list
 ### Cập nhật
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update i-have-adhd-lite
+claude plugin update i-have-adhd@i-have-adhd-lite
 ```
 
 ### Gỡ cài đặt
@@ -709,7 +709,7 @@ Trong Claude Code, Qwen Code và Codex không có trạng thái trung gian: nế
 
 **`/i-have-adhd` không có trong tự động hoàn thành.** Khởi động lại agent. Chỉ mục plugin được đọc khi khởi động.
 
-**Cờ luôn bật không có tác dụng.** Cập nhật plugin (`claude plugin marketplace update i-have-adhd`, sau đó `claude plugin update i-have-adhd@i-have-adhd`) và khởi động lại. Hook được đọc khi khởi động, và cờ cần phiên bản plugin có `hooks/hooks.json`.
+**Cờ luôn bật không có tác dụng.** Cập nhật plugin (`claude plugin marketplace update i-have-adhd-lite`, sau đó `claude plugin update i-have-adhd@i-have-adhd-lite`) và khởi động lại. Hook được đọc khi khởi động, và cờ cần phiên bản plugin có `hooks/hooks.json`.
 
 **`claude plugin marketplace add` thất bại.** Dùng dạng `owner/repo`. Đường dẫn cục bộ phải trỏ đến thư mục gốc repo, không phải `.claude-plugin/`.
 

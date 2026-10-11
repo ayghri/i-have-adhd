@@ -118,7 +118,7 @@ new conversation. To keep the imported copy for later, choose **Disable** instea
 
 ```bash
 claude plugin marketplace add lamka02sk/i-have-adhd-lite
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@i-have-adhd-lite
 ```
 
 Type `/i-have-adhd`.
@@ -132,8 +132,8 @@ claude plugin list
 ### Update
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update i-have-adhd-lite
+claude plugin update i-have-adhd@i-have-adhd-lite
 ```
 
 The first command refreshes the marketplace listing. The second updates the installed plugin. Restart Claude Code to load it.
@@ -143,11 +143,11 @@ The first command refreshes the marketplace listing. The second updates the inst
 ### Uninstall
 
 ```bash
-claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin uninstall i-have-adhd@i-have-adhd-lite
+claude plugin marketplace remove i-have-adhd-lite
 ```
 
-Or keep it installed and turn it off: `claude plugin disable i-have-adhd`.
+Or keep it installed and turn it off: `claude plugin disable i-have-adhd@i-have-adhd-lite`.
 
 ### Always-on (optional)
 
