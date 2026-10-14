@@ -30,6 +30,26 @@ python3 scripts/run_evals.py run \
   --output evals/results/responses.jsonl
 ```
 
+### RTL/LTR cases
+
+The catalog includes matched English, Persian, and Arabic debugging cases. Their `language` and `direction` fields identify the case; the expected language, action-first structure, and exact technical strings are also stated in each case's criteria. The conditional rubric applies only when a case requests RTL or mixed-script output.
+
+Run the three cases for the baseline condition:
+
+```bash
+python3 scripts/run_evals.py run \
+  --runner claude \
+  --condition baseline \
+  --case rtl-debug-en-001 \
+  --case rtl-debug-fa-001 \
+  --case rtl-debug-ar-001 \
+  --trials 3 \
+  --budget-usd 12.50 \
+  --output evals/results/rtl-responses.jsonl
+```
+
+Repeat with `--condition candidate --condition-skill skills/i-have-adhd/SKILL.md`, keeping the same cases, runner, trial count, budget, and output path. Do not publish a comparison until both conditions have matching results and the model and rubric are recorded.
+
 The default Claude runner reports dollar cost and receives the remaining condition budget on every call. Runners without cost reporting are rejected unless `--allow-unmetered` is supplied; use that flag only when the provider account has its own hard cap.
 
 Both example runners isolate the call from the operator's own agent configuration: `--setting-sources ""` for Claude, `--ignore-user-config --ephemeral` for Codex. Keep that isolation when adding runners: without it, user-level plugins, hooks, memory, and output styles leak into every condition and shape the responses being judged. The sharpest case is this repo's own always-on flag (`~/.claude/.i-have-adhd-always`), which would inject the full i-have-adhd ruleset into the **baseline** condition and make the comparison measure the skill against itself.

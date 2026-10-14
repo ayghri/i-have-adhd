@@ -22,6 +22,14 @@ class EvaluationHarnessTest(unittest.TestCase):
         self.assertEqual([], errors)
         self.assertGreaterEqual(len(cases), 12)
         self.assertGreaterEqual(len({case["category"] for case in cases}), 8)
+        by_id = {case["id"]: case for case in cases}
+        for case_id, language, direction in (
+            ("rtl-debug-en-001", "en", "ltr"),
+            ("rtl-debug-fa-001", "fa", "rtl"),
+            ("rtl-debug-ar-001", "ar", "rtl"),
+        ):
+            with self.subTest(case_id=case_id):
+                self.assertEqual((language, direction), (by_id[case_id]["language"], by_id[case_id]["direction"]))
 
 
     def test_parse_response_tolerates_output_after_the_json_document(self):
