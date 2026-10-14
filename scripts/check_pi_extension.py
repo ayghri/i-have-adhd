@@ -45,7 +45,9 @@ class RpcClient:
         env: dict[str, str],
         *args: str,
     ) -> None:
-        self.stderr_file = tempfile.TemporaryFile(mode="w+t")
+        self.stderr_file = tempfile.TemporaryFile(
+            mode="w+t", encoding="utf-8", errors="replace"
+        )
         self.process = subprocess.Popen(
             [executable, "--mode", "rpc", *args],
             cwd=ROOT,
@@ -54,6 +56,8 @@ class RpcClient:
             stdout=subprocess.PIPE,
             stderr=self.stderr_file,
             text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if self.process.stdout is None:
             raise RuntimeError("Agent RPC stdout is unavailable")
@@ -235,6 +239,8 @@ def main() -> None:
                 check=True,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
             )
         extension_args = (
             []
