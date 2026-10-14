@@ -41,6 +41,10 @@ try {
     ""
   }
 
+  # Drop trailing newlines so a skill file ending in blank lines produces the
+  # same banner as the Node and sh hooks, which both already trim them.
+  $body = $body.TrimEnd([char]13, [char]10)
+
   $banner = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
     '"stop adhd mode" turns it off for this session; delete '
   [Console]::Out.Write($banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n")
