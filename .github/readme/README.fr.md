@@ -19,7 +19,8 @@
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
   <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
-  <strong title="Français" aria-label="Français">🇫🇷</strong>
+  <strong title="Français" aria-label="Français">🇫🇷</strong> · 
+  <a href="README.ru.md" title="Русский" aria-label="Русский">🇷🇺</a>
 </p>
 
 

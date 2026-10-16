@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
+  <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> · <a href="README.es.md" title="Español" aria-label="Español">🇪🇸</a> ·
   <a href="README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
@@ -18,7 +18,7 @@
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
   <strong title="العربية" aria-label="العربية">🇸🇦</strong> ·
-  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a> · <a href="README.ru.md" title="Русский" aria-label="Русский">🇷🇺</a>
 </p>
 
 ## التثبيت
