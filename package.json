@@ -5,6 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/ayghri/i-have-adhd",
   "private": true,
+  "main": "./.opencode/plugins/i-have-adhd.mjs",
   "keywords": ["pi-package"],
   "omp": {
     "extensions": ["./extensions/i-have-adhd.ts"]
