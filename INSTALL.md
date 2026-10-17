@@ -517,7 +517,13 @@ The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and 
 
 ### Install
 
-For use across projects:
+For OpenCode V2, install the package. OpenCode then tracks it for you: `Ctrl+R` in the plugin dialog checks for updates, `Ctrl+U` applies one, and from the CLI `opencode plugin check` / `opencode plugin update` do the same.
+
+```bash
+opencode plugin add github:ayghri/i-have-adhd
+```
+
+Alternatively, from a clone — this is also the method for OpenCode V1, which does not load packages:
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
@@ -546,6 +552,10 @@ cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
 Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
 
 ### Update
+
+For the package install, OpenCode does it: `Ctrl+R` (dialog) or `opencode plugin check` shows whether a newer commit exists, and `Ctrl+U` or `opencode plugin update` applies it.
+
+For the clone install:
 
 ```bash
 git -C ~/.config/opencode/vendor/i-have-adhd pull
