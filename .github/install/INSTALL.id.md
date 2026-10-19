@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### Uninstal
@@ -381,6 +382,71 @@ Di dalam sesi Kimi Code, jalankan `/plugins`, arahkan kursor ke **I Have ADHD**,
 </details>
 
 <details>
+<summary><strong>OpenCode</strong></summary>
+
+Plugin mendukung OpenCode V1 **1.18.29 atau lebih baru** dan V2. Plugin mendaftarkan skill dan perintah `/i-have-adhd`, serta menyediakan mode selalu aktif opsional. Versi V1 yang lebih lama perlu diperbarui atau menggunakan plugin dari rilis skill sebelumnya.
+
+### Instalasi
+
+Untuk digunakan di semua proyek:
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+mkdir -p ~/.config/opencode/plugins
+cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
+EOF
+```
+
+Untuk instalasi V1 yang sudah ada, pertahankan entri `plugin` di `opencode.json`. Jika beralih ke pemuat di atas, hapus entri tersebut.
+
+Mulai sesi baru dan ketik `/i-have-adhd`. Aturan berlaku hingga Anda mengatakan `stop adhd mode` atau `normal mode`.
+
+#### Hanya skill dan perintah (tanpa mode selalu aktif)
+
+Sebagai alternatif, salin skill dan perintah dari repositori ke direktori global OpenCode:
+
+```bash
+mkdir -p ~/.config/opencode/skills/i-have-adhd ~/.config/opencode/commands
+cp skills/i-have-adhd/SKILL.md ~/.config/opencode/skills/i-have-adhd/SKILL.md
+cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
+```
+
+### Verifikasi
+
+Jalankan OpenCode, ketik `/`, dan pastikan `i-have-adhd` muncul dalam daftar perintah.
+
+### Pembaruan
+
+```bash
+git -C ~/.config/opencode/vendor/i-have-adhd pull
+```
+
+Untuk instalasi dengan menyalin, perbarui repositori lalu salin kembali kedua file.
+
+### Uninstal
+
+Hapus `~/.config/opencode/plugins/i-have-adhd.js`. Untuk instalasi dengan menyalin, hapus `~/.config/opencode/skills/i-have-adhd/` dan `~/.config/opencode/commands/i-have-adhd.md`. Untuk instalasi V1 dengan konfigurasi yang sudah ada, hapus entri `plugin` terkait.
+
+### Selalu Aktif (opsional)
+
+Memerlukan plugin. Membuat file penanda menambahkan seluruh aturan ke prompt sistem pada setiap giliran:
+
+```bash
+touch ~/.config/opencode/.i-have-adhd-always
+```
+
+`stop adhd mode` atau `normal mode` meminta agen kembali ke gaya respons biasa untuk sesi saat ini. Hapus file penanda untuk menghentikan penyisipan otomatis:
+
+```bash
+rm ~/.config/opencode/.i-have-adhd-always
+```
+
+Jika `XDG_CONFIG_HOME` diatur, ganti `~/.config` dalam jalur ini dengan direktori tersebut.
+
+</details>
+
+<details>
 <summary><strong>Pi</strong></summary>
 
 Pi mengimplementasikan standar Agent Skills, sehingga file `SKILL.md` yang sama dimuat langsung tanpa konversi. Cara pemanggilan di Pi sedikit berbeda: skill dipanggil dengan format `/skill:<nama>`.
@@ -558,7 +624,7 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 </details>
 
 <details>
-<summary><strong>Cursor, OpenCode, Amp, dan lingkungan lain yang kompatibel dengan agent-skills</strong></summary>
+<summary><strong>Cursor, Amp, dan lingkungan lain yang kompatibel dengan agent-skills</strong></summary>
 
 Berfungsi di lingkungan apa pun yang mendukung pembacaan Agent Skills. Ganti `-a <agent>` dengan agen pilihan Anda.
 
@@ -640,7 +706,7 @@ Di Claude Code, Qwen Code, dan Codex gak ada jalan tengah: jikalau Anda tidak me
 
 **`/i-have-adhd` tidak muncul di pelengkapan otomatis (autocomplete).** Mulai ulang agen Anda. Indeks plugin dibaca saat startup.
 
-**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
+**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update i-have-adhd`, lalu `claude plugin update i-have-adhd@i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
 
 **`claude plugin marketplace add` gagal.** Gunakan format `owner/repo`. Jalur lokal harus mengarah ke root repositori, bukan ke `.claude-plugin/`.
 

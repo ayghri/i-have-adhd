@@ -77,6 +77,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### 제거
@@ -383,6 +384,71 @@ Kimi Code 세션에서 `/plugins`를 실행하고 **I Have ADHD**에 커서를 �
 
 
 <details>
+<summary><strong>OpenCode</strong></summary>
+
+플러그인은 OpenCode V1 **1.18.29 이상**과 V2를 지원합니다. 스킬과 `/i-have-adhd` 명령을 등록하고 선택 사항인 항상 활성화 모드를 제공합니다. 이전 V1 버전은 업그레이드하거나 이전 스킬 릴리스의 플러그인을 사용하세요.
+
+### 설치
+
+모든 프로젝트에서 사용하려면:
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+mkdir -p ~/.config/opencode/plugins
+cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
+EOF
+```
+
+기존 V1 설치에서는 `opencode.json`의 `plugin` 항목을 유지하세요. 위 로더로 전환한다면 해당 항목을 제거하세요.
+
+새 세션에서 `/i-have-adhd`를 입력하세요. `stop adhd mode` 또는 `normal mode`를 입력할 때까지 규칙이 유지됩니다.
+
+#### 스킬과 명령만 설치(항상 활성화 없음)
+
+대신 저장소에서 스킬과 명령을 OpenCode의 전역 디렉터리에 복사할 수 있습니다:
+
+```bash
+mkdir -p ~/.config/opencode/skills/i-have-adhd ~/.config/opencode/commands
+cp skills/i-have-adhd/SKILL.md ~/.config/opencode/skills/i-have-adhd/SKILL.md
+cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
+```
+
+### 확인
+
+OpenCode를 시작하고 `/`를 입력해 명령 목록에 `i-have-adhd`가 있는지 확인하세요.
+
+### 업데이트
+
+```bash
+git -C ~/.config/opencode/vendor/i-have-adhd pull
+```
+
+복사 방식으로 설치했다면 저장소를 업데이트한 후 두 파일을 다시 복사하세요.
+
+### 제거
+
+`~/.config/opencode/plugins/i-have-adhd.js`를 삭제하세요. 복사 방식으로 설치했다면 `~/.config/opencode/skills/i-have-adhd/`와 `~/.config/opencode/commands/i-have-adhd.md`를 삭제하세요. 기존 V1 설정 방식에서는 해당 `plugin` 항목을 제거하세요.
+
+### 항상 활성화(선택 사항)
+
+플러그인이 필요합니다. 플래그를 만들면 매 턴마다 전체 규칙이 시스템 프롬프트에 추가됩니다:
+
+```bash
+touch ~/.config/opencode/.i-have-adhd-always
+```
+
+`stop adhd mode` 또는 `normal mode`는 현재 세션에서 기본 응답 스타일로 돌아가도록 에이전트에 요청합니다. 자동 주입을 멈추려면 플래그를 삭제하세요:
+
+```bash
+rm ~/.config/opencode/.i-have-adhd-always
+```
+
+`XDG_CONFIG_HOME`이 설정되어 있다면 이 경로들의 `~/.config`를 해당 디렉터리로 바꾸세요.
+
+</details>
+
+<details>
 <summary><strong>Pi</strong></summary>
 
 Pi는 Agent Skills 표준을 구현하므로 같은 `SKILL.md`를 변환 없이 직접 불러옵니다. 호출 방식은 다른 도구와 달리 `/skill:<name>` 형식입니다.
@@ -561,7 +627,7 @@ Skills 관리자에서 `i-have-adhd`를 제거하거나 `~/.agents/skills/i-have
 </details>
 
 <details>
-<summary><strong>Cursor, OpenCode, Amp 및 기타 agent-skills 실행 환경</strong></summary>
+<summary><strong>Cursor, Amp 및 기타 agent-skills 실행 환경</strong></summary>
 
 Agent Skills를 읽는 모든 실행 환경에서 작동합니다. `-a <agent>`를 사용하는 에이전트로 바꾸세요.
 
@@ -643,7 +709,7 @@ Claude Code, Qwen Code, Codex에는 중간 상태가 없습니다. 켜지 않았
 
 **자동 완성에 `/i-have-adhd`가 없습니다.** 에이전트를 다시 시작하세요. 플러그인 인덱스는 시작 시 읽힙니다.
 
-**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
+**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update i-have-adhd` 실행 후 `claude plugin update i-have-adhd@i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
 
 **`claude plugin marketplace add`가 실패합니다.** `owner/repo` 형식을 사용하세요. 로컬 경로는 `.claude-plugin/`이 아니라 저장소 루트를 가리켜야 합니다.
 

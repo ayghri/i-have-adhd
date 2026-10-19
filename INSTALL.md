@@ -135,7 +135,12 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
+
+The first command refreshes the marketplace listing. The second updates the installed plugin. Restart Claude Code to load it.
+
+`claude plugin update` skips a plugin whose `version` has not changed. If you maintain a fork, bump `version` in `.claude-plugin/plugin.json` after you edit the rules.
 
 ### Uninstall
 
@@ -508,31 +513,33 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode loads this repository as a server plugin: `.opencode/plugins/i-have-adhd.mjs` registers the `skills/` entry point and the `/i-have-adhd` command, and injects the ruleset when always-on is enabled. OpenCode also reads `skills/` natively, so the skill still works even without the plugin — the plugin adds the `/i-have-adhd` command and the always-on flag.
+The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
 
 ### Install
 
-Clone the repo and point OpenCode at the plugin. An absolute path shares one checkout across every project:
+For use across projects:
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+mkdir -p ~/.config/opencode/plugins
+cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
+EOF
 ```
 
-Add to your `opencode.json` (global: `~/.config/opencode/opencode.json`):
+For an existing V1 installation, keep the `plugin` entry in `opencode.json`. If switching to the loader above, remove that entry.
 
-```json
-{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
+Start a new session and type `/i-have-adhd`. The rules apply until you say `stop adhd mode` or `normal mode`.
+
+#### Skill and command only (without always-on)
+
+Alternatively, from a checkout, copy the skill and command into OpenCode's global directories:
+
+```bash
+mkdir -p ~/.config/opencode/skills/i-have-adhd ~/.config/opencode/commands
+cp skills/i-have-adhd/SKILL.md ~/.config/opencode/skills/i-have-adhd/SKILL.md
+cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
 ```
-
-Or run OpenCode from the checkout — it ships a root `opencode.json` with the plugin already wired up.
-
-Start a new session and turn on ADHD-friendly output for the session:
-
-```text
-/i-have-adhd
-```
-
-Rules stay on until `stop adhd mode` or `normal mode`.
 
 ### Verify
 
@@ -544,24 +551,29 @@ Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
 git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
 
+For the copy-based install, pull your checkout and re-copy the two files.
+
 ### Uninstall
 
-Remove the `plugin` entry from `opencode.json`.
+Remove `~/.config/opencode/plugins/i-have-adhd.js`. For the copy-based install, remove `~/.config/opencode/skills/i-have-adhd/` and `~/.config/opencode/commands/i-have-adhd.md`. For an existing V1 config-based install, remove its `plugin` entry.
 
 ### Always-on (optional)
+
+Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn:
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always
 ```
 
-While the flag exists, the plugin appends the full ruleset to the system prompt every turn — the OpenCode equivalent of the Claude Code `SessionStart` hook. `stop adhd mode` or `normal mode` disables it for the current session; delete the flag to turn always-on off for good:
+`stop adhd mode` or `normal mode` asks the agent to return to its normal style for the current session. Delete the flag to stop automatic injection:
 
 ```bash
 rm ~/.config/opencode/.i-have-adhd-always
 ```
 
-</details>
+If `XDG_CONFIG_HOME` is set, replace `~/.config` in these paths with that directory.
 
+</details>
 
 <details>
 <summary><strong>Pi</strong></summary>
@@ -876,7 +888,7 @@ In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not tur
 
 **`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup. On Grok, also run `grok plugin enable i-have-adhd` and confirm the install used `--trust`.
 
-**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`, then `claude plugin update i-have-adhd@i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
 

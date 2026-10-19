@@ -17,7 +17,8 @@
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
-  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -53,7 +54,7 @@ Una *skill* para tu asistente de código que evita que entierre la respuesta. Ac
 
 ## Después
 
-> Ejecuta `npm install jsonwebtoken@latest`, luego edita `src/auth.ts:42`.
+> Edita `src/auth.ts:42` para actualizar la validación del token.
 >
 > 1. Abre `src/auth.ts`
 > 2. Reemplaza `verifyToken` (líneas 42–58) con el fragmento a continuación

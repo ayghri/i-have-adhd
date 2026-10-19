@@ -16,7 +16,8 @@
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
-  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a>
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -45,7 +46,7 @@ Sebuah skill untuk asisten coding-mu yang mencegahnya mengubur jawaban di tengah
 
 ## Sesudahnya
 
-> Jalankan `npm install jsonwebtoken@latest` lalu edit `src/auth.ts:42`.
+> Edit `src/auth.ts:42` untuk memperbarui validasi token.
 >
 > 1. Buka `src/auth.ts`
 > 2. Ganti `verifyToken` (baris 42–58) dengan cuplikan di bawah ini

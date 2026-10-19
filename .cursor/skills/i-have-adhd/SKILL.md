@@ -35,7 +35,7 @@ Five facts drive every rule below:
 The first line is something the reader can do. Not context. Not a plan. The action.
 
 Bad: "Let's think about this. Your auth flow has a few moving pieces..."
-Good: "Run `npm install jsonwebtoken`, then edit `src/auth.ts:42`."
+Good: "Edit `src/auth.ts:42` to update the token validation."
 
 If the answer is a command, path, or snippet, it goes first. Prose comes after, if at all.
 

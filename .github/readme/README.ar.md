@@ -17,7 +17,8 @@
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
-  <strong title="العربية" aria-label="العربية">🇸🇦</strong>
+  <strong title="العربية" aria-label="العربية">🇸🇦</strong> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 ## التثبيت
@@ -50,7 +51,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## بعد
 
-> شغّل `npm install jsonwebtoken@latest`، ثم عدّل `src/auth.ts:42`.
+> عدّل `src/auth.ts:42` لتحديث التحقق من الرمز.
 >
 > 1. افتح `src/auth.ts`
 > 2. استبدل `verifyToken` (الأسطر 42–58) بالمقتطف أدناه

@@ -18,7 +18,8 @@
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
-  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -54,7 +55,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## 之后
 
-> 运行 `npm install jsonwebtoken@latest`，然后编辑 `src/auth.ts:42`。
+> 编辑 `src/auth.ts:42`，更新令牌验证逻辑。
 >
 > 1. 打开 `src/auth.ts`
 > 2. 将 `verifyToken`（第 42–58 行）替换为下面的代码片段

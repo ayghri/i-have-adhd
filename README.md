@@ -20,6 +20,7 @@
   <a href=".github/readme/README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
   <a href=".github/readme/README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
   <a href=".github/readme/README.tr.md" title="Türkçe" aria-label="Türkçe">🇹🇷</a>
+  <a href=".github/readme/README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -55,7 +56,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## After
 
-> Run `npm install jsonwebtoken@latest`, then edit `src/auth.ts:42`.
+> Edit `src/auth.ts:42` to update the token validation.
 >
 > 1. Open `src/auth.ts`
 > 2. Replace `verifyToken` (lines 42–58) with the snippet below

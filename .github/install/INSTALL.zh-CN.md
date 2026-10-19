@@ -130,6 +130,7 @@ claude plugin list
 
 ```bash
 claude plugin marketplace update i-have-adhd
+claude plugin update i-have-adhd@i-have-adhd
 ```
 
 ### 卸载
@@ -438,31 +439,33 @@ hermes skills uninstall i-have-adhd
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-OpenCode 将此仓库作为服务端插件加载：`.opencode/plugins/i-have-adhd.mjs` 注册 `skills/` 入口点和 `/i-have-adhd` 命令，并在启用始终启用模式时注入规则。OpenCode 也会原生读取 `skills/`，因此即使没有插件，技能本身仍然可用——插件额外提供的是 `/i-have-adhd` 命令和始终启用标志。
+插件支持 OpenCode V1 **1.18.29及以上**和 V2。它注册技能与 `/i-have-adhd` 命令，并提供可选的始终启用模式。较旧的 V1 需要升级，或继续使用上一个技能版本的插件。
 
 ### 安装
 
-克隆仓库并让 OpenCode 指向该插件。使用绝对路径可以让所有项目共享同一份检出：
+在所有项目中使用：
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+mkdir -p ~/.config/opencode/plugins
+cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
+EOF
 ```
 
-将以下内容加入你的 `opencode.json`（全局：`~/.config/opencode/opencode.json`）：
+现有 V1 安装请保留 `opencode.json` 中的 `plugin` 条目。如果改用上述加载文件，请删除该条目。
 
-```json
-{ "plugin": ["/absolute/path/to/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"] }
+开启新会话并输入 `/i-have-adhd`。规则持续生效，直到输入 `stop adhd mode` 或 `normal mode`。
+
+#### 仅技能与命令（不含始终启用）
+
+也可以从检出目录将技能与命令复制到 OpenCode 的全局目录：
+
+```bash
+mkdir -p ~/.config/opencode/skills/i-have-adhd ~/.config/opencode/commands
+cp skills/i-have-adhd/SKILL.md ~/.config/opencode/skills/i-have-adhd/SKILL.md
+cp .opencode/command/i-have-adhd.md ~/.config/opencode/commands/i-have-adhd.md
 ```
-
-也可以直接在检出目录中运行 OpenCode——仓库根目录自带已接好插件的 `opencode.json`。
-
-开启新会话，并为该会话启用 ADHD 友好输出：
-
-```text
-/i-have-adhd
-```
-
-规则持续生效，直到输入 `stop adhd mode` 或 `normal mode`。
 
 ### 验证
 
@@ -474,21 +477,27 @@ git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have
 git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
 
+使用复制方式安装时，更新检出目录后重新复制这两个文件。
+
 ### 卸载
 
-从 `opencode.json` 中移除 `plugin` 条目。
+删除 `~/.config/opencode/plugins/i-have-adhd.js`。使用复制方式安装时，删除 `~/.config/opencode/skills/i-have-adhd/` 和 `~/.config/opencode/commands/i-have-adhd.md`。现有 V1 配置方式则移除相应的 `plugin` 条目。
 
 ### 始终启用（可选）
+
+需要插件。创建标志后，每一轮都会将完整规则集追加到系统提示：
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always
 ```
 
-标志存在期间，插件会在每一轮把完整规则追加到系统提示——相当于 Claude Code `SessionStart` 钩子的 OpenCode 版本。`stop adhd mode` 或 `normal mode` 可在当前会话中停用；删除该标志即可永久关闭始终启用：
+`stop adhd mode` 或 `normal mode` 会要求代理在当前会话中恢复通常的输出风格。删除标志可停止自动注入：
 
 ```bash
 rm ~/.config/opencode/.i-have-adhd-always
 ```
+
+如果设置了 `XDG_CONFIG_HOME`，请将这些路径中的 `~/.config` 替换为该目录。
 
 </details>
 
@@ -804,7 +813,7 @@ npx skills remove i-have-adhd -g    # 如果全局安装
 
 **自动补全中没有 `/i-have-adhd`。** 重启智能体。插件索引在启动时读取。
 
-**始终启用标志无效。** 更新插件（`claude plugin marketplace update i-have-adhd`）并重启。钩子在启动时读取，且该标志需要包含 `hooks/hooks.json` 的插件版本。
+**始终启用标志无效。** 更新插件（先运行 `claude plugin marketplace update i-have-adhd`，再运行 `claude plugin update i-have-adhd@i-have-adhd`）并重启。钩子在启动时读取，且该标志需要包含 `hooks/hooks.json` 的插件版本。
 
 **`claude plugin marketplace add` 失败。** 使用 `owner/repo` 格式。本地路径必须指向仓库根目录，而不是 `.claude-plugin/`。
 

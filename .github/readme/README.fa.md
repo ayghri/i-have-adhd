@@ -18,7 +18,8 @@
   <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
   <strong title="فارسی" aria-label="فارسی">🇮🇷</strong> ·
   <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
-  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a>
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -53,7 +54,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## بعد
 
-> اجرا کن `npm install jsonwebtoken@latest`، بعد `src/auth.ts:42` رو ویرایش کن.
+> `src/auth.ts:42` رو ویرایش کن تا اعتبارسنجی توکن به‌روزرسانی بشه.
 >
 > 1. فایل `src/auth.ts` رو باز کن
 > 2. تابع `verifyToken` (خط ۴۲–۵۸) رو با قطعه‌کد زیر جایگزین کن
