@@ -69,7 +69,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## قوانین
 
-۱۰ قانون ساده. متن کامل در [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+۱۱ قانون ساده. متن کامل در [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. همیشه با اقدام بعدی شروع کن.
 2. کارهای چندمرحله‌ای را شماره‌گذاری کن.
@@ -81,6 +81,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. خطاها را بدون احساسات گزارش کن.
 9. لیست‌ها حداکثر ۵ مورد.
 10. بدون مقدمه، بدون خلاصه، بدون جمله پایانی.
+11. هر چیزی که باید کپی شود، در بلوک کد بیاید.
 
 
 ## شخصی‌سازی

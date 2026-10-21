@@ -63,9 +63,9 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 </tr>
 </table>
 
-## القواعد العشر
+## القواعد الإحدى عشرة
 
-تتكوّن المهارة من عشر قواعد. تجد النص الكامل في [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+تتكوّن المهارة من إحدى عشرة قاعدة. تجد النص الكامل في [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. ابدأ بالإجراء التالي.
 2. رقّم المهام متعددة الخطوات.
@@ -77,6 +77,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. اذكر الأخطاء بموضوعية.
 9. اجعل القوائم في حدود خمسة عناصر.
 10. لا مقدمات، ولا إعادة تلخيص، ولا عبارات ختامية.
+11. ضع كل ما يجب نسخه في كتلة شيفرة.
 
 ## التخصيص
 

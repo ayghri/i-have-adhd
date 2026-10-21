@@ -70,7 +70,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## 规则
 
-共 10 条规则。完整内容见 [SKILL.md](../../skills/i-have-adhd/SKILL.md)。
+共 11 条规则。完整内容见 [SKILL.md](../../skills/i-have-adhd/SKILL.md)。
 
 1. 先说下一步行动。
 2. 多步骤任务使用编号。
@@ -82,6 +82,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. 就事论事地报告错误。
 9. 每个列表最多 5 项。
 10. 不写开场白、回顾或结束语。
+11. 需要复制的内容一律放进代码块。
 
 ## 自定义
 

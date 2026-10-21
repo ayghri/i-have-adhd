@@ -66,7 +66,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ## กฎการตอบ
 
-มีทั้งหมด 10 ข้อ อ่านฉบับเต็มได้ใน [SKILL.md](../../skills/i-have-adhd/SKILL.md)
+มีทั้งหมด 11 ข้อ อ่านฉบับเต็มได้ใน [SKILL.md](../../skills/i-have-adhd/SKILL.md)
 
 1. เริ่มต้นด้วยสิ่งที่ทำถัดไป
 2. ใช้หมายเลขกำกับในกรณีที่งานมีหลายขั้นตอน
@@ -78,6 +78,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. อธิบายข้อผิดพลาดอย่างตรงไปตรงมา
 9. จำกัดรายการไม่เกิน 5 ข้อ
 10. ไม่มีคำนำ ไม่ต้องสรุปซ้ำ และไม่มีคำลงท้ายที่ไม่จำเป็น
+11. สิ่งที่ต้องคัดลอกทั้งหมดให้อยู่ในบล็อกโค้ด
 
 ## ปรับแต่งเพิ่มเติม
 

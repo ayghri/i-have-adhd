@@ -64,9 +64,9 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 </tr>
 </table>
 
-## 10のルール
+## 11のルール
 
-ルールは10個。全文は [SKILL.md](../../skills/i-have-adhd/SKILL.md) を参照してください。
+ルールは11個。全文は [SKILL.md](../../skills/i-have-adhd/SKILL.md) を参照してください。
 
 1. 次に取る行動から始める。
 2. 複数ステップの作業には番号を付ける。
@@ -78,6 +78,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. エラーは場所・原因・対処法だけを淡々と伝える。
 9. リストは最大5項目までに抑える。
 10. 前置き・要約・締めの挨拶は入れない。
+11. コピーするものはすべてコードブロックに入れる。
 
 ## カスタマイズ
 
