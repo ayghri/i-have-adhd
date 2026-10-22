@@ -349,9 +349,81 @@ rm ~/.gemini/commands/i-have-adhd.toml     # command route
 <details>
 <summary><strong>GitHub Copilot (VS Code and Copilot CLI)</strong></summary>
 
-Copilot reads Agent Skills natively: the same `SKILL.md`, no conversion. It scans `.github/skills/`, `.claude/skills/`, and `.agents/skills/` in the project, and `~/.copilot/skills/`, `~/.claude/skills/`, and `~/.agents/skills/` globally.
+This repository is packaged as an [Agent Plugins](https://github.com/agentplugins/agent-plugins-spec) 1.0 plugin: the skill from `skills/`, a `/i-have-adhd` chat command, and an optional always-on hook. VS Code and Copilot CLI both install it from the Git repository.
 
 ### Install
+
+In VS Code, open a Copilot chat session and run:
+
+```text
+/plugin install https://github.com/ayghri/i-have-adhd
+```
+
+Or from the terminal with Copilot CLI:
+
+```bash
+copilot plugin install ayghri/i-have-adhd
+```
+
+The marketplace route also works, because this repository doubles as its own marketplace (`.claude-plugin/marketplace.json`), and unlike direct Git installs it allows enable/disable in VS Code:
+
+```text
+/plugin marketplace add https://github.com/ayghri/i-have-adhd
+/plugin install i-have-adhd@i-have-adhd
+```
+
+### Verify
+
+- VS Code: type `/` in a Copilot chat and confirm `i-have-adhd` is offered; `@agentPlugins` in the Extensions view lists the installed plugin.
+- Copilot CLI: run `copilot plugin list`.
+
+### Update
+
+```bash
+copilot plugin update i-have-adhd
+```
+
+VS Code re-checks plugin sources automatically every 24 hours, or on **Extensions: Check for Extension Updates**. Both routes pick up the `version` field in `plugin.json`.
+
+### Uninstall
+
+```text
+/plugin uninstall i-have-adhd
+```
+
+Or `copilot plugin uninstall i-have-adhd` from the terminal.
+
+### Activation note
+
+Copilot respects `disable-model-invocation`: nothing applies until you run `/i-have-adhd`, same as Claude Code (tested in [#60](https://github.com/ayghri/i-have-adhd/pull/60)).
+
+### Always-on (plugin, optional)
+
+The plugin's sessionStart hook injects the full ruleset at every session start, no `/i-have-adhd` needed. It stays off until you create the flag:
+
+```bash
+mkdir -p ~/.copilot
+touch ~/.copilot/.i-have-adhd-always
+```
+
+If `COPILOT_HOME` is set, create the flag there instead:
+
+```bash
+mkdir -p "$COPILOT_HOME"
+touch "$COPILOT_HOME/.i-have-adhd-always"
+```
+
+Turn it back off:
+
+```bash
+rm ~/.copilot/.i-have-adhd-always
+```
+
+`"stop adhd mode"` still turns it off for the current session.
+
+### Skill-only install
+
+Copilot also reads Agent Skills natively: the same `SKILL.md`, no conversion. It scans `.github/skills/`, `.claude/skills/`, and `.agents/skills/` in the project, and `~/.copilot/skills/`, `~/.claude/skills/`, and `~/.agents/skills/` globally.
 
 ```bash
 npx skills add ayghri/i-have-adhd -a github-copilot        # this project
@@ -366,36 +438,9 @@ mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
 
-### Verify
+Update or remove it with `npx skills update i-have-adhd` and `npx skills remove i-have-adhd`, or by deleting the `i-have-adhd` folder from the skills directory it landed in.
 
-Type `/` in the chat input and confirm `i-have-adhd` appears. Or:
-
-```bash
-npx skills list
-npx skills ls -g    # if installed globally
-```
-
-### Update
-
-```bash
-npx skills update i-have-adhd
-```
-
-Or re-copy the folder after `git pull`.
-
-### Uninstall
-
-```bash
-npx skills remove i-have-adhd
-```
-
-Or delete the `i-have-adhd` folder from the skills directory it landed in.
-
-### Activation note
-
-Copilot respects `disable-model-invocation`: nothing applies until you invoke the skill, same as Claude Code (tested in [#60](https://github.com/ayghri/i-have-adhd/pull/60)).
-
-### Always-on (optional)
+### Always-on without the plugin
 
 Add the block below to `.github/copilot-instructions.md` in the project (Copilot reads it into every chat):
 

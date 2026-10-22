@@ -1,4 +1,20 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "i-have-adhd",
-  "description": "Shape Antigravity output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible."
+  "version": "0.4.1",
+  "description": "Shape output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible.",
+  "author": {
+    "name": "Ayoub G.",
+    "url": "https://github.com/ayghri"
+  },
+  "homepage": "https://github.com/ayghri/i-have-adhd",
+  "repository": "https://github.com/ayghri/i-have-adhd",
+  "license": "MIT",
+  "keywords": [
+    "adhd",
+    "output-style",
+    "productivity",
+    "skills",
+    "copilot"
+  ]
 }

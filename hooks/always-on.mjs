@@ -1,11 +1,14 @@
 // SessionStart hook: injects the full i-have-adhd ruleset when the user has
-// opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
-// Never blocks session start: any failure exits 0.
+// opted in by creating a .i-have-adhd-always flag. Claude Code and Codex
+// look in $CLAUDE_CONFIG_DIR (default ~/.claude); Copilot sessions (VS Code,
+// Copilot CLI) pass I_HAVE_ADHD_CLIENT=copilot and look in $COPILOT_HOME
+// (default ~/.copilot). Never blocks session start: any failure exits 0.
 //
-// Runs under Node so it works on macOS, Linux, and Windows. The shared Claude
-// Code/Codex hook launches this module from the plugin-root environment rather
-// than relying on platform-specific shell expansion for the script path.
-// Native sh and PowerShell implementations remain available as fallbacks.
+// Runs under Node so it works on macOS, Linux, and Windows. The shared
+// launcher of each harness starts this module from the plugin-root
+// environment rather than relying on platform-specific shell expansion for
+// the script path. Native sh and PowerShell implementations remain available
+// as fallbacks.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -13,8 +16,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 try {
-  const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
-  const flagPath = path.join(claudeDir, ".i-have-adhd-always");
+  const isCopilot = process.env.I_HAVE_ADHD_CLIENT === "copilot";
+  const configDir = isCopilot
+    ? process.env.COPILOT_HOME || path.join(os.homedir(), ".copilot")
+    : process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
+  const flagPath = path.join(configDir, ".i-have-adhd-always");
 
   // Only fire when the user has opted in.
   if (!fs.existsSync(flagPath)) process.exit(0);
