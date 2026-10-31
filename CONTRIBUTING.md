@@ -74,6 +74,8 @@ cmp skills/i-have-adhd/SKILL.md .cursor/skills/i-have-adhd/SKILL.md
 
 Review platform-specific manifests and documentation whenever shared names, descriptions, paths, or behavior change.
 
+Keep `.opencode/command/i-have-adhd.md` frontmatter as a JSON object between the `---` delimiters. JSON is valid YAML, so OpenCode's native loader and the global plugin can share the same command metadata without an additional parser dependency.
+
 ## Verification
 
 Run relevant checks and include the commands and results in the PR. For Python and evaluation-harness changes:

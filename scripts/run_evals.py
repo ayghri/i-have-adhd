@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Validate, run, and score paired response-quality evaluations."""
 
-from __future__ import annotations
-
 import argparse
+from contextlib import contextmanager
 import json
+import math
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 from collections import Counter, defaultdict
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +26,23 @@ WEIGHTS = {
     "concision": 0.10,
 }
 CONDITIONS = {"baseline", "candidate", "comparator"}
+
+
+@contextmanager
+def _neutral_cwd() -> Iterator[str]:
+    """Yield an empty scratch directory for one runner invocation.
+
+    Agent CLIs adopt their working directory as project context: run one inside
+    this checkout and it answers prompts by inspecting the harness instead of
+    the task. That contamination is not symmetric across conditions -- a
+    response style that discourages exploration wanders less -- so it shows up
+    as a score difference that has nothing to do with the skill under test.
+    Isolation is the same reason the runners pass `--setting-sources ""`; the
+    working directory is simply another channel the operator's world leaks in
+    through.
+    """
+    with tempfile.TemporaryDirectory(prefix="eval-neutral-cwd-") as cwd:
+        yield cwd
 
 
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -168,12 +187,137 @@ def summarize_scores(scores: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _condition_prompt(task: str, condition: str, skill_path: Path | None) -> str:
+def summarize_usage(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for index, row in enumerate(rows, start=1):
+        for field in ("case_id", "runner", "condition"):
+            if not isinstance(row.get(field), str) or not row[field]:
+                raise ValueError(f"Response {index}: {field} must be a non-empty string")
+        if row["condition"] not in CONDITIONS:
+            raise ValueError(f"Response {index}: unsupported condition")
+        if type(row.get("trial")) is not int or row["trial"] < 1:
+            raise ValueError(f"Response {index}: trial must be a positive integer")
+        if not isinstance(row.get("response"), str):
+            raise ValueError(f"Response {index}: response must be a string")
+        cost = row.get("cost_usd")
+        if cost is not None and (
+            type(cost) not in (int, float) or cost < 0 or not math.isfinite(cost)
+        ):
+            raise ValueError(f"Response {index}: cost_usd must be finite and non-negative")
+        model = row.get("model")
+        if model is not None and (not isinstance(model, str) or not model.strip()):
+            raise ValueError(f"Response {index}: model must be a non-empty string")
+        grouped[row["condition"]].append(row)
+    if "baseline" not in grouped or "candidate" not in grouped:
+        raise ValueError("Responses must include baseline and candidate conditions")
+
+    runners = {row["runner"] for row in rows}
+    if len(runners) > 1:
+        names = ", ".join(sorted(str(runner) for runner in runners))
+        raise ValueError(f"Responses must use the same runner; found: {names}")
+    models = {row.get("model") for row in rows}
+    if len(models) > 1:
+        raise ValueError("Responses must report the same model on every row, or omit it on all rows")
+    _check_pairing(grouped)
+
+    conditions: dict[str, dict[str, Any]] = {}
+    for condition, condition_rows in sorted(grouped.items()):
+        tokens = [_usage_tokens(row.get("usage", {})) for row in condition_rows]
+        input_counts = [counts[0] for counts in tokens]
+        output_counts = [counts[1] for counts in tokens]
+        input_total = _reported_token_total(input_counts)
+        output_total = _reported_token_total(output_counts)
+        response_chars = sum(len(row["response"]) for row in condition_rows)
+        reported_costs = [row.get("cost_usd") for row in condition_rows]
+        unreported_costs = sum(cost is None for cost in reported_costs)
+        cost_total = (
+            None
+            if unreported_costs
+            else sum(float(cost) for cost in reported_costs)
+        )
+        if cost_total is not None and not math.isfinite(cost_total):
+            raise ValueError(f"{condition}: cost total is not finite")
+        summary = {
+            "rows": len(condition_rows),
+            "input_tokens": input_total,
+            "mean_input_tokens": (
+                None if input_total is None else input_total / len(condition_rows)
+            ),
+            "output_tokens": output_total,
+            "mean_output_tokens": (
+                None if output_total is None else output_total / len(condition_rows)
+            ),
+            "cost_usd": cost_total,
+            "response_chars": response_chars,
+            "mean_response_chars": response_chars / len(condition_rows),
+        }
+        if unreported_costs:
+            summary["cost_usd_unreported_rows"] = unreported_costs
+        conditions[condition] = summary
+
+    baseline = conditions["baseline"]
+    deltas: dict[str, dict[str, Any]] = {}
+    for condition, summary in sorted(conditions.items()):
+        if condition == "baseline":
+            continue
+        deltas[condition] = {}
+        for metric in ("input_tokens", "output_tokens", "cost_usd", "mean_response_chars"):
+            delta = _difference(summary[metric], baseline[metric])
+            deltas[condition][metric] = delta
+            deltas[condition][f"{metric}_pct"] = _percent_change(delta, baseline[metric])
+
+    return {
+        "runner": next(iter(runners)),
+        "model": next(iter(models)),
+        "conditions": conditions,
+        "delta": deltas,
+    }
+
+
+def _reported_token_total(values: list[int | None]) -> int | None:
+    if any(value is None for value in values):
+        return None
+    return sum(value for value in values if value is not None)
+
+
+def _difference(
+    value: int | float | None, baseline: int | float | None
+) -> int | float | None:
+    if value is None or baseline is None:
+        return None
+    return value - baseline
+
+
+def _percent_change(
+    delta: int | float | None, baseline: int | float | None
+) -> float | None:
+    if delta is None or baseline in (None, 0):
+        return None
+    return delta / baseline * 100
+
+
+def _strip_frontmatter(text: str) -> str:
+    """Drop a leading YAML frontmatter block, mirroring hooks/always-on.sh.
+
+    The hook injects the ruleset without frontmatter, so the eval has to grade
+    the same text. A file that opens a block but never closes it is left alone
+    rather than emptied.
+    """
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        if lines[index].strip() == "---":
+            return "\n".join(lines[index + 1 :]).lstrip("\n")
+    return text
+
+
+def _condition_prompt(task: str, condition: str, skill_path: Optional[Path]) -> str:
     if condition == "baseline":
         return task
     if skill_path is None:
         raise ValueError(f"--condition-skill is required for the {condition} condition")
-    instructions = skill_path.read_text(encoding="utf-8")
+    instructions = _strip_frontmatter(skill_path.read_text(encoding="utf-8"))
     return (
         "Follow the response-style skill below while completing the task. "
         "Do not discuss or quote the skill.\n\n"
@@ -182,11 +326,13 @@ def _condition_prompt(task: str, condition: str, skill_path: Path | None) -> str
     )
 
 
-def _parse_response(output: str, response_format: str) -> tuple[str, dict[str, Any], float | None]:
+def _parse_response(
+    output: str, response_format: str
+) -> tuple[str, dict[str, Any], Optional[float]]:
     if response_format == "text":
         return output.strip(), {}, None
     if response_format == "claude-json":
-        payload = json.loads(output)
+        payload, _ = json.JSONDecoder().raw_decode(output.lstrip())
         return (
             str(payload.get("result", "")).strip(),
             payload.get("usage", {}) or {},
@@ -204,6 +350,30 @@ def _parse_response(output: str, response_format: str) -> tuple[str, dict[str, A
                 usage = event.get("usage", usage)
         return str(text).strip(), usage, None
     raise ValueError(f"Unsupported response format: {response_format}")
+
+
+_INPUT_TOKEN_KEYS = (
+    "input_tokens",
+    "cache_creation_input_tokens",
+    "cache_read_input_tokens",
+)
+
+
+def _usage_tokens(usage: Optional[dict[str, Any]]) -> tuple[int | None, int | None]:
+    """Return (input, output) token counts, or None where they were not reported."""
+    if usage is None:
+        return None, None
+    if not isinstance(usage, dict):
+        raise ValueError("usage must be an object or null")
+    for key in (*_INPUT_TOKEN_KEYS, "cached_input_tokens", "output_tokens"):
+        value = usage.get(key)
+        if value is not None and (type(value) is not int or value < 0):
+            raise ValueError(f"{key} must be a non-negative integer or null")
+    # Claude cache counts are additional input; Codex cached_input_tokens is a subset.
+    input_values = [usage.get("input_tokens")] + [
+        usage.get(key, 0) for key in _INPUT_TOKEN_KEYS[1:]
+    ]
+    return _reported_token_total(input_values), usage.get("output_tokens")
 
 
 def run_evaluations(args: argparse.Namespace) -> int:
@@ -256,13 +426,15 @@ def run_evaluations(args: argparse.Namespace) -> int:
                 invocation.append(prompt)
                 completed = None
                 for attempt in range(args.retries + 1):
-                    completed = subprocess.run(
-                        invocation,
-                        check=False,
-                        capture_output=True,
-                        text=True,
-                        cwd=ROOT,
-                    )
+                    with _neutral_cwd() as cwd:
+                        completed = subprocess.run(
+                            invocation,
+                            check=False,
+                            capture_output=True,
+                            text=True,
+                            cwd=cwd,
+                            stdin=subprocess.DEVNULL,
+                        )
                     if completed.returncode == 0:
                         break
                     if attempt < args.retries:
@@ -318,6 +490,11 @@ def _build_parser() -> argparse.ArgumentParser:
     score = subparsers.add_parser("score", help="Aggregate manually judged score rows")
     score.add_argument("scores", type=Path)
 
+    measure = subparsers.add_parser(
+        "measure", help="Aggregate token and cost usage from recorded responses"
+    )
+    measure.add_argument("responses", type=Path)
+
     run = subparsers.add_parser("run", help="Run one evaluation condition")
     run.add_argument("--cases", type=Path, default=DEFAULT_CASES)
     run.add_argument("--runner-config", type=Path, default=ROOT / "evals" / "runners.example.json")
@@ -334,7 +511,7 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Optional[list[str]] = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if hasattr(args, "handler"):
@@ -362,6 +539,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "score":
         print(json.dumps(summarize_scores(read_jsonl(args.scores)), indent=2))
+        return 0
+    if args.command == "measure":
+        print(json.dumps(summarize_usage(read_jsonl(args.responses)), indent=2, allow_nan=False))
         return 0
     parser.error("unknown command")
     return 2

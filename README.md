@@ -11,10 +11,15 @@
 <p align="center">
   <strong title="English" aria-label="English">🇬🇧</strong> ·
   <a href=".github/readme/README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <a href=".github/readme/README.es.md" title="Español" aria-label="Español">🇪🇸</a> ·
   <a href=".github/readme/README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href=".github/readme/README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href=".github/readme/README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
-  <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a>
+  <a href=".github/readme/README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <a href=".github/readme/README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
+  <a href=".github/readme/README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href=".github/readme/README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href=".github/readme/README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -32,7 +37,7 @@ Or 🔗 [check the installation instructions](INSTALL.md).
 
 A skill for your coding assistant that stops it from burying the answer. Action first. Steps numbered. No "Hope this helps!"
 
-
+[Kacper Rutkiewicz | AI Made Simple](https://youtu.be/NEl8kPWZP_Y) has made a good breakdown of an earlier version of the skill.
 ## What changes
 
 
@@ -50,7 +55,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 
 ## After
 
-> Run `npm install jsonwebtoken@latest`, then edit `src/auth.ts:42`.
+> Edit `src/auth.ts:42` to update the token validation.
 >
 > 1. Open `src/auth.ts`
 > 2. Replace `verifyToken` (lines 42–58) with the snippet below
@@ -75,7 +80,7 @@ A skill for your coding assistant that stops it from burying the answer. Action 
 6. Specific time estimates (minutes, not "a bit").
 7. Make wins visible.
 8. Matter-of-fact errors.
-9. Cap lists at 5 items.
+9. Cap lists to 5 items.
 10. No preamble. No recap. No closers.
 
 ## Tune it
@@ -89,7 +94,7 @@ claude plugin marketplace add <your-username>/i-have-adhd
 claude plugin install i-have-adhd@i-have-adhd
 ```
 
-Restart Claude Code, then re-invoke `/i-have-adhd`.
+Restart your coding assistant, then re-invoke `/i-have-adhd`.
 
 ## Credits
 
@@ -97,6 +102,6 @@ Loosely based on *The Adult ADHD Tool Kit* by J. Russell Ramsay and Anthony L. R
 
 ## License
 
-MIT.
+[MIT](LICENSE).
 
 Star ⭐ if it saved you one scroll past one "Great question!"

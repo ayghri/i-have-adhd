@@ -11,10 +11,15 @@
 <p align="center">
   <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <a href="README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <a href="README.id.md" title="Bahasa Indonesia" aria-label="Bahasa Indonesia">🇮🇩</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <strong title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</strong> ·
-  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a>
+  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -44,7 +49,7 @@ Một skill dành cho trợ lý lập trình, giúp câu trả lời đi thẳng
 
 ## Sau khi dùng
 
-> Chạy `npm install jsonwebtoken@latest`, sau đó sửa `src/auth.ts:42`.
+> Chỉnh sửa `src/auth.ts:42` để cập nhật việc xác thực token.
 >
 > 1. Mở `src/auth.ts`
 > 2. Thay thế `verifyToken` (dòng 42–58) bằng đoạn mã bên dưới
@@ -91,6 +96,6 @@ Lấy cảm hứng một phần từ cuốn *The Adult ADHD Tool Kit* của J. R
 
 ## Giấy phép
 
-MIT.
+[MIT](../../LICENSE).
 
 Hãy ⭐ repo nếu nó giúp bạn khỏi phải cuộn qua thêm một câu “Câu hỏi rất hay!”

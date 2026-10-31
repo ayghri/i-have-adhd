@@ -1,5 +1,5 @@
 ---
-description: Shape output for a reader with ADHD for the rest of this session
+{"description": "Shape output for a reader with ADHD for the rest of this session"}
 ---
 
 Use the `i-have-adhd` skill and apply its ruleset to every response for the

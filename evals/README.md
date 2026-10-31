@@ -38,18 +38,76 @@ Isolation also drops the operator's saved model and effort settings, so the clau
 
 Runs are resumable: rerun the same command after a provider failure and completed `(case, trial, condition, runner)` rows are skipped. Each incomplete call is retried twice by default, and the final provider error is preserved.
 
+## Measure
+
+Aggregate token usage, reported cost, and response length from the completed responses file:
+
+```bash
+python3 scripts/run_evals.py measure evals/results/responses.jsonl
+```
+
+The summary reports input/output token totals, reported generation cost, stored
+response length, and candidate-minus-baseline deltas. Positive deltas mean more
+usage or cost; negative deltas mean less. Read these alongside quality scores.
+
+Comparisons require the same runner and identical `(case_id, trial)` coverage,
+without duplicates. If rows include `model`, every row must name the same model.
+Older runner output does not record model metadata: `model: null` means model
+comparability is unverified. Check the original model/CLI settings yourself;
+a matching runner alias alone does not establish the same model or configuration.
+
+Missing costs or token counts produce `null` totals and deltas, not zero. Invalid
+negative, boolean, non-finite, or fractional token counts are rejected. A zero
+baseline has no meaningful percentage change, so that percentage is `null`.
+Claude input totals include cache creation/read tokens; Codex cached input is
+already part of its input count and is not added again.
+
+This measures recorded generation rows, not total provider billing: judge costs
+and unrecorded failed/retried calls are excluded. Scenario captures currently omit
+token usage, and their response length includes transcript JSON and user prompts.
+The command is read-only and makes no model calls.
+
 ## Judge and score
 
-Blind the `condition` field before judging. Write one JSON object per response with these fields:
+`scripts/judge.py` grades the responses and writes the score rows for you:
+
+```bash
+python3 scripts/judge.py \
+  --runner claude \
+  --responses evals/results/responses.jsonl \
+  --output evals/results/scores.jsonl
+```
+
+It groups responses by `(case_id, trial)` and grades every condition for a case
+in one call, so the conditions are compared against each other rather than
+scored in isolation. Blinding is structural, not a convention the grader is
+asked to respect: each condition is relabelled `A`/`B`/`C` before the prompt is
+built, and the label order is permuted per group, so position carries no signal.
+The permutation comes from a digest of the group key rather than a random
+source, so a resumed run reproduces the labels it used the first time.
+
+Only the region of `rubric.md` between the `<!-- judge:begin -->` and
+`<!-- judge:end -->` markers reaches the grader. The release-gate rules below
+those markers name the conditions, and sending them to a blind grader would
+leak the vocabulary the blinding exists to hide. Keep anything condition-identifying
+outside that block.
+
+Runs are resumable the same way generation is: groups already present in the
+output file are skipped. A group missing a condition cannot be scored — the
+conditions would no longer be judged on identical rows — so it is reported on
+stderr and left out rather than silently dropped.
+
+Judging by hand instead is still supported: blind the `condition` field
+yourself and write one JSON object per response with these fields.
 
 ```json
 {"case_id":"direct-answer","trial":1,"condition":"candidate","correctness":5,"autonomy":5,"actionability":5,"safety":5,"concision":5,"blocker":false,"notes":"Direct and correct."}
 ```
 
-Then apply the release gate:
+Either way, apply the release gate:
 
 ```bash
 python3 scripts/run_evals.py score evals/results/scores.jsonl
 ```
 
-Record the exact CLI and model versions with published results. Do not compare conditions produced with different cases, models, trial counts, or rubrics.
+Record the exact CLI and model versions with published results, including measured token and cost numbers. Do not compare conditions produced with different cases, models, trial counts, or rubrics.

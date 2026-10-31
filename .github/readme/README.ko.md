@@ -11,10 +11,15 @@
 <p align="center">
   <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <a href="README.zh-CN.md" title="简体中文" aria-label="简体中文">🇨🇳</a> ·
+  <a href="README.id.md" title="Bahasa Indonesia" aria-label="Bahasa Indonesia">🇮🇩</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
-  <strong title="한국어" aria-label="한국어">🇰🇷</strong>
+  <strong title="한국어" aria-label="한국어">🇰🇷</strong> ·
+  <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
@@ -44,7 +49,7 @@
 
 ## 사용 후
 
-> `npm install jsonwebtoken@latest` 실행 후 `src/auth.ts:42`를 수정하세요.
+> `src/auth.ts:42`를 수정해 토큰 검증 로직을 업데이트하세요.
 >
 > 1. `src/auth.ts` 열기
 > 2. `verifyToken`(42~58줄)을 아래 스니펫으로 교체
@@ -91,6 +96,6 @@ J. Russell Ramsay와 Anthony L. Rostain의 *The Adult ADHD Tool Kit*을 느슨�
 
 ## 라이선스
 
-MIT.
+[MIT](../../LICENSE).
 
 "좋은 질문이네요!" 없는 답변을 한 번이라도 받았다면 Star ⭐ 부탁드립니다.

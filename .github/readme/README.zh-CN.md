@@ -11,20 +11,31 @@
 <p align="center">
   <a href="../../README.md" title="English" aria-label="English">🇬🇧</a> ·
   <strong title="简体中文" aria-label="简体中文">🇨🇳</strong> ·
+  <a href="README.id.md" title="Bahasa Indonesia" aria-label="Bahasa Indonesia">🇮🇩</a> ·
   <a href="README.pt-BR.md" title="Português (Brasil)" aria-label="Português (Brasil)">🇧🇷</a> ·
   <a href="README.ja.md" title="日本語" aria-label="日本語">🇯🇵</a> ·
   <a href="README.vi.md" title="Tiếng Việt" aria-label="Tiếng Việt">🇻🇳</a> ·
-  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a>
+  <a href="README.ko.md" title="한국어" aria-label="한국어">🇰🇷</a> ·
+  <a href="README.fa.md" title="فارسی" aria-label="فارسی">🇮🇷</a> ·
+  <a href="README.th.md" title="ภาษาไทย" aria-label="ภาษาไทย">🇹🇭</a> ·
+  <a href="README.ar.md" title="العربية" aria-label="العربية">🇸🇦</a> ·
+  <a href="README.fr.md" title="Français" aria-label="Français">🇫🇷</a>
 </p>
 
 
 ## 安装
 
-🔗 [安装说明](../install/INSTALL.zh-CN.md)
+复制粘贴到你的 CLI 对话框中：
+
+```text
+Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+```
+
+或 🔗 [查看安装说明](../install/INSTALL.zh-CN.md)
 
 ## 功能
 
-这是一个面向编程助手的技能，阻止它把答案藏在冗长文字中。行动优先。步骤编号。不说“希望这能帮到你！”
+一个给编程助手用的技能，让它别把答案埋进长篇大论。行动优先。步骤编号。不说“希望这能帮到你！”
 
 
 ## 有什么变化
@@ -44,7 +55,7 @@
 
 ## 之后
 
-> 运行 `npm install jsonwebtoken@latest`，然后编辑 `src/auth.ts:42`。
+> 编辑 `src/auth.ts:42`，更新令牌验证逻辑。
 >
 > 1. 打开 `src/auth.ts`
 > 2. 将 `verifyToken`（第 42–58 行）替换为下面的代码片段
@@ -63,12 +74,12 @@
 
 1. 先说下一步行动。
 2. 多步骤任务使用编号。
-3. 以一个具体的下一步结束。
-4. 避免离题。
-5. 每轮都重述当前状态。
-6. 给出明确的时间估计（用分钟，不说“一会儿”）。
-7. 让成果清晰可见。
-8. 客观陈述错误。
+3. 以一个具体的下一步收尾。
+4. 抑制离题内容。
+5. 每轮重述当前状态。
+6. 给出具体的时间估计（以分钟计，不说“一会儿”）。
+7. 让完成的工作看得见。
+8. 就事论事地报告错误。
 9. 每个列表最多 5 项。
 10. 不写开场白、回顾或结束语。
 
@@ -91,6 +102,6 @@ claude plugin install i-have-adhd@i-have-adhd
 
 ## 许可证
 
-MIT。
+[MIT](../../LICENSE)。
 
-如果它让你少滚动一次屏幕、跳过一句“问得好！”，请点亮 Star ⭐
+如果它帮你省下一次滚动、少看一句“问得好！”，请点个 Star ⭐
