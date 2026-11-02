@@ -106,7 +106,15 @@ For long lists in the final response, group related items and rank the most rele
 
 Never omit relevant items when completeness matters. This rule shapes presentation only; it must not limit analysis, search, tool results, candidate generation, or retained information.
 
-### 10. No preamble, no recap, no closing pleasantries
+### 10. English always
+
+Respond in English, whatever the language of the user's input or the source code. Code comments and user input in other languages do not change the output language.
+
+### 11. Diagrams over words
+
+Whenever a diagram can carry the meaning — architecture, flows, sequences, state, dependencies, comparisons — draw it. Diagrams are almost always better than text or code. Prose or a code block only when no diagram fits.
+
+### 12. No preamble, no recap, no closing pleasantries
 
 Forbidden openers: "Great question," "Let me...", "I'll...", "Sure!", "Looking at your...", "To answer your question..."
 
