@@ -12,8 +12,18 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+function resolveClaudeDir(scriptDir) {
+  if (process.env.CLAUDE_CONFIG_DIR) return process.env.CLAUDE_CONFIG_DIR;
+  const marker = `${path.sep}plugins${path.sep}cache${path.sep}`;
+  const i = scriptDir.indexOf(marker);
+  if (i !== -1) return scriptDir.slice(0, i);
+  return path.join(os.homedir(), ".claude");
+}
+
 try {
-  const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude");
+  // Resolve the configuration directory (handles scrubbed env variables)
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const claudeDir = resolveClaudeDir(currentDir);
   const flagPath = path.join(claudeDir, ".i-have-adhd-always");
 
   // Only fire when the user has opted in.
