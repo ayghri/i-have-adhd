@@ -212,6 +212,16 @@ codex plugin marketplace remove i-have-adhd
 
 ### Always-on (optional)
 
+The plugin also bundles a Codex-specific `SessionStart` hook that returns JSON
+context. To use it, review and trust the plugin hook in Codex, then create
+`.i-have-adhd-always` in your Claude configuration directory
+(`$CLAUDE_CONFIG_DIR`, or `~/.claude` by default). Start a new session after
+opting in. Delete that flag to disable hook activation. The hook currently
+requires Node on `PATH`; installing the plugin alone does not activate it.
+
+Alternatively, use persistent instructions:
+
+
 Add to `~/.codex/AGENTS.md`:
 
 ```markdown

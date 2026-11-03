@@ -17,6 +17,7 @@
     "codex"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/hooks.codex.json",
   "interface": {
     "displayName": "I Have ADHD",
     "shortDescription": "Action-first output for ADHD readers",
