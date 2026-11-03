@@ -35,6 +35,8 @@ class CodexHookTest(unittest.TestCase):
 
     def test_codex_receives_the_complete_context_in_a_json_envelope(self):
         (self.config_dir / ".i-have-adhd-always").touch()
+        skill = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
+        skill.write_bytes(skill.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
         result = self.run_hook()
         self.assertEqual((0, ""), (result.returncode, result.stderr))
         output = json.loads(result.stdout)["hookSpecificOutput"]
@@ -42,10 +44,11 @@ class CodexHookTest(unittest.TestCase):
         env = os.environ.copy()
         env["CLAUDE_CONFIG_DIR"] = str(self.config_dir)
         plain = subprocess.run([shutil.which("node"), self.plugin_root / "hooks" / "always-on.mjs"],
-                               env=env, capture_output=True, text=True, encoding="utf-8", timeout=10)
+                               env=env, capture_output=True, timeout=10)
         self.assertEqual(0, plain.returncode, plain.stderr)
-        self.assertTrue(plain.stdout.startswith("ADHD MODE ACTIVE (always-on)"))
-        self.assertEqual(plain.stdout, output["additionalContext"])
+        plain_context = plain.stdout.decode("utf-8")
+        self.assertTrue(plain_context.startswith("ADHD MODE ACTIVE (always-on)"))
+        self.assertEqual(plain_context, output["additionalContext"])
         self.assertNotIn("metadata:", output["additionalContext"])
 
     def test_codex_is_silent_without_opt_in(self):
