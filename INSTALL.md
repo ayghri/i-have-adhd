@@ -513,7 +513,7 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
+The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release. In V2, when the plugin’s command is selected, it sends the bundled rules directly without replacing a same-named user skill. A same-named command from another source can win or be replaced depending on load order. This V2 behavior has been tested with a simulated plugin API; a live session has not been verified.
 
 ### Install
 
@@ -550,6 +550,8 @@ Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
 ```bash
 git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
+
+Restart the OpenCode server after updating. The V2 plugin reads the bundled rules when the server starts.
 
 For the copy-based install, pull your checkout and re-copy the two files.
 

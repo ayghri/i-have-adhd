@@ -74,6 +74,8 @@ export default {
 
     try {
       const command = await commandDefinition();
+      const bundledRules = rulesetBody();
+      const template = 'Apply these i-have-adhd rules for the rest of this session.\n\n' + bundledRules;
       await ctx.command.transform((editor) => {
         editor.add({
           name: SKILL_ID,
@@ -82,7 +84,7 @@ export default {
             ctx.session.prompt({
               ...prompt,
               sessionID,
-              text: prompt.text ? `${command.template}\n\n${prompt.text}` : command.template,
+              text: prompt.text ? `${template}\n\n${prompt.text}` : template,
               delivery,
             }),
         });

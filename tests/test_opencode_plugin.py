@@ -114,6 +114,23 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertIn("ADHD", command["description"])
         self.assertIn("stop adhd mode", command["template"])
 
+    def test_v2_command_uses_bundled_rules_without_overwriting_user_skill(self):
+        result = self.run_plugin(mode="command-collision")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual("USER-OWNED SKILL", output["skill"]["content"])
+        self.assertIn("Working memory is small", output["prompt"]["text"])
+        self.assertIn("stop adhd mode", output["prompt"]["text"])
+        self.assertTrue(output["prompt"]["text"].endswith("User request"))
+        self.assertNotIn("Use the `i-have-adhd` skill", output["prompt"]["text"])
+        self.assertEqual("steer", output["prompt"]["delivery"])
+
+    def test_v2_missing_skill_does_not_register_broken_command(self):
+        (self.plugin_root / "skills/i-have-adhd/SKILL.md").unlink()
+        result = self.run_plugin(mode="command")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual([], json.loads(result.stdout))
+
     def test_setup_registers_the_skill(self):
         result = self.run_plugin(mode="skill")
         self.assertEqual(0, result.returncode, result.stderr)

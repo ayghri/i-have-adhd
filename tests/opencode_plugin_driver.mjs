@@ -57,7 +57,11 @@ if (mode === 'v1-config' || mode === 'v1-context') {
 } else {
   await definition.setup(v2ctx);
 
-  if (mode === 'skill') {
+  if (mode === 'command-collision') {
+    skills.set('i-have-adhd', { id: 'i-have-adhd', content: 'USER-OWNED SKILL' });
+    await commands.get('i-have-adhd').execute({ sessionID: 'ses_test', prompt: { text: 'User request' }, delivery: 'steer' });
+    process.stdout.write(JSON.stringify({ skill: skills.get('i-have-adhd'), prompt: prompts.at(-1) }));
+  } else if (mode === 'skill') {
     process.stdout.write(JSON.stringify([...skills.values()]));
   } else if (mode === 'command') {
     const out = [...commands.values()].map((command) => ({
