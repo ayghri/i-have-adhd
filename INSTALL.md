@@ -261,10 +261,10 @@ After a successful install, inspect the plugin and list its skills:
 
 ```bash
 muse plugins inspect i-have-adhd
-muse skills list
+muse skills list --json
 ```
 
-In Muse Code 1.4.14, the default-scope install refused to replace a same-ID plugin from a different source in a sequential guest test. Do not add `--scope user`: it can rebind that ID to the new source. The skill is listed as `plugin:i-have-adhd:i-have-adhd` and is user-invocable only. Start a new Muse session, open `/skills`, select the plugin skill, and press Enter to run it.
+In Muse Code 1.4.14, the default-scope install refused to replace a same-ID plugin from a different source in a sequential guest test. Do not add `--scope user`: it can rebind that ID to the new source. In a fresh installation, the JSON listing identified the skill as `plugin:i-have-adhd:i-have-adhd` with `user-invocable-only` activation. This is a skill identifier, not a verified slash command. [Muse’s skills documentation](https://meta-models.github.io/muse-code-sdk/next/guides/extend/skills/) describes opening `/skills` and pressing Enter on a selected skill; this interaction has not yet been verified for this plugin.
 
 ### Always-on (optional)
 
