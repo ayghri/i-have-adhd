@@ -76,19 +76,25 @@ export default {
       const command = await commandDefinition();
       const bundledRules = rulesetBody();
       const template = 'Apply these i-have-adhd rules for the rest of this session.\n\n' + bundledRules;
-      await ctx.command.transform((editor) => {
-        editor.add({
-          name: SKILL_ID,
-          description: command.description || FALLBACK_DESCRIPTION,
-          execute: ({ sessionID, prompt, delivery }) =>
-            ctx.session.prompt({
-              ...prompt,
-              sessionID,
-              text: prompt.text ? `${template}\n\n${prompt.text}` : template,
-              delivery,
-            }),
+      const existing = await ctx.command.list();
+      if (!Array.isArray(existing?.data) || !existing.data.every((item) => typeof item?.name === 'string')) {
+        throw new Error('Cannot inspect existing OpenCode commands');
+      }
+      if (!existing.data.some((item) => item.name === SKILL_ID)) {
+        await ctx.command.transform((editor) => {
+          editor.add({
+            name: SKILL_ID,
+            description: command.description || FALLBACK_DESCRIPTION,
+            execute: ({ sessionID, prompt, delivery }) =>
+              ctx.session.prompt({
+                ...prompt,
+                sessionID,
+                text: prompt.text ? `${template}\n\n${prompt.text}` : template,
+                delivery,
+              }),
+          });
         });
-      });
+      }
     } catch {
       // Keep skill discovery available if command registration fails.
     }

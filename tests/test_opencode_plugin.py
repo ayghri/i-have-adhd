@@ -131,6 +131,25 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual([], json.loads(result.stdout))
 
+    def test_v2_existing_command_is_preserved_without_skipping_other_capabilities(self):
+        result = self.run_plugin(mode="command-existing")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual(["i-have-adhd"], output["commands"])
+        self.assertEqual([{"text": "USER COMMAND"}], output["prompts"])
+        self.assertIn("i-have-adhd", output["skills"])
+        self.assertTrue(output["hook"])
+
+    def test_v2_uninspectable_commands_are_not_overwritten(self):
+        for mode in ("command-unavailable", "command-rejected", "command-malformed"):
+            with self.subTest(mode=mode):
+                result = self.run_plugin(mode=mode)
+                self.assertEqual(0, result.returncode, result.stderr)
+                output = json.loads(result.stdout)
+                self.assertEqual([], output["commands"])
+                self.assertIn("i-have-adhd", output["skills"])
+                self.assertTrue(output["hook"])
+
     def test_setup_registers_the_skill(self):
         result = self.run_plugin(mode="skill")
         self.assertEqual(0, result.returncode, result.stderr)
