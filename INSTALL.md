@@ -523,37 +523,45 @@ Clone the repository and choose the local plugin directory. The install stops if
 git clone https://github.com/ayghri/i-have-adhd.git
 ```
 
-If the clone fails, stop and inspect the existing directory or error. From the same working directory, run:
+If the clone fails, stop and inspect the existing directory or error. Identify the data directory used by your MiniMax session, including any project profile, `--data-dir` option, or `MAVIS_DATA_DIR` override. Set and export `MINIMAX_DATA_DIR` to that absolute path in this shell before running the commands below. Use the same data directory when starting MiniMax and managing its plugins. Do not pass a conflicting `--data-dir` option.
+
+Close all MiniMax Code sessions and other `mcode` processes before copying the package. From the same working directory, run:
 
 ```bash
-plugin_dir="${MINIMAX_DATA_DIR:-$HOME/.minimax}/plugins/i-have-adhd"
-if [ -e "$plugin_dir" ] || [ -L "$plugin_dir" ]; then
-  printf 'Inspect the existing plugin at %s before installing.\n' "$plugin_dir" >&2
-else
-  archive=$(mktemp "${TMPDIR:-/tmp}/i-have-adhd.XXXXXX")
-  if git -C i-have-adhd archive HEAD -o "$archive" &&
-     mkdir -p "$(dirname "$plugin_dir")" && mkdir "$plugin_dir" &&
-     tar -xf "$archive" -C "$plugin_dir"; then
-    printf 'Installed local plugin at %s.\n' "$plugin_dir"
-  else
-    printf 'Install failed; inspect any partial directory at %s.\n' "$plugin_dir" >&2
+(
+  set -eu
+  : "${MINIMAX_DATA_DIR:?Set MINIMAX_DATA_DIR to the active data directory}"
+  case "$MINIMAX_DATA_DIR" in
+    *[[:space:]]) printf 'MINIMAX_DATA_DIR must not end in whitespace.\n' >&2; exit 1 ;;
+    /*) ;;
+    *) printf 'MINIMAX_DATA_DIR must be an absolute path.\n' >&2; exit 1 ;;
+  esac
+  plugin_dir="$MINIMAX_DATA_DIR/plugins/i-have-adhd"
+  if [ -e "$plugin_dir" ] || [ -L "$plugin_dir" ]; then
+    printf 'Inspect the existing plugin at %s before installing.\n' "$plugin_dir" >&2
+    exit 1
   fi
-  rm -f "$archive"
-fi
-mcode plugin list
+  archive=$(mktemp "${TMPDIR:-/tmp}/i-have-adhd.XXXXXX")
+  trap 'rm -f "$archive"' EXIT
+  git -C i-have-adhd archive HEAD -o "$archive"
+  mkdir -p "$(dirname "$plugin_dir")"
+  mkdir "$plugin_dir"
+  tar -xf "$archive" -C "$plugin_dir"
+  printf 'Installed local plugin at %s.\n' "$plugin_dir"
+)
 ```
 
-Look for `i-have-adhd@local` and its enabled state. In a disposable macOS guest, 0.7.4 discovered version 0.4.1 this way. The `plugin marketplace list` command was unavailable in that tested build, so check the active profile and data directory before installing.
+If installation fails, keep all `mcode` processes stopped and inspect the destination. Move any partial package outside `plugins` before starting MiniMax or listing plugins. After a successful installation, run `mcode plugin list` and look for `i-have-adhd@local` and its enabled state. In a disposable macOS guest, 0.7.4 discovered version 0.4.1 this way. The `plugin marketplace list` command was unavailable in that tested build.
 
 ### Update and removal
 
-Before replacing a local package, note whether it is enabled, close all MiniMax Code sessions and other `mcode` processes, and save any local changes outside the `plugins` directory. Move the existing package to a new backup path outside `plugins`; do not overwrite a prior backup. Update the source checkout:
+Before replacing a local package, note whether it is enabled, close all MiniMax Code sessions and other `mcode` processes, and save any local changes outside the `plugins` directory. Update the source checkout before moving the installed package:
 
 ```bash
 git -C i-have-adhd pull --ff-only
 ```
 
-Repeat the `plugin_dir` installation block above only when the destination is absent. Check `mcode plugin list` and restore the prior state if necessary. To disable it, run:
+If the pull fails, stop and leave the installed package in place. Otherwise, move the existing package to a new backup path outside `plugins`; do not overwrite a prior backup. Repeat the installation block above only when the destination is absent. If installation fails, move any partial package outside `plugins` and restore the backup before restarting MiniMax or listing plugins. After an installation or recovery, check the enabled state and restore the recorded state before resuming sessions. To disable it, run:
 
 ```bash
 mcode plugin disable i-have-adhd@local
