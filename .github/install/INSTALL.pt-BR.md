@@ -361,6 +361,8 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Antes de cada alteração de plugin, feche todas as sessões do Kimi e inicie uma nova. Confira a lista de plugins após cada alteração. No Kimi 2.5.0, alterar plugins em uma sessão antiga pode apagar registros.
+
 ### Instalar
 
 Inicie uma sessão do Kimi Code e:

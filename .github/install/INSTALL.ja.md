@@ -361,6 +361,8 @@ tap も削除する場合：`hermes skills tap remove ayghri/i-have-adhd`
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+プラグインを変更する前に、すべての Kimi セッションを閉じ、新しいセッションを開始してください。変更のたびにプラグイン一覧を確認してください。Kimi 2.5.0 では、古いセッションからプラグインを変更すると登録が失われる場合があります。
+
 ### インストール
 
 Kimi Code のセッションを開始し、以下の手順を実行します：

@@ -480,6 +480,8 @@ hermes skills uninstall i-have-adhd
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+قبل كل تغيير في الإضافات، أغلق جميع جلسات Kimi وابدأ جلسة جديدة. تحقق من قائمة الإضافات بعد كل تغيير. قد يفقد Kimi 2.5.0 تسجيلات الإضافات عندما تغير جلسة قديمة الإضافات.
+
 ### تثبيت
 
 ابدأ جلسة Kimi Code، ثم:

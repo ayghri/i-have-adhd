@@ -360,6 +360,8 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Sebelum setiap perubahan plugin, tutup semua sesi Kimi dan mulai sesi baru. Periksa daftar plugin setelah setiap perubahan. Kimi 2.5.0 dapat kehilangan pendaftaran plugin saat sesi lama mengubah plugin.
+
 ### Instalasi
 
 Mulai sesi Kimi Code dan:

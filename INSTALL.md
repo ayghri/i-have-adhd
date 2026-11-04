@@ -488,6 +488,8 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Before each plugin change, close all Kimi sessions and start a fresh session. Check the plugin list after each change. Kimi 2.5.0 can lose registrations when an older session changes plugins.
+
 ### Install
 
 Start a Kimi Code session, then:

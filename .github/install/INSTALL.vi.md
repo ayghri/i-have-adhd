@@ -361,6 +361,8 @@ Ngoại lệ: giải thích đầy đủ khi được yêu cầu. Xác nhận tr
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Trước mỗi lần thay đổi plugin, hãy đóng tất cả phiên Kimi và bắt đầu phiên mới. Kiểm tra danh sách plugin sau mỗi thay đổi. Kimi 2.5.0 có thể mất đăng ký plugin khi một phiên cũ thay đổi plugin.
+
 ### Cài đặt
 
 Hãy bắt đầu một phiên Kimi Code, rồi:

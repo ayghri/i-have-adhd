@@ -401,6 +401,8 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+پیش از هر تغییر افزونه، همه نشست‌های Kimi را ببندید و نشست جدیدی شروع کنید. پس از هر تغییر فهرست افزونه‌ها را بررسی کنید. در Kimi 2.5.0 تغییر افزونه‌ها از نشست قدیمی ممکن است ثبت افزونه‌ها را حذف کند.
+
 ### نصب
 
 یک نشست Kimi Code شروع کنید، سپس:

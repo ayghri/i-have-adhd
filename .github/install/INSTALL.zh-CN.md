@@ -414,6 +414,8 @@ hermes skills uninstall i-have-adhd
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+每次更改插件前，请关闭所有 Kimi 会话并启动新会话。每次更改后检查插件列表。在 Kimi 2.5.0 中，从旧会话更改插件可能导致插件注册丢失。
+
 ### 安装
 
 启动一个 Kimi Code 会话，然后：
