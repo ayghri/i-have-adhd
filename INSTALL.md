@@ -267,11 +267,19 @@ grok plugin update i-have-adhd
 
 ### Uninstall
 
+To remove the plugin and preserve its persistent plugin data:
+
+```bash
+grok plugin uninstall i-have-adhd --confirm --keep-data
+```
+
+To remove its persistent plugin data as well, omit `--keep-data`:
+
 ```bash
 grok plugin uninstall i-have-adhd --confirm
 ```
 
-Or keep it installed and turn it off: `grok plugin disable i-have-adhd`.
+`--keep-data` preserves plugin data, not edits made inside the installed plugin copy. Inspect and save any such edits before uninstalling. Or keep the plugin installed and turn it off: `grok plugin disable i-have-adhd`.
 
 ### Always-on (optional)
 
