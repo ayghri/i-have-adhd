@@ -237,6 +237,54 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 
 <details>
+<summary><strong>Muse Code (<code>muse</code>)</strong></summary>
+
+Muse Code imports the existing Claude-compatible plugin. Keep the checkout at the same path for updates.
+
+### Install
+
+```bash
+mkdir -p "$HOME/.local/share"
+git clone https://github.com/ayghri/i-have-adhd.git "$HOME/.local/share/i-have-adhd"
+muse plugins install "$HOME/.local/share/i-have-adhd" --scope user
+muse plugins inspect i-have-adhd
+muse skills list
+```
+
+If the checkout path already exists, inspect it before using it. The skill is listed as `plugin:i-have-adhd:i-have-adhd` and is user-invocable only. Start a new Muse session, open `/skills`, select the plugin skill, and press Enter to run it.
+
+### Always-on (optional)
+
+The session hook needs Node.js on `PATH` and Muse approval. Inspect the hook with `muse plugins inspect i-have-adhd`, then approve the hook capability you trust using its displayed ID:
+
+```bash
+muse plugins approve "i-have-adhd:<hook-id>"
+mkdir -p "$HOME/.claude"
+touch "$HOME/.claude/.i-have-adhd-always"
+```
+
+Replace `<hook-id>` with the capability ID from `muse plugins inspect`. In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the flag to turn always-on mode off.
+
+### Update
+
+```bash
+git -C "$HOME/.local/share/i-have-adhd" pull --ff-only
+muse plugins install "$HOME/.local/share/i-have-adhd" --scope user
+```
+
+Inspect the plugin again after an update. If the hook definition changes, Muse may require review and approval again.
+
+### Uninstall
+
+```bash
+muse plugins remove i-have-adhd
+```
+
+Removing the plugin does not remove the source checkout or the optional flag. Remove those separately if you no longer need them.
+
+</details>
+
+<details>
 <summary><strong>Grok (<code>grok</code>)</strong></summary>
 
 Grok loads the repository's existing plugin and skill files; no separate Grok manifest is required. Install directly from GitHub, enable the plugin, then invoke the skill. Two Grok-only steps: `--trust` (hooks and skills stay inactive without it) and `grok plugin enable` (plugins stay off until enabled).
