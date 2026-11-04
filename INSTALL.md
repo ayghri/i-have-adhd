@@ -513,7 +513,13 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release. In V2, when the plugin’s command is selected, it sends the bundled rules directly without replacing a same-named user skill. It leaves a same-named command already registered at setup untouched; this check is not atomic with later command registrations. If commands cannot be inspected, it skips registering its command while retaining its other capabilities. OpenCode 2.2.5 sessions in a disposable macOS guest with a synthetic provider preserved an earlier external same-named command and delivered the bundled rules when no command conflicted. The tests used this adapter overlaid on the package entry point proposed in [PR #259](https://github.com/ayghri/i-have-adhd/pull/259); real-model adherence and later dynamic collisions remain unverified.
+The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
+
+In V2, when the plugin's command is selected, it checks OpenCode's `skill` permission before sending the bundled rules directly without replacing a same-named user skill. That permission check requires OpenCode V2 **2.0.29+**; earlier V2 releases skip registering this command while retaining the skill and optional hook.
+
+The plugin leaves a same-named command already registered at setup untouched; this check is not atomic with later command registrations. In a guest control, a later replay replaced an earlier plugin's newly registered same-named command. If commands cannot be inspected, the plugin skips registering its command while retaining its other capabilities. If the command is missing, check `opencode --version` and upgrade to V2 2.0.29 or later. Then inspect the command list for a same-named command; an inspection failure can also prevent registration. OpenCode 2.2.5 sessions in a disposable macOS guest with a synthetic provider preserved an earlier external same-named command and delivered the bundled rules when no command conflicted. The tests used this adapter overlaid on the package entry point proposed in [PR #259](https://github.com/ayghri/i-have-adhd/pull/259); real-model adherence remains unverified.
+
+OpenCode 2.2.5 does not automatically recheck a pending approval when the session's agent or permissions change. If you change either while an approval is pending, reject that approval and invoke the command again.
 
 ### Install
 
@@ -561,7 +567,7 @@ Remove `~/.config/opencode/plugins/i-have-adhd.js`. For the copy-based install, 
 
 ### Always-on (optional)
 
-Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn:
+Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn. This existing opt-in hook does not check OpenCode's `skill` permission:
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always

@@ -76,6 +76,9 @@ export default {
       const command = await commandDefinition();
       const bundledRules = rulesetBody();
       const template = 'Apply these i-have-adhd rules for the rest of this session.\n\n' + bundledRules;
+      if (typeof ctx.permission?.assert !== 'function') {
+        throw new Error('Cannot check OpenCode skill permission');
+      }
       const existing = await ctx.command.list();
       if (!Array.isArray(existing?.data) || !existing.data.every((item) => typeof item?.name === 'string')) {
         throw new Error('Cannot inspect existing OpenCode commands');
@@ -85,13 +88,20 @@ export default {
           editor.add({
             name: SKILL_ID,
             description: command.description || FALLBACK_DESCRIPTION,
-            execute: ({ sessionID, prompt, delivery }) =>
-              ctx.session.prompt({
+            execute: async ({ sessionID, prompt, delivery }) => {
+              await ctx.permission.assert({
+                sessionID,
+                action: 'skill',
+                resources: [SKILL_ID],
+                save: [SKILL_ID],
+              });
+              return ctx.session.prompt({
                 ...prompt,
                 sessionID,
                 text: prompt.text ? `${template}\n\n${prompt.text}` : template,
                 delivery,
-              }),
+              });
+            },
           });
         });
       }

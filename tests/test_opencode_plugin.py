@@ -124,6 +124,23 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertTrue(output["prompt"]["text"].endswith("User request"))
         self.assertNotIn("Use the `i-have-adhd` skill", output["prompt"]["text"])
         self.assertEqual("steer", output["prompt"]["delivery"])
+        self.assertEqual(
+            [{"name": "fixture.txt", "uri": "data:text/plain;base64,Zml4dHVyZQ==", "source": {"type": "inline"}}],
+            output["prompt"]["files"],
+        )
+        self.assertEqual("ses_test", output["permissionRequests"][0]["sessionID"])
+        self.assertEqual("skill", output["permissionRequests"][0]["action"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["resources"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["save"])
+
+    def test_v2_denied_skill_does_not_send_command_prompt(self):
+        result = self.run_plugin(mode="command-denied")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual("skill denied", output["error"])
+        self.assertEqual([], output["prompts"])
+        self.assertEqual("skill", output["permissionRequests"][0]["action"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["resources"])
 
     def test_v2_missing_skill_does_not_register_broken_command(self):
         (self.plugin_root / "skills/i-have-adhd/SKILL.md").unlink()
@@ -141,7 +158,7 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertTrue(output["hook"])
 
     def test_v2_uninspectable_commands_are_not_overwritten(self):
-        for mode in ("command-unavailable", "command-rejected", "command-malformed"):
+        for mode in ("command-unavailable", "command-rejected", "command-malformed", "permission-unavailable"):
             with self.subTest(mode=mode):
                 result = self.run_plugin(mode=mode)
                 self.assertEqual(0, result.returncode, result.stderr)
