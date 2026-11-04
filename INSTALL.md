@@ -513,7 +513,7 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <details>
 <summary><strong>MiniMax Code (<code>mcode</code>)</strong></summary>
 
-MiniMax Code 0.7.4 can discover this repository as a local native plugin. In a disposable guest session with a synthetic custom provider, the `skill` tool loaded `i-have-adhd:i-have-adhd` when enabled and returned not found when the plugin was disabled. An always-on flag at `~/.claude/.i-have-adhd-always` did not produce its hook context in that test; the cause remains unresolved. Signed-in MiniMax service and real-model behavior have not been verified. The commands below use a complete plugin package, not a standalone skill directory.
+MiniMax Code 0.7.4 can discover this repository as a local native plugin. In a disposable guest session with a synthetic custom provider, the `skill` tool loaded `i-have-adhd:i-have-adhd` when enabled and returned not found when the plugin was disabled. An always-on flag at `~/.claude/.i-have-adhd-always` did not produce hook context with the bundled 30-second timeout. In a separate guest control, changing only that timeout to 10 seconds delivered the context; removing the timeout also delivered it. The bundled package has not yet been updated. Signed-in MiniMax service and real-model behavior have not been verified. The commands below use a complete plugin package, not a standalone skill directory.
 
 ### Install and verify
 
