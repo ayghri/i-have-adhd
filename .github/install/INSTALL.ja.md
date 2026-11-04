@@ -369,12 +369,13 @@ Kimi Code のセッションを開始し、以下の手順を実行します：
 2. **Custom** を選択する。
 3. `https://github.com/ayghri/i-have-adhd` を貼り付けて `Enter` を押す。
 4. **Trust and install** を選択する。
+5. `/reload` を実行するか、新しいセッションを開始する。
 
-スラッシュコマンド `/skill:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
+スラッシュコマンド `/skill:i-have-adhd:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
 
 ### 更新
 
-Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `R` を押します。
+Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `Enter` を押します。 更新後、`/reload` を実行するか、新しいセッションを開始します。
 
 ### アンインストール
 

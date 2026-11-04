@@ -369,12 +369,13 @@ Hãy bắt đầu một phiên Kimi Code, rồi:
 2. Chọn **Custom**.
 3. Dán `https://github.com/ayghri/i-have-adhd` rồi nhấn Enter.
 4. Chọn **Trust and install**.
+5. Chạy `/reload` hoặc bắt đầu phiên mới.
 
-Dùng lệnh slash `/skill:i-have-adhd` để gọi skill một cách rõ ràng.
+Dùng lệnh slash `/skill:i-have-adhd:i-have-adhd` để gọi skill một cách rõ ràng.
 
 ### Cập nhật
 
-Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `R`.
+Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `Enter`. Sau khi cập nhật, chạy `/reload` hoặc bắt đầu phiên mới.
 
 ### Gỡ cài đặt
 

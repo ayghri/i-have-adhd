@@ -409,12 +409,13 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 2. گزینه **Custom** را انتخاب کنید.
 3. آدرس `https://github.com/ayghri/i-have-adhd` را پیست کرده و `Enter` را بزنید.
 4. گزینه **Trust and install** را انتخاب کنید.
+5. دستور `/reload` را اجرا کنید یا نشست جدیدی شروع کنید.
 
-برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd` استفاده کنید.
+برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd:i-have-adhd` استفاده کنید.
 
 ### به‌روزرسانی
 
-در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `R` را فشار دهید.
+در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `Enter` را فشار دهید. پس از به‌روزرسانی، دستور `/reload` را اجرا کنید یا نشست جدیدی شروع کنید.
 
 ### حذف نصب
 

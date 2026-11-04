@@ -422,12 +422,13 @@ hermes skills uninstall i-have-adhd
 2. 选择 **Custom**。
 3. 粘贴 `https://github.com/ayghri/i-have-adhd` 并 Enter。
 4. 选择 **Trust and install**。
+5. 输入 `/reload` 或启动新会话。
 
-使用斜杠命令 `/skill:i-have-adhd` 显式调用此技能。
+使用斜杠命令 `/skill:i-have-adhd:i-have-adhd` 显式调用此技能。
 
 ### 更新
 
-在 Kimi Code 会话中输入 `/plugins`，将光标移至 **I Have ADHD**，按 `R`。
+在 Kimi Code 会话中输入 `/plugins`，将光标移至 **I Have ADHD**，按 `Enter`。 更新后，输入 `/reload` 或启动新会话。
 
 ### 卸载
 

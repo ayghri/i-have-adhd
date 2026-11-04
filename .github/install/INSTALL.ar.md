@@ -488,12 +488,13 @@ hermes skills uninstall i-have-adhd
 2. اختر **مخصص**.
 3. الصق `https://github.com/ayghri/i-have-adhd` ثم اضغط على `Enter`.
 4. اختر **الثقة والتثبيت**.
+5. شغّل `/reload` أو ابدأ جلسة جديدة.
 
-استخدم الأمر الذي يبدأ بشرطة مائلة `/skill:i-have-adhd` لاستدعاء المهارة بشكل صريح.
+استخدم الأمر الذي يبدأ بشرطة مائلة `/skill:i-have-adhd:i-have-adhd` لاستدعاء المهارة بشكل صريح.
 
 ### تحديث
 
-`/plugins` في جلسة Kimi Code، ضع المؤشر على **I Have ADHD**، ثم اضغط على `R`.
+`/plugins` في جلسة Kimi Code، ضع المؤشر على **I Have ADHD**، ثم اضغط على `Enter`. بعد التحديث، شغّل `/reload` أو ابدأ جلسة جديدة.
 
 ### إلغاء التثبيت
 
