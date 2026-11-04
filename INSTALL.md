@@ -523,7 +523,7 @@ Clone the repository and choose the local plugin directory. The install stops if
 git clone https://github.com/ayghri/i-have-adhd.git
 ```
 
-If the clone fails, stop and inspect the existing directory or error. Identify the data directory used by your MiniMax session, including any project profile, `--data-dir` option, or `MAVIS_DATA_DIR` override. Set and export `MINIMAX_DATA_DIR` to that absolute path in this shell before running the commands below. Use the same data directory when starting MiniMax and managing its plugins. Do not pass a conflicting `--data-dir` option.
+If the clone fails, stop and inspect the existing directory or error. Identify the data directory used by your MiniMax session, including any project profile, `--data-dir` option, or `MAVIS_DATA_DIR` override. Set and export `MINIMAX_DATA_DIR` to that absolute path with `/.` appended before running the commands below. For example, use `/absolute/path/to/data/.` for the directory `/absolute/path/to/data`. Do not include `..` path components. The suffix keeps MiniMax and the shell on the same path even if the directory name ends in whitespace. Use the same data directory when starting MiniMax and managing its plugins. Do not pass a conflicting `--data-dir` option.
 
 Close all MiniMax Code sessions and other `mcode` processes before copying the package. From the same working directory, run:
 
@@ -532,9 +532,11 @@ Close all MiniMax Code sessions and other `mcode` processes before copying the p
   set -eu
   : "${MINIMAX_DATA_DIR:?Set MINIMAX_DATA_DIR to the active data directory}"
   case "$MINIMAX_DATA_DIR" in
-    *[[:space:]]) printf 'MINIMAX_DATA_DIR must not end in whitespace.\n' >&2; exit 1 ;;
-    /*) ;;
-    *) printf 'MINIMAX_DATA_DIR must be an absolute path.\n' >&2; exit 1 ;;
+    /.|/*/.) ;;
+    *) printf 'MINIMAX_DATA_DIR must be an absolute path ending in /.\n' >&2; exit 1 ;;
+  esac
+  case "$MINIMAX_DATA_DIR/" in
+    */../*) printf 'MINIMAX_DATA_DIR must not contain a .. path component.\n' >&2; exit 1 ;;
   esac
   plugin_dir="$MINIMAX_DATA_DIR/plugins/i-have-adhd"
   if [ -e "$plugin_dir" ] || [ -L "$plugin_dir" ]; then
