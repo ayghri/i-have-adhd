@@ -511,6 +511,73 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 </details>
 
 <details>
+<summary><strong>MiniMax Code (<code>mcode</code>)</strong></summary>
+
+MiniMax Code 0.7.4 can discover this repository as a local native plugin. A signed-in session has not been verified: discovery alone does not establish skill or hook behavior. The commands below use a complete plugin package, not a standalone skill directory.
+
+### Install and verify
+
+Clone the repository and choose the local plugin directory. The install stops if that path already exists; inspect any existing installation before changing it.
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+```
+
+If the clone fails, stop and inspect the existing directory or error. From the same working directory, run:
+
+```bash
+plugin_dir="${MINIMAX_DATA_DIR:-$HOME/.minimax}/plugins/i-have-adhd"
+if [ -e "$plugin_dir" ] || [ -L "$plugin_dir" ]; then
+  printf 'Inspect the existing plugin at %s before installing.\n' "$plugin_dir" >&2
+else
+  archive=$(mktemp "${TMPDIR:-/tmp}/i-have-adhd.XXXXXX")
+  if git -C i-have-adhd archive HEAD -o "$archive" &&
+     mkdir -p "$(dirname "$plugin_dir")" && mkdir "$plugin_dir" &&
+     tar -xf "$archive" -C "$plugin_dir"; then
+    printf 'Installed local plugin at %s.\n' "$plugin_dir"
+  else
+    printf 'Install failed; inspect any partial directory at %s.\n' "$plugin_dir" >&2
+  fi
+  rm -f "$archive"
+fi
+mcode plugin list
+```
+
+Look for `i-have-adhd@local` and its enabled state. In a disposable macOS guest, 0.7.4 discovered version 0.4.1 this way. The `plugin marketplace list` command was unavailable in that tested build, so check the active profile and data directory before installing.
+
+### Update and removal
+
+Before replacing a local package, note whether it is enabled, close all MiniMax Code sessions and other `mcode` processes, and save any local changes outside the `plugins` directory. Move the existing package to a new backup path outside `plugins`; do not overwrite a prior backup. Update the source checkout:
+
+```bash
+git -C i-have-adhd pull --ff-only
+```
+
+Repeat the `plugin_dir` installation block above only when the destination is absent. Check `mcode plugin list` and restore the prior state if necessary. To disable it, run:
+
+```bash
+mcode plugin disable i-have-adhd@local
+```
+
+To enable it instead, run:
+
+```bash
+mcode plugin enable i-have-adhd@local
+```
+
+A guest test of a sequential 0.4.0-to-0.4.1 replacement retained the disabled state. Concurrent scans can observe a package disappear and later reappear enabled, so keep all `mcode` processes stopped while replacing it; this is not a documented transaction lock.
+
+To remove the local installation, first inspect and save anything you need in its directory. The native removal command deletes that installed directory:
+
+```bash
+mcode plugin remove i-have-adhd@local
+```
+
+A separate source checkout or backup is not removed. Restart MiniMax Code after changes. If the package is absent from the list, check the active data directory, direct-child package path, and manifest; do not add a second same-name package as a workaround.
+
+</details>
+
+<details>
 <summary><strong>OpenCode</strong></summary>
 
 The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
