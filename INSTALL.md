@@ -239,42 +239,59 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Muse Code (<code>muse</code>)</strong></summary>
 
-Muse Code imports the existing Claude-compatible plugin. Keep the checkout at the same path for updates.
+Muse Code imports the existing Claude-compatible plugin. Check `muse plugins list` and inspect any existing `i-have-adhd` installation before changing it. Keep the checkout at the same path for updates.
 
 ### Install
 
+If the checkout path already exists, stop and inspect its remote and local changes before using it. Inspect any existing Muse installation and confirm its source before installing.
+
 ```bash
-mkdir -p "$HOME/.local/share"
-git clone https://github.com/ayghri/i-have-adhd.git "$HOME/.local/share/i-have-adhd"
-muse plugins install "$HOME/.local/share/i-have-adhd" --scope user
+mkdir -p "$HOME/.local/share" &&
+git clone https://github.com/ayghri/i-have-adhd.git "$HOME/.local/share/i-have-adhd" &&
+muse plugins install "$HOME/.local/share/i-have-adhd"
+```
+
+If the checkout already exists, verify its remote and local changes and confirm that it is the intended source. Then install it without cloning:
+
+```bash
+muse plugins install "$HOME/.local/share/i-have-adhd"
+```
+
+After a successful install, inspect the plugin and list its skills:
+
+```bash
 muse plugins inspect i-have-adhd
 muse skills list
 ```
 
-If the checkout path already exists, inspect it before using it. The skill is listed as `plugin:i-have-adhd:i-have-adhd` and is user-invocable only. Start a new Muse session, open `/skills`, select the plugin skill, and press Enter to run it.
+In Muse Code 1.4.14, the default-scope install refused to replace a same-ID plugin from a different source in a sequential guest test. Do not add `--scope user`: it can rebind that ID to the new source. The skill is listed as `plugin:i-have-adhd:i-have-adhd` and is user-invocable only. Start a new Muse session, open `/skills`, select the plugin skill, and press Enter to run it.
 
 ### Always-on (optional)
 
-The session hook needs Node.js on `PATH` and Muse approval. Inspect the hook with `muse plugins inspect i-have-adhd`, then approve the hook capability you trust using its displayed ID:
+The session hook needs Node.js on `PATH` and Muse approval. Inspect the hook with `muse plugins inspect i-have-adhd`. After reviewing the hook, copy its displayed stable ID and use it as the selector:
 
 ```bash
-muse plugins approve "i-have-adhd:<hook-id>"
-mkdir -p "$HOME/.claude"
+muse plugins approve '<stable-id>' &&
+mkdir -p "$HOME/.claude" &&
 touch "$HOME/.claude/.i-have-adhd-always"
 ```
 
-Replace `<hook-id>` with the capability ID from `muse plugins inspect`. In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the flag to turn always-on mode off.
+Replace `<stable-id>` with the full ID shown by `inspect`, including its `plugin:` prefix. In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the flag to turn always-on mode off.
 
 ### Update
 
+Inspect the installed plugin's source and the checkout's remote and local changes first. Stop other Muse plugin operations, then update the checkout you intend to use and reinstall from that same path.
+
 ```bash
-git -C "$HOME/.local/share/i-have-adhd" pull --ff-only
-muse plugins install "$HOME/.local/share/i-have-adhd" --scope user
+git -C "$HOME/.local/share/i-have-adhd" pull --ff-only &&
+muse plugins install "$HOME/.local/share/i-have-adhd"
 ```
 
 Inspect the plugin again after an update. If the hook definition changes, Muse may require review and approval again.
 
 ### Uninstall
+
+Inspect `i-have-adhd` and confirm its source before removing it.
 
 ```bash
 muse plugins remove i-have-adhd

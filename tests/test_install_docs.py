@@ -48,6 +48,27 @@ class ZedInstallPathTest(unittest.TestCase):
                 self.assertIn("~/.agents/skills/i-have-adhd", section)
 
 
+class MuseInstallPathTest(unittest.TestCase):
+    def test_muse_install_does_not_rebind_a_different_source(self):
+        text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
+        marker = "<summary><strong>Muse Code (<code>muse</code>)</strong></summary>"
+        section = text.split(marker, 1)[1].split("</details>", 1)[0]
+        installs = re.findall(r"^muse plugins install .*", section, re.MULTILINE)
+        self.assertEqual(3, len(installs))
+        self.assertTrue(all("--scope" not in command for command in installs))
+        self.assertIn(
+            'git clone https://github.com/ayghri/i-have-adhd.git '
+            '"$HOME/.local/share/i-have-adhd" &&\n' + installs[0],
+            section,
+        )
+        self.assertIn(
+            'git -C "$HOME/.local/share/i-have-adhd" pull --ff-only &&\n' + installs[2],
+            section,
+        )
+        self.assertIn("muse plugins approve '<stable-id>' &&", section)
+        self.assertIn("including its `plugin:` prefix", section)
+
+
 class GrokInstallPathTest(unittest.TestCase):
     def test_grok_install_commands(self):
         text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
