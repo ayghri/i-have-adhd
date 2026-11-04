@@ -50,7 +50,7 @@ New-Item -ItemType File -Force "$HOME/.gemini/antigravity-cli/.i-have-adhd-alway
 Start a new session. Remove that flag to turn always-on off for future sessions; the plugin remains installed and `/i-have-adhd` stays available. This is separate from the Claude Code flag and does not edit an existing `GEMINI.md`. If you previously enabled always-on through `GEMINI.md`, its instructions continue to apply until you remove them yourself. To turn it off in the current conversation, say “stop adhd mode”. If it does not activate, check the plugin is enabled, Node is available to `agy`, and the flag exists, then restart the session.
 
 
-The hook output and plugin registration were tested, but session injection was not verified: the disposable test guest required agy authentication. The existing manual always-on route remains available:
+In a disposable macOS guest, Antigravity CLI 1.5.0 delivered the hook context to a synthetic local endpoint when the plugin and flag were enabled. Real-model behavior remains unverified. The existing manual always-on route remains available:
 
 Add to `~/.gemini/GEMINI.md`:
 
