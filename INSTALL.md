@@ -32,6 +32,26 @@ Or keep it installed and turn it off: `agy plugin disable i-have-adhd`.
 
 ### Always-on (optional)
 
+The native plugin can request the full rules at the start of each new session.
+It needs Node.js on `PATH`. To opt in on macOS or Linux:
+
+```bash
+mkdir -p ~/.gemini/antigravity-cli
+touch ~/.gemini/antigravity-cli/.i-have-adhd-always
+```
+
+On Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME/.gemini/antigravity-cli" | Out-Null
+New-Item -ItemType File -Force "$HOME/.gemini/antigravity-cli/.i-have-adhd-always" | Out-Null
+```
+
+Start a new session. Remove that flag to turn always-on off for future sessions; the plugin remains installed and `/i-have-adhd` stays available. This is separate from the Claude Code flag and does not edit an existing `GEMINI.md`. If you previously enabled always-on through `GEMINI.md`, its instructions continue to apply until you remove them yourself. To turn it off in the current conversation, say “stop adhd mode”. If it does not activate, check the plugin is enabled, Node is available to `agy`, and the flag exists, then restart the session.
+
+
+The hook output and plugin registration were tested, but session injection was not verified: the disposable test guest required agy authentication. The existing manual always-on route remains available:
+
 Add to `~/.gemini/GEMINI.md`:
 
 ```markdown
