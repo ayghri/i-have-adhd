@@ -65,7 +65,7 @@ class MuseInstallPathTest(unittest.TestCase):
             'git -C "$HOME/.local/share/i-have-adhd" pull --ff-only &&\n' + installs[2],
             section,
         )
-        self.assertIn("muse plugins approve '<stable-id>' &&", section)
+        self.assertIn("muse plugins approve '<stable-id>'", section)
         self.assertIn("including its `plugin:` prefix", section)
 
 

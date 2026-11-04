@@ -268,15 +268,22 @@ In Muse Code 1.4.14, the default-scope install refused to replace a same-ID plug
 
 ### Always-on (optional)
 
-The session hook needs Node.js on `PATH` and Muse approval. Inspect the hook with `muse plugins inspect i-have-adhd`. After reviewing the hook, copy its displayed stable ID and use it as the selector:
+The session hook needs Node.js on `PATH` and Muse approval. It reads the same `~/.claude/.i-have-adhd-always` flag used by Claude Code and Codex when their hooks use the default Claude configuration directory. Other compatible agents may use it too. Creating or removing this flag can enable or disable always-on mode in those agents as well. If the flag already exists, leave it in place unless you also want to change the other agents' behavior.
+
+Inspect the hook with `muse plugins inspect i-have-adhd`. After reviewing the hook, copy its displayed stable ID and use it as the selector:
 
 ```bash
-muse plugins approve '<stable-id>' &&
+muse plugins approve '<stable-id>'
+```
+
+Replace `<stable-id>` with the full ID shown by `inspect`, including its `plugin:` prefix. If the shared flag does not exist and you want its effect in the other agents too, create it:
+
+```bash
 mkdir -p "$HOME/.claude" &&
 touch "$HOME/.claude/.i-have-adhd-always"
 ```
 
-Replace `<stable-id>` with the full ID shown by `inspect`, including its `plugin:` prefix. In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the flag to turn always-on mode off.
+In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the shared flag only if you also want to turn off flag-enabled always-on mode in its other consumers.
 
 ### Update
 
