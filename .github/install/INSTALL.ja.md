@@ -361,6 +361,8 @@ tap も削除する場合：`hermes skills tap remove ayghri/i-have-adhd`
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+プラグインを変更する前に、すべての Kimi セッションを閉じ、新しいセッションを開始してください。変更のたびにプラグイン一覧を確認してください。Kimi 2.5.0 では、古いセッションからプラグインを変更すると登録が失われる場合があります。
+
 ### インストール
 
 Kimi Code のセッションを開始し、以下の手順を実行します：
@@ -369,12 +371,13 @@ Kimi Code のセッションを開始し、以下の手順を実行します：
 2. **Custom** を選択する。
 3. `https://github.com/ayghri/i-have-adhd` を貼り付けて `Enter` を押す。
 4. **Trust and install** を選択する。
+5. `/reload` を実行するか、新しいセッションを開始する。
 
-スラッシュコマンド `/skill:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
+スラッシュコマンド `/skill:i-have-adhd:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
 
 ### 更新
 
-Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `R` を押します。
+Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `Enter` を押します。 更新後、`/reload` を実行するか、新しいセッションを開始します。
 
 ### アンインストール
 

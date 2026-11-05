@@ -401,6 +401,8 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+پیش از هر تغییر افزونه، همه نشست‌های Kimi را ببندید و نشست جدیدی شروع کنید. پس از هر تغییر فهرست افزونه‌ها را بررسی کنید. در Kimi 2.5.0 تغییر افزونه‌ها از نشست قدیمی ممکن است ثبت افزونه‌ها را حذف کند.
+
 ### نصب
 
 یک نشست Kimi Code شروع کنید، سپس:
@@ -409,12 +411,13 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 2. گزینه **Custom** را انتخاب کنید.
 3. آدرس `https://github.com/ayghri/i-have-adhd` را پیست کرده و `Enter` را بزنید.
 4. گزینه **Trust and install** را انتخاب کنید.
+5. دستور `/reload` را اجرا کنید یا نشست جدیدی شروع کنید.
 
-برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd` استفاده کنید.
+برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd:i-have-adhd` استفاده کنید.
 
 ### به‌روزرسانی
 
-در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `R` را فشار دهید.
+در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `Enter` را فشار دهید. پس از به‌روزرسانی، دستور `/reload` را اجرا کنید یا نشست جدیدی شروع کنید.
 
 ### حذف نصب
 

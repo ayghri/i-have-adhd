@@ -488,6 +488,8 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Before each plugin change, close all Kimi sessions and start a fresh session. Check the plugin list after each change. Kimi 2.5.0 can lose registrations when an older session changes plugins.
+
 ### Install
 
 Start a Kimi Code session, then:
@@ -496,12 +498,13 @@ Start a Kimi Code session, then:
 2. Choose **Custom**.
 3. Paste `https://github.com/ayghri/i-have-adhd` and press `Enter`.
 4. Choose **Trust and install**.
+5. Run `/reload` or start a new session.
 
-Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
+Use slash command `/skill:i-have-adhd:i-have-adhd` to invoke the skill explicitly.
 
 ### Update
 
-`/plugins` in Kimi Code session, cursor to **I Have ADHD**, press `R`.
+In a Kimi Code session, run `/plugins`, select **I Have ADHD**, and press `Enter` to update when an update is available. Run `/reload` or start a new session to apply the update.
 
 ### Uninstall
 
