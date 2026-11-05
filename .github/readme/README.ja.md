@@ -64,7 +64,7 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 </tr>
 </table>
 
-## 10のルール
+## 14のルール
 
 ルールは10個。全文は [SKILL.md](../../skills/i-have-adhd/SKILL.md) を参照してください。
 
@@ -78,6 +78,10 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 8. エラーは場所・原因・対処法だけを淡々と伝える。
 9. リストは最大5項目までに抑える。
 10. 前置き・要約・締めの挨拶は入れない。
+11. 中断した作業は1行で残す。
+12. さらなる分析ではなく行動に戻す。
+13. メッセージは書かれたまま読む。
+14. 期限は日付で示す。
 
 ## カスタマイズ
 
