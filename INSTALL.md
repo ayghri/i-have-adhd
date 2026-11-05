@@ -237,6 +237,95 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 
 <details>
+<summary><strong>Muse Code (<code>muse</code>)</strong></summary>
+
+Muse Code imports the existing Claude-compatible plugin. Check `muse plugins list` and inspect any existing `i-have-adhd` installation before changing it.
+
+### Install from the marketplace
+
+For a new installation, you can let Muse manage the marketplace checkout. First run `muse plugins marketplace list` and `muse plugins list`. If the marketplace name or plugin is already present, stop and inspect its source before proceeding. Do not use these commands if either belongs to a different source. If the intended marketplace is already registered, skip the `marketplace add` command. If the plugin is already installed, inspect its enabled state and source before deciding whether to reinstall it. Stop other Muse plugin operations while making changes.
+
+```bash
+muse plugins marketplace add i-have-adhd ayghri/i-have-adhd &&
+muse plugins install i-have-adhd@i-have-adhd
+```
+
+Muse clones the marketplace internally; you do not need a separate checkout. In Muse 1.4.14, a same-version marketplace reinstall retained the disabled state in a sequential guest test. This does not establish concurrent safety. See the update limitation below before choosing this route.
+
+### Install from a local checkout
+
+Use a local checkout if you need to update from the same source path. Keep the checkout at that path for updates. Do not switch the source of an existing installation without inspecting it first.
+
+If the checkout path already exists, stop and inspect its remote and local changes before using it. Inspect any existing Muse installation and confirm its source before installing.
+
+```bash
+mkdir -p "$HOME/.local/share" &&
+git clone https://github.com/ayghri/i-have-adhd.git "$HOME/.local/share/i-have-adhd" &&
+muse plugins install "$HOME/.local/share/i-have-adhd"
+```
+
+If the checkout already exists, verify its remote and local changes and confirm that it is the intended source. Then install it without cloning:
+
+```bash
+muse plugins install "$HOME/.local/share/i-have-adhd"
+```
+
+### Inspect the installation
+
+After either installation, inspect the plugin and list its skills:
+
+```bash
+muse plugins inspect i-have-adhd
+muse skills list --json
+```
+
+In Muse Code 1.4.14, the default-scope install refused to replace a same-ID plugin from a different source in a sequential guest test. Do not add `--scope user`: it can rebind that ID to the new source. In a fresh installation, the JSON listing identified the skill as `plugin:i-have-adhd:i-have-adhd` with `user-invocable-only` activation. This is a skill identifier, not a verified slash command. [Muse’s skills documentation](https://meta-models.github.io/muse-code-sdk/next/guides/extend/skills/) describes opening `/skills` and pressing Enter on a selected skill; this interaction has not yet been verified for this plugin.
+
+### Always-on (optional)
+
+The session hook needs Node.js on `PATH` and Muse approval. It reads the same `~/.claude/.i-have-adhd-always` flag used by Claude Code and Codex when their hooks use the default Claude configuration directory. Other compatible agents may use it too. Creating or removing this flag can enable or disable always-on mode in those agents as well. If the flag already exists, leave it in place unless you also want to change the other agents' behavior.
+
+Inspect the hook with `muse plugins inspect i-have-adhd`. After reviewing the hook, copy its displayed stable ID and use it as the selector:
+
+```bash
+muse plugins approve '<stable-id>'
+```
+
+Replace `<stable-id>` with the full ID shown by `inspect`, including its `plugin:` prefix. If the shared flag does not exist and you want its effect in the other agents too, create it:
+
+```bash
+mkdir -p "$HOME/.claude" &&
+touch "$HOME/.claude/.i-have-adhd-always"
+```
+
+In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use the default flag path above. Start a new session to load the rules. Remove the shared flag only if you also want to turn off flag-enabled always-on mode in its other consumers.
+
+### Update
+
+For a Git marketplace installation, refreshing the marketplace does not necessarily update the installed plugin. In a Muse 1.4.14 guest test with a synthetic marketplace, `muse plugins update` reported success after a refresh but kept the old version. A subsequent marketplace reinstall was refused as a different source. Muse documents a remove-and-reinstall route that forgets approvals; that route has not been verified to preserve disabled state or recover from failure. Keep the existing installation until you have reviewed those consequences.
+
+For a local-checkout installation, inspect the installed plugin's source and the checkout's remote and local changes first. Stop other Muse plugin operations, then update the checkout you intend to use and reinstall from that same path.
+
+```bash
+git -C "$HOME/.local/share/i-have-adhd" pull --ff-only &&
+muse plugins install "$HOME/.local/share/i-have-adhd"
+```
+
+Inspect the plugin again after an update. A package change can require you to review and approve its runtime capabilities again.
+
+### Uninstall
+
+Inspect `i-have-adhd` and confirm its source before removing it.
+
+```bash
+muse plugins remove i-have-adhd
+```
+
+Removing the plugin does not remove the source checkout or the optional flag. Remove those separately if you no longer need them.
+
+</details>
+
+<details>
 <summary><strong>Grok (<code>grok</code>)</strong></summary>
 
 Grok loads the repository's existing plugin and skill files; no separate Grok manifest is required. Install directly from GitHub, enable the plugin, then invoke the skill. Two Grok-only steps: `--trust` (hooks and skills stay inactive without it) and `grok plugin enable` (plugins stay off until enabled).
