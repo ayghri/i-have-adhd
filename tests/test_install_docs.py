@@ -53,9 +53,11 @@ class MuseInstallPathTest(unittest.TestCase):
         text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
         marker = "<summary><strong>Muse Code (<code>muse</code>)</strong></summary>"
         section = text.split(marker, 1)[1].split("</details>", 1)[0]
-        installs = re.findall(r"^muse plugins install .*", section, re.MULTILINE)
+        all_installs = re.findall(r"^muse plugins install .*", section, re.MULTILINE)
+        self.assertTrue(all("--scope" not in command for command in all_installs))
+        self.assertIn("muse plugins install i-have-adhd@i-have-adhd", all_installs)
+        installs = [command for command in all_installs if '"$HOME/.local/share/i-have-adhd"' in command]
         self.assertEqual(3, len(installs))
-        self.assertTrue(all("--scope" not in command for command in installs))
         self.assertIn(
             'git clone https://github.com/ayghri/i-have-adhd.git '
             '"$HOME/.local/share/i-have-adhd" &&\n' + installs[0],

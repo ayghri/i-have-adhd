@@ -239,9 +239,22 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 <details>
 <summary><strong>Muse Code (<code>muse</code>)</strong></summary>
 
-Muse Code imports the existing Claude-compatible plugin. Check `muse plugins list` and inspect any existing `i-have-adhd` installation before changing it. Keep the checkout at the same path for updates.
+Muse Code imports the existing Claude-compatible plugin. Check `muse plugins list` and inspect any existing `i-have-adhd` installation before changing it.
 
-### Install
+### Install from the marketplace
+
+For a new installation, you can let Muse manage the marketplace checkout. First run `muse plugins marketplace list` and `muse plugins list`. If the marketplace name or plugin is already present, stop and inspect its source before proceeding. Do not use these commands if either belongs to a different source. If the intended marketplace is already registered, skip the `marketplace add` command. If the plugin is already installed, inspect its enabled state and source before deciding whether to reinstall it. Stop other Muse plugin operations while making changes.
+
+```bash
+muse plugins marketplace add i-have-adhd ayghri/i-have-adhd &&
+muse plugins install i-have-adhd@i-have-adhd
+```
+
+Muse clones the marketplace internally; you do not need a separate checkout. In Muse 1.4.14, a same-version marketplace reinstall retained the disabled state in a sequential guest test. This does not establish concurrent safety. See the update limitation below before choosing this route.
+
+### Install from a local checkout
+
+Use a local checkout if you need to update from the same source path. Keep the checkout at that path for updates. Do not switch the source of an existing installation without inspecting it first.
 
 If the checkout path already exists, stop and inspect its remote and local changes before using it. Inspect any existing Muse installation and confirm its source before installing.
 
@@ -257,7 +270,9 @@ If the checkout already exists, verify its remote and local changes and confirm 
 muse plugins install "$HOME/.local/share/i-have-adhd"
 ```
 
-After a successful install, inspect the plugin and list its skills:
+### Inspect the installation
+
+After either installation, inspect the plugin and list its skills:
 
 ```bash
 muse plugins inspect i-have-adhd
@@ -287,14 +302,16 @@ In Muse Code 1.4.14, the hook did not receive a custom `CLAUDE_CONFIG_DIR`; use 
 
 ### Update
 
-Inspect the installed plugin's source and the checkout's remote and local changes first. Stop other Muse plugin operations, then update the checkout you intend to use and reinstall from that same path.
+For a Git marketplace installation, refreshing the marketplace does not necessarily update the installed plugin. In a Muse 1.4.14 guest test with a synthetic marketplace, `muse plugins update` reported success after a refresh but kept the old version. A subsequent marketplace reinstall was refused as a different source. Muse documents a remove-and-reinstall route that forgets approvals; that route has not been verified to preserve disabled state or recover from failure. Keep the existing installation until you have reviewed those consequences.
+
+For a local-checkout installation, inspect the installed plugin's source and the checkout's remote and local changes first. Stop other Muse plugin operations, then update the checkout you intend to use and reinstall from that same path.
 
 ```bash
 git -C "$HOME/.local/share/i-have-adhd" pull --ff-only &&
 muse plugins install "$HOME/.local/share/i-have-adhd"
 ```
 
-Inspect the plugin again after an update. If the hook definition changes, Muse may require review and approval again.
+Inspect the plugin again after an update. A package change can require you to review and approve its runtime capabilities again.
 
 ### Uninstall
 
