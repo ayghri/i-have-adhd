@@ -29,12 +29,9 @@ class MiMoCodePluginTest(unittest.TestCase):
             args.append(json.dumps(config))
         return subprocess.run(args, env=self.env, text=True, capture_output=True, check=True).stdout
 
-    def test_explicit_command_delivers_ruleset_without_model_skill_invocation(self):
+    def test_registers_skill_path_without_adding_a_command(self):
         config = json.loads(self.run_plugin('v1-config'))
-        template = config['command']['i-have-adhd']['template']
-        self.assertIn('Working memory is small', template)
-        self.assertIn('stop adhd mode', template)
-        self.assertNotIn('disable-model-invocation:', template)
+        self.assertNotIn('i-have-adhd', config.get('command', {}))
         self.assertEqual([str(self.plugin_root / 'skills')], config['skills']['paths'])
 
     def test_preserves_other_configuration_and_user_command(self):
@@ -53,7 +50,9 @@ class MiMoCodePluginTest(unittest.TestCase):
         flag = self.root / 'config/mimocode/.i-have-adhd-always'
         flag.parent.mkdir(parents=True)
         flag.touch()
-        self.assertIn('Working memory is small', self.run_plugin('v1-context'))
+        output = self.run_plugin('v1-context')
+        self.assertIn('Working memory is small', output)
+        self.assertNotIn(str(self.root), output)
         flag.unlink()
         self.assertEqual('', self.run_plugin('v1-context'))
 

@@ -32,22 +32,14 @@ export default {
         config.skills ||= {};
         config.skills.paths ||= [];
         if (!config.skills.paths.includes(skillsDir)) config.skills.paths.push(skillsDir);
-        config.command ||= {};
-        const content = ruleset();
-        if (!config.command['i-have-adhd'] && content !== null) {
-          config.command['i-have-adhd'] = {
-            description: 'Shape output for a reader with ADHD for the rest of this session',
-            template: content,
-          };
-        }
       },
       'experimental.chat.system.transform': async (_input, output) => {
         if (!fs.existsSync(flagPath())) return;
         const content = ruleset();
         if (content === null) return;
         const message = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. '
-          + '"stop adhd mode" or "normal mode" turns it off for this session; delete '
-          + flagPath() + ' to turn always-on off for good.\n\n' + content;
+          + '"stop adhd mode" or "normal mode" requests normal output; delete '
+          + 'the MiMo always-on flag to turn it off for good.\n\n' + content;
         if (output.system.length) output.system[output.system.length - 1] += '\n\n' + message;
         else output.system.push(message);
       },

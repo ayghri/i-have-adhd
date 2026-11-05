@@ -514,9 +514,15 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 <summary><strong>MiMo Code</strong></summary>
 
 MiMo Code 0.1.16 loads the bundled server plugin using its native `plugin`
-configuration. The plugin registers the bundled skill and `/i-have-adhd`.
-The command includes the ruleset directly: MiMo blocks model-initiated loading
-of this skill, so asking the model to call the skill would not activate it.
+configuration. MiMo derives `/i-have-adhd` from the registered skill and
+checks skill permissions when it is invoked.
+
+**Known limitations:** In MiMo 0.1.16, the plugin's skill path can shadow a
+user or project skill with the same name. Its optional always-on injection
+delivered the rules even when the tested `skill` permission denied
+`i-have-adhd`. Do not use this integration when preserving a same-name skill
+or enforcing that permission in always-on mode is required. These limitations
+remain unresolved.
 
 Clone this repository to a stable location, for example
 `~/.config/mimocode/vendor/i-have-adhd`, and add the plugin's **absolute file
@@ -535,21 +541,21 @@ The global config directory is `${XDG_CONFIG_HOME:-~/.config}/mimocode`.
 When `MIMOCODE_HOME` is set, it is `$MIMOCODE_HOME/config` instead. Restart
 MiMo after changing the plugin or updating the checkout. Run
 `mimo debug config` and `mimo debug skill` to inspect the command and skill;
-then run `/i-have-adhd` in a session to opt in. The plugin preserves an
-existing command of the same name, which takes precedence.
+then run `/i-have-adhd` in a session to opt in. A separately configured
+command with the same name takes precedence over the skill-derived command.
 
 For optional always-on mode, create `.i-have-adhd-always` in the MiMo global
 config directory and restart MiMo. Delete that flag to turn always-on mode
-off. This flag is separate from OpenCode's. The user can say "stop adhd mode"
-or "normal mode" to stop the rules for the current session.
+off. This flag is separate from OpenCode's. Saying "stop adhd mode" or
+"normal mode" asks the model to use its normal style; while the flag exists,
+the plugin continues to inject the rules on later turns.
 
 To update, update the checkout and restart MiMo. To remove the plugin, remove
 only its file URL from `plugin`, restart MiMo, and remove the checkout and flag
 if no longer needed. Existing configuration and other plugins can stay in
 place. If the command is missing, check the file URL, JSON syntax, and the
-resolved configuration; an existing command with the same name is not
-replaced. If the rules do not appear, check that MiMo loaded this plugin and
-that the canonical `skills/i-have-adhd/SKILL.md` exists in the checkout.
+resolved configuration and any existing command or skill with the same name.
+If the rules do not appear, check that MiMo loaded this plugin and that the canonical `skills/i-have-adhd/SKILL.md` exists in the checkout.
 MiMo 0.1.16 behavior was checked on macOS with a synthetic local provider;
 real model response behavior and other platforms have not been tested.
 
