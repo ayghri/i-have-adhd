@@ -515,17 +515,36 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 
 The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
 
+In V2, when the plugin's command is selected, it checks OpenCode's `skill` permission before sending the bundled rules directly without replacing a same-named user skill. That permission check requires OpenCode V2 **2.0.29+**; earlier V2 releases skip registering this command while retaining the skill and optional hook.
+
+The plugin leaves a same-named command already registered at setup untouched; this check is not atomic with later command registrations. In a guest control, a later replay replaced an earlier plugin's newly registered same-named command. If commands cannot be inspected, the plugin skips registering its command while retaining its other capabilities. If the command is missing, check `opencode --version` and upgrade to V2 2.0.29 or later. Then inspect the command list for a same-named command; an inspection failure can also prevent registration. OpenCode 2.2.5 sessions in a disposable macOS guest with a synthetic provider preserved an earlier external same-named command and delivered the bundled rules when no command conflicted. The tests used this adapter overlaid on the package entry point proposed in [PR #259](https://github.com/ayghri/i-have-adhd/pull/259); real-model adherence remains unverified.
+
+OpenCode 2.2.5 does not automatically recheck a pending approval when the session's agent or permissions change. If you change either while an approval is pending, reject that approval and invoke the command again.
+
 ### Install
 
-For use across projects:
+For use across projects, inspect any existing checkout or loader first. These commands refuse to replace either path:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
-mkdir -p ~/.config/opencode/plugins
-cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+(
+  set -eu
+  root="$HOME/.config/opencode"
+  loader="$root/plugins/i-have-adhd.js"
+  if [ -e "$loader" ] || [ -L "$loader" ]; then
+    printf 'Inspect the existing loader at %s.\n' "$loader" >&2
+    exit 1
+  fi
+  mkdir -p "$root/vendor" "$root/plugins"
+  mkdir "$root/vendor/i-have-adhd"
+  git clone https://github.com/ayghri/i-have-adhd "$root/vendor/i-have-adhd"
+  set -C
+  cat > "$loader" <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
 EOF
+)
 ```
+
+If cloning or writing the loader fails, inspect the checkout and loader before retrying. A failed clone may leave a partial checkout; a failed write may leave a partial loader.
 
 For an existing V1 installation, keep the `plugin` entry in `opencode.json`. If switching to the loader above, remove that entry.
 
@@ -551,6 +570,8 @@ Start OpenCode, type `/`, and confirm `i-have-adhd` appears in the command list.
 git -C ~/.config/opencode/vendor/i-have-adhd pull
 ```
 
+Restart the OpenCode server after updating. The V2 plugin reads the bundled rules when the server starts.
+
 For the copy-based install, pull your checkout and re-copy the two files.
 
 ### Uninstall
@@ -559,7 +580,7 @@ Remove `~/.config/opencode/plugins/i-have-adhd.js`. For the copy-based install, 
 
 ### Always-on (optional)
 
-Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn:
+Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn. This existing opt-in hook does not check OpenCode's `skill` permission:
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always

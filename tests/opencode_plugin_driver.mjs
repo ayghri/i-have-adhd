@@ -10,6 +10,11 @@ const skills = new Map();
 const commands = new Map();
 const hooks = new Map();
 const prompts = [];
+const permissionRequests = [];
+
+if (mode === 'command-existing') {
+  commands.set('i-have-adhd', { name: 'i-have-adhd', description: 'User command', execute: async () => prompts.push({ text: 'USER COMMAND' }) });
+}
 
 const editorFor = (store) => ({
   get: (id) => store.get(id),
@@ -17,6 +22,12 @@ const editorFor = (store) => ({
 });
 
 const v2ctx = {
+  permission: mode === 'permission-unavailable' ? undefined : {
+    assert: async (input) => {
+      permissionRequests.push(input);
+      if (mode === 'command-denied') throw new Error('skill denied');
+    },
+  },
   skill: {
     transform: async (cb) => {
       cb(editorFor(skills));
@@ -24,6 +35,11 @@ const v2ctx = {
     },
   },
   command: {
+    list: mode === 'command-unavailable' ? undefined : async () => {
+      if (mode === 'command-rejected') throw new Error('listing failed');
+      if (mode === 'command-malformed') return { data: [{}] };
+      return { data: [...commands.values()].map(({ name, description }) => ({ name, description })) };
+    },
     transform: async (cb) => {
       cb(editorFor(commands));
       return { dispose: async () => {} };
@@ -57,7 +73,23 @@ if (mode === 'v1-config' || mode === 'v1-context') {
 } else {
   await definition.setup(v2ctx);
 
-  if (mode === 'skill') {
+  if (mode === 'command-denied') {
+    let error;
+    try {
+      await commands.get('i-have-adhd').execute({ sessionID: 'ses_test', prompt: { text: 'User request' }, delivery: 'steer' });
+    } catch (e) {
+      error = e.message;
+    }
+    process.stdout.write(JSON.stringify({ error, prompts, permissionRequests }));
+  } else if (mode === 'command-collision') {
+    skills.set('i-have-adhd', { id: 'i-have-adhd', content: 'USER-OWNED SKILL' });
+    await commands.get('i-have-adhd').execute({ sessionID: 'ses_test', prompt: { text: 'User request', files: [{ name: 'fixture.txt', uri: 'data:text/plain;base64,Zml4dHVyZQ==', source: { type: 'inline' } }] }, delivery: 'steer' });
+    process.stdout.write(JSON.stringify({ skill: skills.get('i-have-adhd'), prompt: prompts.at(-1), permissionRequests }));
+  } else if (mode === 'command-existing' || mode === 'command-unavailable' || mode === 'command-rejected' || mode === 'command-malformed' || mode === 'permission-unavailable') {
+    const entry = commands.get('i-have-adhd');
+    if (entry) await entry.execute({ sessionID: 'ses_test', prompt: { text: '' }, delivery: 'steer' });
+    process.stdout.write(JSON.stringify({ commands: [...commands.keys()], skills: [...skills.keys()], hook: hooks.has('context'), prompts }));
+  } else if (mode === 'skill') {
     process.stdout.write(JSON.stringify([...skills.values()]));
   } else if (mode === 'command') {
     const out = [...commands.values()].map((command) => ({
