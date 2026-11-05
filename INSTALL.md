@@ -517,28 +517,34 @@ MiniMax Code 0.7.4 can discover this repository as a local native plugin. In a d
 
 ### Install and verify
 
-Clone the repository and choose the local plugin directory. The install stops if that path already exists; inspect any existing installation before changing it.
+MiniMax discovers complete plugin packages placed directly in its local plugin directory. Its [plugin guide](https://github.com/MiniMax-AI/minimax-code/blob/main/docs/examples.md#4-manage-plugins) says `mcode plugin add` does not import a local path or Git URL. The commands below follow local discovery and stop if the destination already exists.
+
+Clone the repository and choose the local plugin directory.
 
 ```bash
 git clone https://github.com/ayghri/i-have-adhd.git
 ```
 
-If the clone fails, stop and inspect the existing directory or error. Identify the data directory used by your MiniMax session, including any project profile, `--data-dir` option, or `MAVIS_DATA_DIR` override. Set and export `MINIMAX_DATA_DIR` to that absolute path with `/.` appended before running the commands below. For example, use `/absolute/path/to/data/.` for the directory `/absolute/path/to/data`. Do not include `..` path components. The suffix keeps MiniMax and the shell on the same path even if the directory name ends in whitespace. Use the same data directory when starting MiniMax and managing its plugins. Do not pass a conflicting `--data-dir` option.
+If the clone fails, stop and inspect the existing directory or error. Identify the data directory used by your MiniMax session, including any project profile, `--data-dir` option, or `MAVIS_DATA_DIR` override. Set `plugin_data_dir` to that absolute path with `/.` appended before running the commands below. For example, use `/absolute/path/to/data/.` for the directory `/absolute/path/to/data`. Do not include `..` path components. The suffix keeps MiniMax and the shell on the same path even if the directory name ends in whitespace. Use the same data directory when starting MiniMax and managing its plugins. The commands below set `MINIMAX_DATA_DIR` only for each management command, so later sessions keep their normal profile selection. Do not pass a conflicting `--data-dir` option. If your session uses the default `~/.minimax` data directory, set it with:
+
+```bash
+plugin_data_dir="$HOME/.minimax/."
+```
 
 Close all MiniMax Code sessions and other `mcode` processes before copying the package. From the same working directory, run:
 
 ```bash
 (
   set -eu
-  : "${MINIMAX_DATA_DIR:?Set MINIMAX_DATA_DIR to the active data directory}"
-  case "$MINIMAX_DATA_DIR" in
+  : "${plugin_data_dir:?Set plugin_data_dir to the active data directory}"
+  case "$plugin_data_dir" in
     /.|/*/.) ;;
-    *) printf 'MINIMAX_DATA_DIR must be an absolute path ending in /.\n' >&2; exit 1 ;;
+    *) printf 'plugin_data_dir must be an absolute path ending in /.\n' >&2; exit 1 ;;
   esac
-  case "$MINIMAX_DATA_DIR/" in
-    */../*) printf 'MINIMAX_DATA_DIR must not contain a .. path component.\n' >&2; exit 1 ;;
+  case "$plugin_data_dir/" in
+    */../*) printf 'plugin_data_dir must not contain a .. path component.\n' >&2; exit 1 ;;
   esac
-  plugin_dir="$MINIMAX_DATA_DIR/plugins/i-have-adhd"
+  plugin_dir="$plugin_data_dir/plugins/i-have-adhd"
   if [ -e "$plugin_dir" ] || [ -L "$plugin_dir" ]; then
     printf 'Inspect the existing plugin at %s before installing.\n' "$plugin_dir" >&2
     exit 1
@@ -553,11 +559,11 @@ Close all MiniMax Code sessions and other `mcode` processes before copying the p
 )
 ```
 
-If installation fails, keep all `mcode` processes stopped and inspect the destination. Move any partial package outside `plugins` before starting MiniMax or listing plugins. After a successful installation, run `mcode plugin list` and look for `i-have-adhd@local` and its enabled state. In a disposable macOS guest, 0.7.4 discovered version 0.4.1 this way. The `plugin marketplace list` command was unavailable in that tested build.
+If installation fails, keep all `mcode` processes stopped and inspect the destination. Move any partial package outside `plugins` before starting MiniMax or listing plugins. After a successful installation, run `MINIMAX_DATA_DIR="${plugin_data_dir:?Set plugin_data_dir to the intended data directory}" mcode plugin list` and look for `i-have-adhd@local` and its enabled state. In a disposable macOS guest, 0.7.4 discovered version 0.4.1 this way. The `plugin marketplace list` command was unavailable in that tested build.
 
 ### Update and removal
 
-Before replacing a local package, note whether it is enabled, close all MiniMax Code sessions and other `mcode` processes, and save any local changes outside the `plugins` directory. Update the source checkout before moving the installed package:
+In each new shell, set `plugin_data_dir` again and verify that it identifies the intended MiniMax data directory before managing the plugin. Before replacing a local package, note whether it is enabled, close all MiniMax Code sessions and other `mcode` processes, and save any local changes outside the `plugins` directory. Update the source checkout before moving the installed package:
 
 ```bash
 git -C i-have-adhd pull --ff-only
@@ -566,13 +572,13 @@ git -C i-have-adhd pull --ff-only
 If the pull fails, stop and leave the installed package in place. Otherwise, move the existing package to a new backup path outside `plugins`; do not overwrite a prior backup. Repeat the installation block above only when the destination is absent. If installation fails, move any partial package outside `plugins` and restore the backup before restarting MiniMax or listing plugins. After an installation or recovery, check the enabled state and restore the recorded state before resuming sessions. To disable it, run:
 
 ```bash
-mcode plugin disable i-have-adhd@local
+MINIMAX_DATA_DIR="${plugin_data_dir:?Set plugin_data_dir to the intended data directory}" mcode plugin disable i-have-adhd@local
 ```
 
 To enable it instead, run:
 
 ```bash
-mcode plugin enable i-have-adhd@local
+MINIMAX_DATA_DIR="${plugin_data_dir:?Set plugin_data_dir to the intended data directory}" mcode plugin enable i-have-adhd@local
 ```
 
 A guest test of a sequential 0.4.0-to-0.4.1 replacement retained the disabled state. Concurrent scans can observe a package disappear and later reappear enabled, so keep all `mcode` processes stopped while replacing it; this is not a documented transaction lock.
@@ -580,7 +586,7 @@ A guest test of a sequential 0.4.0-to-0.4.1 replacement retained the disabled st
 To remove the local installation, first inspect and save anything you need in its directory. The native removal command deletes that installed directory:
 
 ```bash
-mcode plugin remove i-have-adhd@local
+MINIMAX_DATA_DIR="${plugin_data_dir:?Set plugin_data_dir to the intended data directory}" mcode plugin remove i-have-adhd@local
 ```
 
 A separate source checkout or backup is not removed. Restart MiniMax Code after changes. If the package is absent from the list, check the active data directory, direct-child package path, and manifest; do not add a second same-name package as a workaround.
