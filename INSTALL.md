@@ -523,15 +523,28 @@ OpenCode 2.2.5 does not automatically recheck a pending approval when the sessio
 
 ### Install
 
-For use across projects:
+For use across projects, inspect any existing checkout or loader first. These commands refuse to replace either path:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
-mkdir -p ~/.config/opencode/plugins
-cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
+(
+  set -eu
+  root="$HOME/.config/opencode"
+  loader="$root/plugins/i-have-adhd.js"
+  if [ -e "$loader" ] || [ -L "$loader" ]; then
+    printf 'Inspect the existing loader at %s.\n' "$loader" >&2
+    exit 1
+  fi
+  mkdir -p "$root/vendor" "$root/plugins"
+  mkdir "$root/vendor/i-have-adhd"
+  git clone https://github.com/ayghri/i-have-adhd "$root/vendor/i-have-adhd"
+  set -C
+  cat > "$loader" <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
 EOF
+)
 ```
+
+If cloning or writing the loader fails, inspect the checkout and loader before retrying. A failed clone may leave a partial checkout; a failed write may leave a partial loader.
 
 For an existing V1 installation, keep the `plugin` entry in `opencode.json`. If switching to the loader above, remove that entry.
 
