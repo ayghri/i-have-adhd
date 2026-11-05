@@ -12,7 +12,7 @@ try {
     const body = fs.readFileSync(skill, "utf8")
       .replace(/^---[^\S\r\n]*\r?\n[\s\S]*?\r?\n---[^\S\r\n]*(?:\r?\n|$)/, "")
       .replace(/(?:\r?\n)+$/, "");
-    result = { injectSteps: [{ userMessage: `ADHD MODE ACTIVE (always-on). Delete ${flag} to turn always-on off for future sessions.\n\n${body}\n` }] };
+    result = { injectSteps: [{ userMessage: `ADHD MODE ACTIVE (always-on). Delete the Antigravity always-on flag to turn this off for future sessions.\n\n${body}\n` }] };
   }
 } catch {
   // A missing flag, skill, or inaccessible file must not block the session.

@@ -27,6 +27,7 @@ class AntigravityHookTest(unittest.TestCase):
             output = run()["injectSteps"][0]["userMessage"]
             self.assertIn("The reader has ADHD.", output)
             self.assertIn("stop adhd mode", output)
+            self.assertNotIn(temp, output)
             flag.unlink()
             self.assertEqual(run(), {})
 
