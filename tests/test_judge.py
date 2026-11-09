@@ -8,8 +8,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import judge  # noqa: E402
+import run_evals  # noqa: E402
 
-def _script(*lines: str) -> list[str]:
+
+def _script(*lines: str) -> "list[str]":
     """Build a stub-runner command that runs `lines` with this interpreter.
 
     The stubs must read the prompt from stdin and write the reply to stdout.
@@ -19,11 +22,12 @@ def _script(*lines: str) -> list[str]:
     `cat C:Users...` and the runner fails for a reason unrelated to judging.
     Running the snippet with the interpreter already executing the tests keeps
     the same contract on every platform.
+
+    Snippets move stdin/stdout as bytes: the text wrappers decode and encode
+    with the locale encoding, so a non-ASCII prompt would round-trip through
+    cp1252 on a default Windows runner.
     """
     return [sys.executable, "-c", "\n".join(lines)]
-
-import judge  # noqa: E402
-import run_evals  # noqa: E402
 
 
 class LabelAssignmentTest(unittest.TestCase):
@@ -239,11 +243,10 @@ class EndToEndTest(unittest.TestCase):
                             # prompt appended to the command line.
                             "command": _script(
                                 "import pathlib, sys",
-                                "data = sys.stdin.read()",
-                                f"pathlib.Path({str(captured)!r}).write_text("
-                                "data, encoding='utf-8')",
-                                f"sys.stdout.write(pathlib.Path({str(payload)!r})"
-                                ".read_text(encoding='utf-8'))",
+                                f"pathlib.Path({str(captured)!r})"
+                                ".write_bytes(sys.stdin.buffer.read())",
+                                f"sys.stdout.buffer.write("
+                                f"pathlib.Path({str(payload)!r}).read_bytes())",
                             ),
                             "response_format": "text",
                         }
@@ -308,15 +311,15 @@ class EndToEndTest(unittest.TestCase):
                         "stub": {
                             "command": _script(
                                 "import pathlib, sys",
-                                "prompt = sys.stdin.read()",
+                                "prompt = sys.stdin.buffer.read().decode('utf-8')",
                                 # `blocker` omitted for the casual-message group.
                                 "if 'casual-message' in prompt:",
-                                '    sys.stdout.write('
-                                '\'{"A": {"correctness": 3}, '
+                                '    sys.stdout.buffer.write('
+                                'b\'{"A": {"correctness": 3}, '
                                 '"B": {"correctness": 3}}\')',
                                 "else:",
-                                f"    sys.stdout.write(pathlib.Path({str(good)!r})"
-                                ".read_text(encoding='utf-8'))",
+                                f"    sys.stdout.buffer.write("
+                                f"pathlib.Path({str(good)!r}).read_bytes())",
                             ),
                             "response_format": "text",
                         }
@@ -411,11 +414,11 @@ class EndToEndTest(unittest.TestCase):
                         "stub": {
                             "command": _script(
                                 "import pathlib, sys",
-                                "prompt = sys.stdin.read()",
+                                "prompt = sys.stdin.buffer.read().decode('utf-8')",
                                 "if 'direct-answer' in prompt:",
                                 "    sys.exit(7)",
-                                f"sys.stdout.write(pathlib.Path({str(verdict)!r})"
-                                ".read_text(encoding='utf-8'))",
+                                f"sys.stdout.buffer.write("
+                                f"pathlib.Path({str(verdict)!r}).read_bytes())",
                             ),
                             "response_format": "text",
                         }
