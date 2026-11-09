@@ -12,6 +12,24 @@ import judge  # noqa: E402
 import run_evals  # noqa: E402
 
 
+def _script(*lines: str) -> "list[str]":
+    """Build a stub-runner command that runs `lines` with this interpreter.
+
+    The stubs must read the prompt from stdin and write the reply to stdout.
+    `sh -c` cannot do that portably: `sh` may be absent on Windows, and the
+    Git Bash shipped with Git eats the backslashes of any Windows path
+    interpolated into the command, so `cat C:\\Users\\...` becomes
+    `cat C:Users...` and the runner fails for a reason unrelated to judging.
+    Running the snippet with the interpreter already executing the tests keeps
+    the same contract on every platform.
+
+    Snippets move stdin/stdout as bytes: the text wrappers decode and encode
+    with the locale encoding, so a non-ASCII prompt would round-trip through
+    cp1252 on a default Windows runner.
+    """
+    return [sys.executable, "-c", "\n".join(lines)]
+
+
 class LabelAssignmentTest(unittest.TestCase):
     def test_labels_are_a_stable_bijection_over_conditions(self):
         conditions = ["baseline", "candidate"]
@@ -223,7 +241,13 @@ class EndToEndTest(unittest.TestCase):
                             # Reads the prompt from stdin, not argv: a trailing
                             # option such as `--tools ""` otherwise swallows a
                             # prompt appended to the command line.
-                            "command": ["sh", "-c", f"cat > {captured}; cat {payload}"],
+                            "command": _script(
+                                "import pathlib, sys",
+                                f"pathlib.Path({str(captured)!r})"
+                                ".write_bytes(sys.stdin.buffer.read())",
+                                f"sys.stdout.buffer.write("
+                                f"pathlib.Path({str(payload)!r}).read_bytes())",
+                            ),
                             "response_format": "text",
                         }
                     }
@@ -285,14 +309,18 @@ class EndToEndTest(unittest.TestCase):
                 json.dumps(
                     {
                         "stub": {
-                            "command": [
-                                "sh",
-                                "-c",
+                            "command": _script(
+                                "import pathlib, sys",
+                                "prompt = sys.stdin.buffer.read().decode('utf-8')",
                                 # `blocker` omitted for the casual-message group.
-                                f'p=$(cat); case "$p" in *casual-message*)'
-                                f' echo \'{{"A":{{"correctness":3}},"B":{{"correctness":3}}}}\';;'
-                                f" *) cat {good};; esac",
-                            ],
+                                "if 'casual-message' in prompt:",
+                                '    sys.stdout.buffer.write('
+                                'b\'{"A": {"correctness": 3}, '
+                                '"B": {"correctness": 3}}\')',
+                                "else:",
+                                f"    sys.stdout.buffer.write("
+                                f"pathlib.Path({str(good)!r}).read_bytes())",
+                            ),
                             "response_format": "text",
                         }
                     }
@@ -339,7 +367,7 @@ class EndToEndTest(unittest.TestCase):
                 json.dumps(
                     {
                         "stub": {
-                            "command": ["sh", "-c", "exit 99"],
+                            "command": _script("import sys", "sys.exit(99)"),
                             "response_format": "text",
                         }
                     }
@@ -384,11 +412,14 @@ class EndToEndTest(unittest.TestCase):
                 json.dumps(
                     {
                         "stub": {
-                            "command": [
-                                "sh",
-                                "-c",
-                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {verdict};; esac',
-                            ],
+                            "command": _script(
+                                "import pathlib, sys",
+                                "prompt = sys.stdin.buffer.read().decode('utf-8')",
+                                "if 'direct-answer' in prompt:",
+                                "    sys.exit(7)",
+                                f"sys.stdout.buffer.write("
+                                f"pathlib.Path({str(verdict)!r}).read_bytes())",
+                            ),
                             "response_format": "text",
                         }
                     }
