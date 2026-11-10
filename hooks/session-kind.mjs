@@ -56,6 +56,10 @@ const CODEX_VALUE_FLAGS = new Set([
   "--remote-auth-token-env",
 ]);
 
+// Informational one-shots never open a session, so a `codex` process carrying
+// one of these is not the interactive TUI.
+const CODEX_INFO_FLAGS = new Set(["-h", "--help", "-V", "-v", "--version"]);
+
 const CODEX_SUBCOMMANDS = new Set([
   "agents",
   "exec",
@@ -117,6 +121,7 @@ function codexParent(parent) {
     }
     if (token.startsWith("-")) {
       if (CODEX_VALUE_FLAGS.has(token)) {
+        if (i + 1 >= parent.length) return null;
         i += 2;
       } else {
         i += 1;
@@ -131,6 +136,15 @@ function codexParent(parent) {
 function classifyCodex(parent) {
   const subcommand = codexParent(parent);
   if (subcommand === null) return unclear("codex-parent-unknown", { parent: "unknown" });
+  if (subcommand === "") {
+    if (parent.some((token) => CODEX_INFO_FLAGS.has(token))) {
+      return unclear("codex-parent-unknown", { parent: "unknown" });
+    }
+    // `codex` with no subcommand opens the interactive TUI. With
+    // `daemon_auto_start = false` no managed daemon exists, so this argv is the
+    // only human signal an interactive session has.
+    return result("human", "codex-tui", { parent: "tui" });
+  }
   if (subcommand === "app-server") {
     if (parent.includes("--managed-daemon")) {
       return result("human", "codex-managed-daemon", { parent: "app-server" });

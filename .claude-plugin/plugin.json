@@ -1,6 +1,6 @@
 {
   "name": "i-have-adhd",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Shape Claude Code output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible. Always-on loads only in human sessions. Uninstall upstream first: both use the same skill name.",
   "author": {
     "name": "flyingnobita",

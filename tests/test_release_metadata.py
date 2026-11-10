@@ -18,11 +18,11 @@ RUNTIME_MANIFESTS = (
 
 
 class ReleaseMetadataTest(unittest.TestCase):
-    def test_all_runtime_manifests_use_version_0_5_0(self):
+    def test_all_runtime_manifests_use_version_0_5_1(self):
         for relative_path in RUNTIME_MANIFESTS:
             with self.subTest(manifest=relative_path):
                 manifest = json.loads((ROOT / relative_path).read_text(encoding="utf8"))
-                self.assertEqual("0.5.0", manifest["version"])
+                self.assertEqual("0.5.1", manifest["version"])
 
     def test_fork_metadata_preserves_skill_and_plugin_names(self):
         manifests = {
@@ -76,7 +76,7 @@ class ReleaseMetadataTest(unittest.TestCase):
         changelog = changelog_path.read_text(encoding="utf8")
         self.assertRegex(
             changelog,
-            r"(?m)^- Nov-10, 2026 - \d{2}:\d{2} [AP]M \+08 - .*0\.5\.0",
+            r"(?m)^- Nov-10, 2026 - \d{2}:\d{2} [AP]M \+08 - .*0\.5\.1",
         )
         self.assertIn("five new eval cases", changelog)
         self.assertIn("no-regression gate", changelog)

@@ -77,7 +77,7 @@ class SessionKindTest(unittest.TestCase):
             ("codex", "exec", "do the thing"): "non-human",
             ("/opt/codex", "exec", "--json", "prompt"): "non-human",
             ("codex", "--version"): "unclear",
-            ("codex",): "unclear",
+            ("codex",): "human",
             ("node", "server.js"): "unclear",
             (): "unclear",
         }
@@ -99,7 +99,7 @@ class SessionKindTest(unittest.TestCase):
             (["codex", "--config=k=v", "exec"], "non-human"),
             (["codex", "--enable", "x", "app-server", "--managed-daemon"], "human"),
             (["codex", "--yolo", "app-server"], "unclear"),
-            (["codex", "--yolo"], "unclear"),
+            (["codex", "--yolo"], "human"),
             (["codex", "-c"], "unclear"),
         ]
         for parent, expected in cases:
@@ -113,12 +113,31 @@ class SessionKindTest(unittest.TestCase):
         self.assertEqual("codex-exec", result["reason"])
         self.assertEqual({"parent": "exec"}, result["signals"])
 
+    def test_codex_interactive_tui_without_managed_daemon_is_human(self):
+        for parent in (["codex"], ["/usr/local/bin/codex"], ["codex", "--yolo"]):
+            with self.subTest(parent=parent):
+                result = self.classify(agent="codex", parent=parent)
+                self.assertEqual("human", result["decision"])
+                self.assertEqual("codex-tui", result["reason"])
+                self.assertEqual({"parent": "tui"}, result["signals"])
+
+    def test_codex_info_flags_stay_unclear(self):
+        for parent in (
+            ["codex", "--help"],
+            ["codex", "-h"],
+            ["codex", "--version"],
+            ["codex", "-c"],
+        ):
+            with self.subTest(parent=parent):
+                result = self.classify(agent="codex", parent=parent)
+                self.assertEqual("unclear", result["decision"])
+
     def test_codex_local_provider_and_multivalue_images(self):
         cases = [
             (["codex", "--oss", "--local-provider", "ollama", "exec"], "non-human"),
             (["codex", "-i", "a.png", "b.png", "exec"], "non-human"),
             (["codex", "--image", "a.png", "b.png", "app-server", "--managed-daemon"], "human"),
-            (["codex", "-i", "a.png", "b.png"], "unclear"),
+            (["codex", "-i", "a.png", "b.png"], "human"),
         ]
         for parent, expected in cases:
             with self.subTest(parent=parent):

@@ -265,7 +265,7 @@ The Codex hook requires Node.js and shares Claude's flag path. Opt in with:
 touch ~/.claude/.i-have-adhd-always
 ```
 
-Or create `.i-have-adhd-always` under `$CLAUDE_CONFIG_DIR`. Codex asks you to trust the structured hook on first run (trusting it on first run is the normal path, or you can pre-seed `trusted_hash` under `[hooks.state."i-have-adhd@flyingnobita-i-have-adhd:hooks/hooks.codex.json:session_start:0:0"]` in `~/.codex/config.toml` with the first `sha256:...` part of the app-server `hooks/list` `currentHash` before `/`). A managed app-server parent receives the complete rules; `codex exec` (or `e`) is silent; any other parent receives only the unclear-session notice. Delete the flag to return to explicit activation.
+Or create `.i-have-adhd-always` under `$CLAUDE_CONFIG_DIR`. Codex asks you to trust the structured hook on first run (trusting it on first run is the normal path, or you can pre-seed `trusted_hash` under `[hooks.state."i-have-adhd@flyingnobita-i-have-adhd:hooks/hooks.codex.json:session_start:0:0"]` in `~/.codex/config.toml` with the first `sha256:...` part of the app-server `hooks/list` `currentHash` before `/`). A managed app-server parent, or the interactive TUI's plain `codex` parent with no subcommand, receives the complete rules; `codex exec` (or `e`) is silent; any other parent receives only the unclear-session notice. Delete the flag to return to explicit activation.
 
 </details>
 
