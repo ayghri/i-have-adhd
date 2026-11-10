@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">Respons yang ramah bagi kamu yang memiliki ADHD. Tanpa perlu diagnosis!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="Lisensi"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="Lisensi"></a>
 </p>
 
 <p align="center">
@@ -80,9 +82,9 @@ Lakukan fork, edit `skills/i-have-adhd/SKILL.md`, dan ganti dengan salinan Anda 
 
 ```bash
 claude plugin uninstall i-have-adhd            # hapus salinan upstream terlebih dahulu:
-claude plugin marketplace remove i-have-adhd   # fork dan upstream menggunakan nama yang sama
+claude plugin marketplace remove flyingnobita-i-have-adhd   # fork dan upstream menggunakan nama yang sama
 claude plugin marketplace add <username-anda>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Mulai ulang Claude Code dan panggil `/i-have-adhd` lagi.

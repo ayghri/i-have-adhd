@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">Respostas amigáveis para quem tem TDAH. Sem precisar de diagnóstico!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="Licença"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="Licença"></a>
 </p>
 
 <p align="center">
@@ -83,9 +85,9 @@ Faça um fork, edite `skills/i-have-adhd/SKILL.md` e troque pela sua cópia:
 
 ```bash
 claude plugin uninstall i-have-adhd            # remova a cópia do upstream primeiro:
-claude plugin marketplace remove i-have-adhd   # fork e upstream compartilham o mesmo nome
+claude plugin marketplace remove flyingnobita-i-have-adhd   # fork e upstream compartilham o mesmo nome
 claude plugin marketplace add <seu-usuario>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Reinicie o Claude Code e invoque `/i-have-adhd` de novo.

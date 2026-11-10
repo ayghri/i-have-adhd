@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">Respuestas adaptadas para TDAH. ¡No se necesita diagnóstico de TDAH!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -27,7 +29,7 @@
 Copia/pega en tu línea de comandos:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/flyingnobita/i-have-adhd, refer to the repo's AGENTS.md for instructions.
 ```
 
 O 🔗 [consulta las instrucciones de instalación](../../INSTALL.md).
@@ -88,9 +90,9 @@ Haz un fork, edita `skills/i-have-adhd/SKILL.md`, luego intercambia tu copia:
 
 ```bash
 claude plugin uninstall i-have-adhd            # elimina la copia original primero:
-claude plugin marketplace remove i-have-adhd   # el fork y el original comparten ambos nombres
+claude plugin marketplace remove flyingnobita-i-have-adhd   # el fork y el original comparten ambos nombres
 claude plugin marketplace add <tu-usuario>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Reinicia tu asistente de código y vuelve a invocar `/i-have-adhd`.

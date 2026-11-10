@@ -1,3 +1,50 @@
+# Fork installation notes
+
+## Uninstall upstream first
+
+Both upstream and this fork use the same skill name, `i-have-adhd`, and the `/i-have-adhd` command. To avoid colliding files and duplicate commands, uninstall upstream first before installing this fork. For the marketplace routes, the upstream removal commands are:
+
+```bash
+claude plugin uninstall i-have-adhd
+claude plugin marketplace remove i-have-adhd
+
+codex plugin remove i-have-adhd
+codex plugin marketplace remove i-have-adhd
+
+omp plugin uninstall --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace remove i-have-adhd
+```
+
+For other agents, remove the upstream checkout, extension, or copied `i-have-adhd` skill using that agent's uninstall route below, then install from `flyingnobita/i-have-adhd` instead.
+
+## Human-session gating, logging, and opt-out
+
+Always-on rules remain opt-in and load only in human sessions; explicit `/i-have-adhd` invocation still works. Claude and Codex require Node.js for their SessionStart hook. Claude reads `CLAUDE_CODE_SESSION_ATTENDED`; Codex inspects its parent command. An unclear signal skips injection and shows a one-line notice instead of guessing.
+
+Pi and omp read `.i-have-adhd-always` and the optional `i-have-adhd.json` from their agent configuration directory. Pi defaults to `~/.pi/agent/.i-have-adhd-always`; omp uses its own agent directory. Automatic activation from the flag, `alwaysOn`, or Pi's `--adhd` follows the [decision table](README.md#why-this-fork-exists): human enables, non-human stays silent, and unclear disables with the notice. A saved per-session choice and explicit commands remain manual behavior.
+
+OpenCode's exception is that a top-level session is assumed human because `run` and TUI sessions have no distinguishing signal. Subagents with a `parentID` are identified and skipped by querying OpenCode's session API (`client.session.get` in V1, `ctx.session.get` in V2); if the lookup fails or the session cannot be identified, it fails closed as unclear. OpenCode V1 shows an `assumed human` toast after top-level injection; V2 does not attempt a toast.
+
+Set `I_HAVE_ADHD=0` in any worker or non-human environment to override every other signal. Decision logging is off by default. Enable it with `I_HAVE_ADHD_LOG=1` or a line exactly `log` in the relevant flag file; entries go to `~/.local/state/i-have-adhd/decisions.log` as one JSON object per line. The log contains only the timestamp, agent, normalized allowlisted signals, and result.
+
+## Codex first-run trust
+
+Codex asks you to trust the new hook on first run. Review and trust the fork's structured SessionStart hook, then restart Codex; trusting the hook in Codex on first run is the normal path. Alternatively, the trusted hook hash can be pre-seeded in `~/.codex/config.toml`:
+
+```toml
+[hooks.state."i-have-adhd@<marketplace>:hooks/hooks.codex.json:session_start:0:0"]
+trusted_hash = "sha256:<first part of currentHash before />"
+```
+
+where `<marketplace>` is `flyingnobita-i-have-adhd` for the documented install. If Codex hooks are not already enabled, also set
+
+```toml
+[features]
+hooks = true
+```
+
+in `~/.codex/config.toml`. Note that `trusted_hash` comes from the app-server `hooks/list` `currentHash` (the first part before `/`). The hook supplies the complete skill through `hookSpecificOutput.additionalContext`; an unclear session receives only a `systemMessage` notice. Non-human, opted-out, missing-flag, and failure paths stay silent.
+
 # How to install
 
 <details>
@@ -6,7 +53,7 @@
 ### Install
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Verify
@@ -19,7 +66,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Uninstall
@@ -67,7 +114,7 @@ this skill. Check the exported instructions before enabling it.
 
 ### Install
 
-1. Download the [canonical SKILL.md](https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/SKILL.md) and save it as `SKILL.md`. Review its contents before uploading.
+1. Download the [canonical SKILL.md](https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/SKILL.md) and save it as `SKILL.md`. Review its contents before uploading.
 2. In AstronClaw, open **我的技能 (My skills)**, choose **新建 (New)**, and upload that `.md` file.
 3. Check that the imported skill is named `i-have-adhd`. Use **启用/禁用 (Enable/Disable)** to control its availability.
 
@@ -119,8 +166,8 @@ new conversation. To keep the imported copy for later, choose **Disable** instea
 ### Install
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin marketplace add flyingnobita/i-have-adhd
+claude plugin install i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Type `/i-have-adhd`.
@@ -134,8 +181,8 @@ claude plugin list
 ### Update
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update flyingnobita-i-have-adhd
+claude plugin update i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 The first command refreshes the marketplace listing. The second updates the installed plugin. Restart Claude Code to load it.
@@ -146,14 +193,14 @@ The first command refreshes the marketplace listing. The second updates the inst
 
 ```bash
 claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 Or keep it installed and turn it off: `claude plugin disable i-have-adhd`.
 
 ### Always-on (optional)
 
-A `SessionStart` hook loads the full ruleset at the start of every session, no `/i-have-adhd` needed:
+A Node.js `SessionStart` hook loads the full ruleset at the start of a human session, no `/i-have-adhd` needed:
 
 ```bash
 touch ~/.claude/.i-have-adhd-always
@@ -171,7 +218,7 @@ Back to on-demand:
 rm ~/.claude/.i-have-adhd-always
 ```
 
-The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. "stop adhd mode" still turns it off for the current session.
+The hook only fires when the flag file exists, so installing the plugin changes nothing by itself. `CLAUDE_CODE_SESSION_ATTENDED=1` injects, `0` stays silent, and an unset or malformed value shows only the unclear-session notice. "stop adhd mode" still turns it off for the current session.
 
 </details>
 
@@ -182,12 +229,12 @@ The hook only fires when the flag file exists, so installing the plugin changes 
 ### Install
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add flyingnobita/i-have-adhd --ref main
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
-Invoke the skill explicitly by typing `$i-have-adhd`. Codex will not activate
-it automatically.
+Invoke the skill explicitly by typing `$i-have-adhd`. Codex does not activate
+it automatically unless you create the always-on flag below.
 
 ### Verify
 
@@ -198,40 +245,27 @@ codex plugin list
 ### Update
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
+codex plugin marketplace upgrade flyingnobita-i-have-adhd
 codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Uninstall
 
 ```bash
 codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 ### Always-on (optional)
 
-Add to `~/.codex/AGENTS.md`:
+The Codex hook requires Node.js and shares Claude's flag path. Opt in with:
 
-```markdown
-## Output style
-
-The reader has ADHD. Shape every response so it can be acted on:
-
-1. Lead with the answer or next action: command, path, or snippet first.
-2. Number multi-step work; one bounded action per step.
-3. End with one next action doable in under two minutes.
-4. Finish the current issue before raising a new one.
-5. Restate progress each turn ("step 3 of 5 done").
-6. Give time estimates in concrete units, never "a bit".
-7. After a change, show what now works.
-8. Errors: state location, cause, and fix. No drama.
-9. Cap lists to 5 items.
-10. No preamble, no recaps, no closers.
-
-Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
+```bash
+touch ~/.claude/.i-have-adhd-always
 ```
+
+Or create `.i-have-adhd-always` under `$CLAUDE_CONFIG_DIR`. Codex asks you to trust the structured hook on first run (trusting it on first run is the normal path, or you can pre-seed `trusted_hash` under `[hooks.state."i-have-adhd@flyingnobita-i-have-adhd:hooks/hooks.codex.json:session_start:0:0"]` in `~/.codex/config.toml` with the first `sha256:...` part of the app-server `hooks/list` `currentHash` before `/`). A managed app-server parent receives the complete rules; `codex exec` (or `e`) is silent; any other parent receives only the unclear-session notice. Delete the flag to return to explicit activation.
 
 </details>
 
@@ -244,7 +278,7 @@ Grok loads the repository's existing plugin and skill files; no separate Grok ma
 ### Install
 
 ```bash
-grok plugin install ayghri/i-have-adhd --trust
+grok plugin install flyingnobita/i-have-adhd --trust
 grok plugin enable i-have-adhd
 ```
 
@@ -307,7 +341,7 @@ Gemini CLI has no plugin marketplace, so there are two native routes: a **custom
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -316,7 +350,7 @@ Start a new session, type `/i-have-adhd`. It stays on for that session.
 ### Install (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/flyingnobita/i-have-adhd
 ```
 
 The extension loads `GEMINI.md`, which imports the full skill, so the rules apply from message one. `git` must be installed.
@@ -354,14 +388,14 @@ Copilot reads Agent Skills natively: the same `SKILL.md`, no conversion. It scan
 ### Install
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # this project
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # all projects
+npx skills add flyingnobita/i-have-adhd -a github-copilot        # this project
+npx skills add flyingnobita/i-have-adhd -a github-copilot -g     # all projects
 ```
 
 Without the CLI, copy the skill folder into any directory Copilot scans:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -427,7 +461,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 ### Install
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 Type `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
@@ -435,9 +469,9 @@ Type `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is exposed 
 Prefer to browse first? Add this repo as a skill source (a "tap"), then search and install:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add flyingnobita/i-have-adhd
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 ### Verify
@@ -458,7 +492,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-Or remove the tap too: `hermes skills tap remove ayghri/i-have-adhd`.
+Or remove the tap too: `hermes skills tap remove flyingnobita/i-have-adhd`.
 
 ### Always-on (optional)
 
@@ -494,7 +528,7 @@ Start a Kimi Code session, then:
 
 1. Run `/plugins`.
 2. Choose **Custom**.
-3. Paste `https://github.com/ayghri/i-have-adhd` and press `Enter`.
+3. Paste `https://github.com/flyingnobita/i-have-adhd` and press `Enter`.
 4. Choose **Trust and install**.
 
 Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
@@ -520,7 +554,7 @@ The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and 
 For use across projects:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 mkdir -p ~/.config/opencode/plugins
 cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
@@ -559,7 +593,7 @@ Remove `~/.config/opencode/plugins/i-have-adhd.js`. For the copy-based install, 
 
 ### Always-on (optional)
 
-Requires the plugin. The flag adds the complete ruleset to the system prompt on every turn:
+Requires the plugin. For a top-level session, the flag adds the complete ruleset to the system prompt. OpenCode assumes that top-level session is human; subagents are skipped by querying the session API (`client.session.get` in V1, `ctx.session.get` in V2) to detect `parentID`. If the session lookup fails or the session ID is missing, the hook fails closed as unclear. V1 shows an `assumed human` toast after injection, while V2 has no toast API:
 
 ```bash
 touch ~/.config/opencode/.i-have-adhd-always
@@ -583,7 +617,7 @@ Pi discovers this repository as a native package: `extensions/` provides the ses
 ### Install
 
 ```bash
-pi install https://github.com/ayghri/i-have-adhd
+pi install https://github.com/flyingnobita/i-have-adhd
 ```
 
 Start a new Pi session. Toggle ADHD-friendly output for the current session:
@@ -608,7 +642,7 @@ The existing Agent Skills command remains available as an alias:
 /skill:i-have-adhd
 ```
 
-Start a new Pi session with the mode enabled by default:
+Request automatic activation for a new Pi session (it still enables only when the session is human):
 
 ```bash
 pi --adhd
@@ -625,7 +659,7 @@ Confirm the GitHub package is listed, then type `/i-have-adhd` and check that `�
 ### Update
 
 ```bash
-pi update https://github.com/ayghri/i-have-adhd
+pi update https://github.com/flyingnobita/i-have-adhd
 ```
 
 Or update every unpinned Pi package with `pi update --extensions`.
@@ -633,7 +667,7 @@ Or update every unpinned Pi package with `pi update --extensions`.
 ### Uninstall
 
 ```bash
-pi remove https://github.com/ayghri/i-have-adhd
+pi remove https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Always-on (optional)
@@ -644,7 +678,7 @@ Create a flag in Pi's agent configuration directory:
 touch ~/.pi/agent/.i-have-adhd-always
 ```
 
-The extension checks the flag at every new, resumed, forked, or reloaded session. A saved choice for the current session wins over this default, so `stop adhd mode` keeps that session disabled.
+The extension checks the flag at every new, resumed, forked, or reloaded session. TUI mode injects, print/json modes stay silent, and unclear RPC mode shows the notice without injecting. A saved choice for the current session wins over this default, so `stop adhd mode` keeps that session disabled.
 
 Back to on-demand:
 
@@ -663,7 +697,7 @@ Create `~/.pi/agent/i-have-adhd.json` in Pi's agent configuration directory:
 }
 ```
 
-- `alwaysOn`: start every session with the rules active — same as the `.i-have-adhd-always` flag file, which still works
+- `alwaysOn`: request the rules at session start, subject to human-session gating — same as the `.i-have-adhd-always` flag file, which still works
 - `hideStatus`: keep the `● ADHD ON` status-bar entry hidden; the rules and the `/i-have-adhd` command still work
 
 Read once at extension startup, so restart Pi after changing it. A saved choice for the current session wins over `alwaysOn`, so `stop adhd mode` keeps that session disabled.
@@ -679,8 +713,8 @@ If `PI_CODING_AGENT_DIR` is set, put `.i-have-adhd-always` in that directory ins
 ### Install
 
 ```bash
-omp plugin marketplace add ayghri/i-have-adhd
-omp plugin install --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace add flyingnobita/i-have-adhd
+omp plugin install --scope user i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Start a new OMP session and run `/i-have-adhd` to toggle the mode.
@@ -688,16 +722,20 @@ Start a new OMP session and run `/i-have-adhd` to toggle the mode.
 ### Update
 
 ```bash
-omp plugin marketplace update i-have-adhd
-omp plugin upgrade --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace update flyingnobita-i-have-adhd
+omp plugin upgrade --scope user i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Uninstall
 
 ```bash
-omp plugin uninstall --scope user i-have-adhd@i-have-adhd
-omp plugin marketplace remove i-have-adhd
+omp plugin uninstall --scope user i-have-adhd@flyingnobita-i-have-adhd
+omp plugin marketplace remove flyingnobita-i-have-adhd
 ```
+
+### Always-on (optional)
+
+Create `.i-have-adhd-always` in omp's agent configuration directory, or set `"alwaysOn": true` in `i-have-adhd.json` there. A main TUI session injects; subagents and print/json sessions stay silent; main RPC is unclear and shows the notice. Explicit `/i-have-adhd` and saved session choices remain available. Add a `log` line to the flag for decision logging, or delete the flag to return to on-demand mode.
 
 </details>
 
@@ -708,7 +746,7 @@ omp plugin marketplace remove i-have-adhd
 ### Install
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install flyingnobita/i-have-adhd
 ```
 
 Qwen Code supports the GitHub shorthand and installs the repository as a
@@ -755,7 +793,7 @@ Zed's Agent reads Agent Skills natively using the same SKILL.md format without c
 In the Agent Panel, open the Skills manager and choose **Create skill from URL** (also in the command palette as `agent: create skill from url`), then paste:
 
 ```
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/flyingnobita/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 Save it in **User** scope for every project, or **Project** scope for one. Then type `/i-have-adhd` in the Agent Panel.
@@ -763,7 +801,7 @@ Save it in **User** scope for every project, or **Project** scope for one. Then 
 Prefer the filesystem? Clone the repo and drop the skill folder into your user skills directory:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -813,10 +851,10 @@ Works with any harness that reads agent skills. Swap `-a <agent>` for yours.
 ### Install
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # this workspace
-npx skills add ayghri/i-have-adhd -g               # all projects
-npx skills add ayghri/i-have-adhd -a cursor -y     # one agent only
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add flyingnobita/i-have-adhd                  # this workspace
+npx skills add flyingnobita/i-have-adhd -g               # all projects
+npx skills add flyingnobita/i-have-adhd -a cursor -y     # one agent only
+npx skills add flyingnobita/i-have-adhd -a opencode -y
 ```
 
 New agent chat, type `/i-have-adhd`.
@@ -824,7 +862,7 @@ New agent chat, type `/i-have-adhd`.
 Without the CLI, copy the skill folder into whatever path your agent scans:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.cursor/skills     # Cursor. Use .agents/skills for OpenCode, or your agent's own path
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
@@ -877,10 +915,10 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 ## How activation works
 
-1. **Installed, not invoked.** In Claude Code, Qwen Code, Codex, and Grok, nothing happens until you invoke the skill explicitly. Claude Code, Qwen Code, and Grok honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
+1. **Installed, not invoked or opted into always-on.** In Claude Code, Qwen Code, Codex, and Grok, nothing happens until you invoke the skill explicitly or configure always-on where supported. Claude Code, Qwen Code, and Grok honor `disable-model-invocation: true` in `SKILL.md`; Codex honors `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Other harnesses may load every skill's description at startup and activate the skill themselves.
 2. **You invoke it explicitly.** Type `/i-have-adhd` in Claude Code, Qwen Code, or Grok, or `$i-have-adhd` in Codex. Rules stay on for that session. "stop adhd mode" or "normal mode" turns them off.
-3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code). A `SessionStart` hook loads the full ruleset from message one, every session.
-4. **You add the always-on snippet above** (Grok, Codex, and other harnesses). Grok reads `~/.grok/AGENTS.md` and `~/.grok/rules/*.md`. Keeps the core rules in your agent's persistent context.
+3. **You touch `~/.claude/.i-have-adhd-always`** (Claude Code or Codex). A Node.js `SessionStart` hook loads the full ruleset from message one in a human session, skips non-human sessions, and shows only the notice when unclear.
+4. **You add the always-on snippet above** (Grok and other harnesses). Grok reads `~/.grok/AGENTS.md` and `~/.grok/rules/*.md`. Keeps the core rules in your agent's persistent context.
 
 In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not turn it on, it is off.
 
@@ -888,7 +926,7 @@ In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not tur
 
 **`/i-have-adhd` not in autocomplete.** Restart the agent. The plugin index is read at startup. On Grok, also run `grok plugin enable i-have-adhd` and confirm the install used `--trust`.
 
-**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update i-have-adhd`, then `claude plugin update i-have-adhd@i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
+**Always-on flag has no effect.** Update the plugin (`claude plugin marketplace update flyingnobita-i-have-adhd`, then `claude plugin update i-have-adhd@flyingnobita-i-have-adhd`) and restart. Hooks are read at startup, and the flag needs the plugin version that ships `hooks/hooks.json`. Grok does not read `~/.claude/.i-have-adhd-always`; put the always-on block in `~/.grok/AGENTS.md` or `~/.grok/rules/i-have-adhd.md`.
 
 **`claude plugin marketplace add` fails.** Use the `owner/repo` form. A local path must point at the repo root, not `.claude-plugin/`.
 
@@ -902,7 +940,7 @@ In Claude Code, Qwen Code, Codex, and Grok, no middle ground: if you did not tur
 claude plugin uninstall i-have-adhd            # drop the upstream copy first:
 claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Restart, then re-invoke `/i-have-adhd`.

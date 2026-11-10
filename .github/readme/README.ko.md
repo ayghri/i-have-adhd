@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">ADHD 친화적인 출력. ADHD 진단은 필요 없어요!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -83,9 +85,9 @@
 
 ```bash
 claude plugin uninstall i-have-adhd            # 먼저 업스트림 버전 제거
-claude plugin marketplace remove i-have-adhd   # 포크와 업스트림이 같은 이름을 씁니다
+claude plugin marketplace remove flyingnobita-i-have-adhd   # 포크와 업스트림이 같은 이름을 씁니다
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Claude Code를 재시작한 뒤 `/i-have-adhd`를 다시 호출하세요.

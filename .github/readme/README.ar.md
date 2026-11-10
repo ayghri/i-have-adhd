@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">إجابات موجزة ومناسبة للمصابين باضطراب فرط الحركة وتشتت الانتباه. لا حاجة إلى تشخيص؛ يمكن للجميع استخدامها!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="الترخيص"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="الترخيص"></a>
 </p>
 
 <p align="center">
@@ -26,7 +28,7 @@
 انسخ النص التالي والصقه في موجّه سطر الأوامر:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/flyingnobita/i-have-adhd, refer to the repo's AGENTS.md for instructions.
 ```
 
 أو 🔗 [راجع تعليمات التثبيت](../install/INSTALL.ar.md).
@@ -84,9 +86,9 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ```bash
 claude plugin uninstall i-have-adhd            # إزالة النسخة الأصلية أولاً
-claude plugin marketplace remove i-have-adhd   # النسخة المتفرعة والأصلية تحملان الاسم نفسه
+claude plugin marketplace remove flyingnobita-i-have-adhd   # النسخة المتفرعة والأصلية تحملان الاسم نفسه
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 أعد تشغيل Claude Code، ثم استدعِ `/i-have-adhd` مجددًا.

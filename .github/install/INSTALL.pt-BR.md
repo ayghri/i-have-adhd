@@ -1,3 +1,5 @@
+> Fork note: Uninstall upstream first because both projects use the same skill and command names. Read [Fork installation notes](../../INSTALL.md#fork-installation-notes) for the renamed marketplaces, human-session gating, Codex hook trust, logging, opt-out, and OpenCode exception.
+
 # Como instalar
 
 <details>
@@ -6,7 +8,7 @@
 ### Instalar
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Verificar
@@ -19,7 +21,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Desinstalar
@@ -61,8 +63,8 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 ### Instalar
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin marketplace add flyingnobita/i-have-adhd
+claude plugin install i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Digite `/i-have-adhd`.
@@ -76,15 +78,15 @@ claude plugin list
 ### Atualizar
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update flyingnobita-i-have-adhd
+claude plugin update i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Desinstalar
 
 ```bash
 claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 Ou mantenha instalado e desative: `claude plugin disable i-have-adhd`.
@@ -120,8 +122,8 @@ O hook só é executado quando o arquivo de sinalização existe, portanto insta
 ### Instalar
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add flyingnobita/i-have-adhd --ref main
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Ative a skill explicitamente digitando `$i-have-adhd`. O Codex não a invoca automaticamente.
@@ -135,16 +137,16 @@ codex plugin list
 ### Atualizar
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
+codex plugin marketplace upgrade flyingnobita-i-have-adhd
 codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Desinstalar
 
 ```bash
 codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 ### Sempre ativo (opcional)
@@ -181,7 +183,7 @@ O Gemini CLI não tem marketplace de plugins, então há duas opções nativas: 
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -190,7 +192,7 @@ Inicie uma nova sessão e digite `/i-have-adhd`. A skill permanecerá ativa dura
 ### Instalar (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/flyingnobita/i-have-adhd
 ```
 
 A extensão carrega `GEMINI.md`, que importa a skill completa; assim, as regras valem desde a primeira mensagem. O `git` precisa estar instalado.
@@ -228,14 +230,14 @@ O Copilot lê Agent Skills nativamente: usa o mesmo `SKILL.md`, sem conversão. 
 ### Instalar
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # este projeto
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # todos os projetos
+npx skills add flyingnobita/i-have-adhd -a github-copilot        # este projeto
+npx skills add flyingnobita/i-have-adhd -a github-copilot -g     # todos os projetos
 ```
 
 Sem a CLI, copie a pasta da skill para qualquer diretório verificado pelo Copilot:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -300,7 +302,7 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 ### Instalar
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 Digite `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
@@ -308,9 +310,9 @@ Digite `/i-have-adhd`. The skill installs into `~/.hermes/skills/` and is expose
 Prefere explorar primeiro? Adicione este repositório como fonte de skills (um "tap"), depois pesquise e instale:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add flyingnobita/i-have-adhd
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 ### Verificar
@@ -331,7 +333,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-Ou remova também o tap: `hermes skills tap remove ayghri/i-have-adhd`.
+Ou remova também o tap: `hermes skills tap remove flyingnobita/i-have-adhd`.
 
 ### Sempre ativo (opcional)
 
@@ -367,7 +369,7 @@ Inicie uma sessão do Kimi Code e:
 
 1. Execute `/plugins`.
 2. Selecione **Custom**.
-3. Cole `https://github.com/ayghri/i-have-adhd` e pressione Enter.
+3. Cole `https://github.com/flyingnobita/i-have-adhd` e pressione Enter.
 4. Selecione **Trust and install**.
 
 Use o comando slash `/skill:i-have-adhd` para invocar a skill explicitamente.
@@ -393,7 +395,7 @@ O plugin suporta OpenCode V1 **1.18.29 ou superior** e V2. Registra a skill e o 
 Para usar em todos os projetos:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 mkdir -p ~/.config/opencode/plugins
 cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
@@ -456,13 +458,13 @@ O Pi implementa o padrão Agent Skills, portanto o mesmo `SKILL.md` é carregado
 ### Instalar
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+npx skills add flyingnobita/i-have-adhd -a pi -y
 ```
 
 Prefere usar o sistema de arquivos? O Pi encontra skills em `~/.pi/agent/skills/` e `~/.agents/skills/` (global), e em `.pi/skills/` e `.agents/skills/` (projeto):
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.pi/agent/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
 ```
@@ -531,7 +533,7 @@ Exceções: explique por completo quando pedirem. Confirme antes de ações dest
 ### Instalar
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install flyingnobita/i-have-adhd
 ```
 
 O Qwen Code aceita a forma abreviada do GitHub e instala o repositório como extensão nativa. A extensão encontra a skill em `skills/`.
@@ -576,7 +578,7 @@ O Agent do Zed lê Agent Skills nativamente: usa o mesmo `SKILL.md`, sem convers
 No Agent Panel, abra o gerenciador de Skills, escolha **Create skill from URL** (também disponível na paleta como `agent: create skill from url`) e cole:
 
 ```
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/flyingnobita/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 Salve no escopo **User** para todos os projetos ou **Project** para apenas um. Depois, digite `/i-have-adhd` no Agent Panel.
@@ -584,7 +586,7 @@ Salve no escopo **User** para todos os projetos ou **Project** para apenas um. D
 Prefere o sistema de arquivos? Clone o repositório e coloque a pasta da skill no diretório de skills do usuário:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -634,10 +636,10 @@ Funciona com qualquer ambiente que leia Agent Skills. Troque `-a <agent>` pelo s
 ### Instalar
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # this workspace
-npx skills add ayghri/i-have-adhd -g               # todos os projetos
-npx skills add ayghri/i-have-adhd -a cursor -y     # one agent only
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add flyingnobita/i-have-adhd                  # this workspace
+npx skills add flyingnobita/i-have-adhd -g               # todos os projetos
+npx skills add flyingnobita/i-have-adhd -a cursor -y     # one agent only
+npx skills add flyingnobita/i-have-adhd -a opencode -y
 ```
 
 Abra um novo chat do agente e digite `/i-have-adhd`.
@@ -645,7 +647,7 @@ Abra um novo chat do agente e digite `/i-have-adhd`.
 Sem a CLI, copie a pasta da skill para o caminho verificado pelo seu agente:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.cursor/skills     # Cursor. Use .agents/skills no OpenCode ou o caminho próprio do agente
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
@@ -709,7 +711,7 @@ No Claude Code, Qwen Code e Codex não há meio-termo: se você não ativou, est
 
 **`/i-have-adhd` não aparece no preenchimento automático.** Reinicie o agente. O índice de plugins é lido na inicialização.
 
-**A flag de sempre ativo não funciona.** Atualize o plugin (`claude plugin marketplace update i-have-adhd` e depois `claude plugin update i-have-adhd@i-have-adhd`) e reinicie. Hooks são lidos na inicialização, e a flag exige a versão que inclui `hooks/hooks.json`.
+**A flag de sempre ativo não funciona.** Atualize o plugin (`claude plugin marketplace update flyingnobita-i-have-adhd` e depois `claude plugin update i-have-adhd@flyingnobita-i-have-adhd`) e reinicie. Hooks são lidos na inicialização, e a flag exige a versão que inclui `hooks/hooks.json`.
 
 **`claude plugin marketplace add` falha.** Use o formato `owner/repo`. Um caminho local deve apontar para a raiz do repositório, não para `.claude-plugin/`.
 
@@ -719,9 +721,9 @@ No Claude Code, Qwen Code e Codex não há meio-termo: se você não ativou, est
 
 ```bash
 claude plugin uninstall i-have-adhd            # remova primeiro a cópia upstream:
-claude plugin marketplace remove i-have-adhd   # o fork e o upstream usam o mesmo nome
+claude plugin marketplace remove flyingnobita-i-have-adhd   # o fork e o upstream usam o mesmo nome
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Reinicie e invoque `/i-have-adhd` novamente.

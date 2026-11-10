@@ -10,6 +10,11 @@ import {
   contextMessages,
   latestMarkerIsActive,
 } from "./context-compat";
+import {
+  NOTICE,
+  classifySession,
+  logDecision,
+} from "../hooks/session-kind.mjs";
 
 const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
 const SKILL_PATH = join(
@@ -158,14 +163,46 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
     }
   };
 
+  const sessionSignals = (
+    ctx: ExtensionContext,
+  ): { agent: "pi" | "omp"; signals: Record<string, unknown> } => {
+    // shortcut: omp exposes the agent kind the upstream source documents; it is
+    // unverified against the installed binary, so real-agent QA confirms it.
+    const extended = ctx as ExtensionContext & {
+      agent?: { kind?: string };
+      agentKind?: string;
+    };
+    const agentKind = extended.agent?.kind ?? extended.agentKind;
+    return {
+      agent: typeof agentKind === "string" ? "omp" : "pi",
+      signals: { mode: ctx.mode, agent: extended.agent, agentKind },
+    };
+  };
+
   const restoreState = (ctx: ExtensionContext): void => {
     const savedState = getSavedState(ctx);
-    const enabledByDefault =
+    const requestedAlwaysOn =
       pi.getFlag("adhd") === true ||
       config.alwaysOn === true ||
       existsSync(alwaysOnFlag);
 
-    enabled = savedState ?? enabledByDefault;
+    if (savedState !== undefined) {
+      // An explicit per-session choice outranks automatic detection.
+      enabled = savedState;
+    } else if (requestedAlwaysOn) {
+      const { agent, signals } = sessionSignals(ctx);
+      const decision = classifySession({ agent, ctx: signals });
+      logDecision({ agent, ...decision, flagPath: alwaysOnFlag });
+      enabled = decision.decision === "human";
+
+      // Only an opted-in session that cannot be classified hears about it.
+      if (decision.decision === "unclear") {
+        ctx.ui.notify(NOTICE, "warning");
+      }
+    } else {
+      enabled = false;
+    }
+
     updateStatus(ctx);
     syncContext(ctx);
   };

@@ -162,6 +162,9 @@ def build_isolated_env(agent_dir: str) -> dict[str, str]:
     }
     env.update(
         {
+            "HOME": agent_dir,
+            "XDG_CONFIG_HOME": str(Path(agent_dir, ".config")),
+            "XDG_STATE_HOME": str(Path(agent_dir, ".local", "state")),
             "PI_CODING_AGENT_DIR": agent_dir,
             "PI_SKIP_VERSION_CHECK": "1",
             "PI_TELEMETRY": "0",
@@ -214,6 +217,58 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+
+NOTICE = (
+    "i-have-adhd: couldn't tell if a human is reading; rules not loaded. "
+    "Run /i-have-adhd to turn them on."
+)
+REQUIRED_SCENARIOS = {
+    "rpc_adhd_flag_unclear",
+    "rpc_flag_unclear",
+    "manual_command_still_enables",
+}
+
+
+def notifications(events: list[dict[str, Any]]) -> list[str]:
+    return [
+        event.get("message") or ""
+        for event in events
+        if event.get("type") == "extension_ui_request"
+        and event.get("method") == "notify"
+    ]
+
+
+def notice_seen(events: list[dict[str, Any]]) -> bool:
+    return any(NOTICE in message for message in notifications(events))
+
+
+def startup(client: "RpcClient", runtime: str) -> tuple[set[str], list[dict[str, Any]]]:
+    if runtime == "omp":
+        events = client.events_until(
+            lambda event: event.get("type") == "available_commands_update"
+        )
+        return {command["name"] for command in events[-1]["commands"]}, events
+    response, events = client.request("commands", {"type": "get_commands"})
+    return {command["name"] for command in response["data"]["commands"]}, events
+
+
+def assert_no_auto_activation(
+    events: list[dict[str, Any]],
+    scenario: str,
+    scenarios: set[str],
+    entries: dict[str, Any] | None = None,
+) -> None:
+    assert not any("ADHD ON" in (text or "") for text in status_texts(events)), (
+        f"{scenario}: automatic mode activated without a human signal"
+    )
+    if entries is not None:
+        assert message_count(entries, "i-have-adhd-rules") == 0, (
+            f"{scenario}: rules were injected without a human signal"
+        )
+    assert notice_seen(events), f"{scenario}: the unclear-session notice was not emitted"
+    scenarios.add(scenario)
+
+
 def main() -> None:
     args = parse_args()
     validate_package_manifest()
@@ -221,12 +276,12 @@ def main() -> None:
     if executable is None:
         raise RuntimeError(f"{args.runtime} executable is not available")
 
+    scenarios: set[str] = set()
+
     with tempfile.TemporaryDirectory(
         prefix=f"i-have-adhd-{args.runtime}-"
     ) as agent_dir:
         env = build_isolated_env(agent_dir)
-        if args.runtime == "omp":
-            env.pop("PI_CODING_AGENT_DIR", None)
         if args.runtime == "pi":
             subprocess.run(
                 [executable, "install", str(ROOT)],
@@ -278,150 +333,153 @@ export default function (pi: ExtensionAPI) {
             str(reload_probe),
             "--adhd",
         )
-        if args.runtime == "omp":
-            try:
-                startup_events = client.events_until(
-                    lambda event: event.get("type")
-                    == "available_commands_update",
-                )
-                command_event = startup_events[-1]
-                command_names = {
-                    command["name"]
-                    for command in command_event["commands"]
-                }
-                assert "i-have-adhd" in command_names
-                assert "skill:i-have-adhd" in command_names
-                assert any(
-                    "ADHD ON" in (text or "")
-                    for text in status_texts(startup_events)
-                )
-            finally:
-                client.close()
-
-            print("omp extension smoke test passed")
-            return
-
         try:
-            commands, startup_events = client.request("commands", {"type": "get_commands"})
-            command_names = {command["name"] for command in commands["data"]["commands"]}
+            command_names, startup_events = startup(client, args.runtime)
             assert "i-have-adhd" in command_names
             assert "skill:i-have-adhd" in command_names
-            assert any("ADHD ON" in (text or "") for text in status_texts(startup_events))
 
-            entries, _ = client.request("entries-startup", {"type": "get_entries"})
-            assert message_count(entries, "i-have-adhd-rules") == 1
-            assert message_count(entries, "i-have-adhd-disabled") == 0
-
-            reloaded, reload_events = client.request(
-                "reload-enabled",
-                {"type": "prompt", "message": "/reload-probe"},
-            )
-            assert reloaded["success"] is True
-            assert any("ADHD ON" in (text or "") for text in status_texts(reload_events))
-
-            entries, _ = client.request("entries-reloaded", {"type": "get_entries"})
-            assert message_count(entries, "i-have-adhd-rules") == 1, (
-                "Rules were injected twice for one active session"
+            entries = None
+            if args.runtime == "pi":
+                entries, _ = client.request("entries-startup", {"type": "get_entries"})
+            assert_no_auto_activation(
+                startup_events, "rpc_adhd_flag_unclear", scenarios, entries
             )
 
-            toggled_off, toggle_off_events = client.request(
-                "toggle-off",
+            enabled, enable_events = client.request(
+                "enable-manual",
                 {"type": "prompt", "message": "/i-have-adhd"},
             )
-            assert toggled_off["success"] is True
-            assert None in status_texts(toggle_off_events)
+            assert enabled["success"] is True
+            assert any("ADHD ON" in (text or "") for text in status_texts(enable_events))
 
-            entries, _ = client.request("entries-toggled-off", {"type": "get_entries"})
-            assert latest_enabled(entries) is False
-            assert message_count(entries, "i-have-adhd-disabled") == 1
+            if args.runtime == "pi":
+                entries, _ = client.request("entries-enabled", {"type": "get_entries"})
+                assert latest_enabled(entries) is True
+                assert message_count(entries, "i-have-adhd-rules") == 1
+            scenarios.add("manual_command_still_enables")
 
-            reloaded, reload_events = client.request(
-                "reload-disabled",
-                {"type": "prompt", "message": "/reload-probe"},
-            )
-            assert reloaded["success"] is True
-            assert not any("ADHD ON" in (text or "") for text in status_texts(reload_events))
+            if args.runtime == "pi":
+                reloaded, reload_events = client.request(
+                    "reload-enabled",
+                    {"type": "prompt", "message": "/reload-probe"},
+                )
+                assert reloaded["success"] is True
+                assert any("ADHD ON" in (text or "") for text in status_texts(reload_events))
 
-            entries, _ = client.request("entries-reload-disabled", {"type": "get_entries"})
-            assert message_count(entries, "i-have-adhd-rules") == 1
-            assert message_count(entries, "i-have-adhd-disabled") == 1
+                entries, _ = client.request("entries-reloaded", {"type": "get_entries"})
+                assert message_count(entries, "i-have-adhd-rules") == 1, (
+                    "Rules were injected twice for one active session"
+                )
 
-            toggled_on, toggle_on_events = client.request(
-                "toggle-on",
-                {"type": "prompt", "message": "/i-have-adhd"},
-            )
-            assert toggled_on["success"] is True
-            assert any("ADHD ON" in (text or "") for text in status_texts(toggle_on_events))
+                toggled_off, toggle_off_events = client.request(
+                    "toggle-off",
+                    {"type": "prompt", "message": "/i-have-adhd"},
+                )
+                assert toggled_off["success"] is True
+                assert None in status_texts(toggle_off_events)
 
-            entries, _ = client.request("entries-toggled-on", {"type": "get_entries"})
-            assert latest_enabled(entries) is True
-            assert message_count(entries, "i-have-adhd-rules") == 2
+                entries, _ = client.request("entries-toggled-off", {"type": "get_entries"})
+                assert latest_enabled(entries) is False
+                assert message_count(entries, "i-have-adhd-disabled") == 1
 
-            explicit_off, _ = client.request(
-                "explicit-off",
-                {"type": "prompt", "message": "/i-have-adhd off"},
-            )
-            assert explicit_off["success"] is True
+                reloaded, reload_events = client.request(
+                    "reload-disabled",
+                    {"type": "prompt", "message": "/reload-probe"},
+                )
+                assert reloaded["success"] is True
+                assert not any(
+                    "ADHD ON" in (text or "") for text in status_texts(reload_events)
+                )
 
-            skill, skill_events = client.request(
-                "skill-alias",
-                {"type": "prompt", "message": "/skill:i-have-adhd"},
-            )
-            assert skill["success"] is True
-            assert not any(event.get("type") == "agent_start" for event in skill_events)
+                entries, _ = client.request(
+                    "entries-reload-disabled", {"type": "get_entries"}
+                )
+                assert message_count(entries, "i-have-adhd-rules") == 1
+                assert message_count(entries, "i-have-adhd-disabled") == 1
 
-            entries, _ = client.request("entries-enabled", {"type": "get_entries"})
-            assert latest_enabled(entries) is True
-            assert message_count(entries, "i-have-adhd-rules") == 3
+                toggled_on, toggle_on_events = client.request(
+                    "toggle-on",
+                    {"type": "prompt", "message": "/i-have-adhd"},
+                )
+                assert toggled_on["success"] is True
+                assert any(
+                    "ADHD ON" in (text or "") for text in status_texts(toggle_on_events)
+                )
 
-            stopped, stop_events = client.request(
-                "stop-phrase",
-                {"type": "prompt", "message": "normal mode"},
-            )
-            assert stopped["success"] is True
-            assert None in status_texts(stop_events)
+                entries, _ = client.request("entries-toggled-on", {"type": "get_entries"})
+                assert latest_enabled(entries) is True
+                assert message_count(entries, "i-have-adhd-rules") == 2
 
-            entries, _ = client.request("entries-stopped", {"type": "get_entries"})
-            assert latest_enabled(entries) is False
+                explicit_off, _ = client.request(
+                    "explicit-off",
+                    {"type": "prompt", "message": "/i-have-adhd off"},
+                )
+                assert explicit_off["success"] is True
 
-            passthrough_probe_flag.touch()
-            passthrough, _ = client.request(
-                "disabled-passthrough",
-                {"type": "prompt", "message": "normal mode"},
-            )
-            assert passthrough["success"] is True
+                skill, skill_events = client.request(
+                    "skill-alias",
+                    {"type": "prompt", "message": "/skill:i-have-adhd"},
+                )
+                assert skill["success"] is True
+                assert not any(event.get("type") == "agent_start" for event in skill_events)
 
-            entries, _ = client.request("entries-passthrough", {"type": "get_entries"})
-            assert any(
-                entry.get("type") == "custom"
-                and entry.get("customType") == "passthrough-probe"
-                and entry.get("data", {}).get("seen") is True
-                for entry in entries["data"]["entries"]
-            ), "Disabled mode swallowed ordinary input"
+                entries, _ = client.request("entries-skill", {"type": "get_entries"})
+                assert latest_enabled(entries) is True
+                assert message_count(entries, "i-have-adhd-rules") == 3
+
+                stopped, stop_events = client.request(
+                    "stop-phrase",
+                    {"type": "prompt", "message": "normal mode"},
+                )
+                assert stopped["success"] is True
+                assert None in status_texts(stop_events)
+
+                entries, _ = client.request("entries-stopped", {"type": "get_entries"})
+                assert latest_enabled(entries) is False
+
+                passthrough_probe_flag.touch()
+                passthrough, _ = client.request(
+                    "disabled-passthrough",
+                    {"type": "prompt", "message": "normal mode"},
+                )
+                assert passthrough["success"] is True
+
+                entries, _ = client.request(
+                    "entries-passthrough", {"type": "get_entries"}
+                )
+                assert any(
+                    entry.get("type") == "custom"
+                    and entry.get("customType") == "passthrough-probe"
+                    and entry.get("data", {}).get("seen") is True
+                    for entry in entries["data"]["entries"]
+                ), "Disabled mode swallowed ordinary input"
         finally:
             client.close()
 
-        if args.runtime == "pi":
-            Path(agent_dir, ".i-have-adhd-always").touch()
-            always_on = RpcClient(
-                executable,
-                env,
-                "--no-session",
-                *extension_args,
-            )
-            try:
-                _, always_on_events = always_on.request(
-                    "always-on",
-                    {"type": "get_state"},
-                )
-                assert any(
-                    "ADHD ON" in (text or "")
-                    for text in status_texts(always_on_events)
-                )
-            finally:
-                always_on.close()
+        Path(agent_dir, ".i-have-adhd-always").touch()
+        fresh = RpcClient(
+            executable,
+            env,
+            "--no-session",
+            *extension_args,
+            "-e",
+            str(reload_probe),
+        )
+        try:
+            _, flag_events = startup(fresh, args.runtime)
+            entries = None
+            if args.runtime == "pi":
+                entries, _ = fresh.request("entries-flag", {"type": "get_entries"})
+            assert_no_auto_activation(flag_events, "rpc_flag_unclear", scenarios, entries)
+        finally:
+            fresh.close()
 
-    print(f"{args.runtime} extension smoke test passed")
+    missing = REQUIRED_SCENARIOS - scenarios
+    assert not missing, f"smoke scenarios did not run: {sorted(missing)}"
+    print(
+        f"{args.runtime} extension smoke test passed: "
+        + ", ".join(sorted(scenarios))
+    )
 
 
 if __name__ == "__main__":

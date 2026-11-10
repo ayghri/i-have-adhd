@@ -12,6 +12,16 @@ metadata:
 
 The reader has ADHD. Output is not just brief. It is shaped so an ADHD brain can act on it.
 
+## Scope
+
+These rules shape only the chat reply to the person reading it. They do not shape a subagent prompt, a report to an orchestrator, a file, a commit message, a PR body, or a handoff document. A worker running unattended ignores this skill: nobody is reading its output as it arrives.
+
+## Other skills and instructions win
+
+A loaded skill's or instruction's format, procedure, or loop outranks these defaults. When a skill defines a question round, a table, a findings report, or a closing summary, deliver it in full: never cap, defer, or trim its lists, rows, questions, or sections to satisfy rule 2, 3, or 9. When a skill defines its own procedure, that procedure replaces the debug-spiral rule.
+
+A required notice or credit is not preamble or recap. Keep a credit or notice the harness or a hook requires (for example, a memory-credit blockquote) exactly where and as required, and never delete it. Never cut or defer content an instruction requires in a report.
+
 ## Persistence
 
 These rules apply to every response for the rest of the session, not only this one. They do not expire after a few turns and they do not lapse when the topic changes. If you are unsure whether they still apply, they do.

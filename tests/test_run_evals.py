@@ -24,6 +24,25 @@ class EvaluationHarnessTest(unittest.TestCase):
         self.assertGreaterEqual(len({case["category"] for case in cases}), 8)
 
 
+    def test_human_session_gating_cases_are_present(self):
+        cases = {
+            case["id"]: case
+            for case in run_evals.load_cases(ROOT / "evals" / "cases.jsonl")
+        }
+        expected = {
+            "grilling-full-round": ("instruction-precedence", "medium"),
+            "seven-host-report": ("instruction-precedence", "medium"),
+            "code-review-closing-summary": ("instruction-precedence", "medium"),
+            "worker-orchestrator-report": ("worker-report", "medium"),
+            "memory-credit-notice": ("harness-contract", "low"),
+        }
+
+        for case_id, (category, risk) in expected.items():
+            self.assertIn(case_id, cases)
+            self.assertEqual(category, cases[case_id]["category"])
+            self.assertEqual(risk, cases[case_id]["risk"])
+            self.assertTrue(cases[case_id]["criteria"])
+
     def test_parse_response_tolerates_output_after_the_json_document(self):
         """The CLI can emit a notice after its JSON result; the first document still wins."""
         payload = json.dumps(

@@ -7,9 +7,12 @@ on:
   pull_request:
     paths:
       - .claude-plugin/**
+      - .codex-plugin/**
       - hooks/**
       - skills/**
       - tests/test_always_on_hooks.py
+      - tests/test_session_kind.py
+      - tests/test_codex_hook.py
       - .github/workflows/plugin-load-check.yml
   push:
     branches: [main]
@@ -26,7 +29,7 @@ jobs:
         with:
           python-version: "3.x"
       - name: Test native hook implementations
-        run: python -m unittest tests.test_always_on_hooks -v
+        run: python -m unittest tests.test_always_on_hooks tests.test_session_kind tests.test_codex_hook -v
 
   load:
     runs-on: ubuntu-latest
@@ -39,7 +42,7 @@ jobs:
           export CLAUDE_CONFIG_DIR="$RUNNER_TEMP/claude-scratch"
           mkdir -p "$CLAUDE_CONFIG_DIR"
           claude plugin marketplace add "$GITHUB_WORKSPACE"
-          claude plugin install i-have-adhd@i-have-adhd
+          claude plugin install i-have-adhd@flyingnobita-i-have-adhd
           claude plugin list | tee plugin-list.txt
           grep -q "✔ enabled" plugin-list.txt || {
             echo "::error::plugin failed to load; see claude plugin list output above"

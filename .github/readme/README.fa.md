@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">خروجی‌های سازگار با ADHD. نیازی به تشخیص پزشکی نیست!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="مجوز"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="مجوز"></a>
 </p>
 
 <p align="center">
@@ -27,7 +29,7 @@
 به طور خلاصه، در اکثر ابزارها می‌توانید با دستور زیر شروع کنید:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/flyingnobita/i-have-adhd, refer to the repo's AGENTS.md for instructions.
 ```
 
 🔗 [مشاهده راهنمای نصب](../install/INSTALL.fa.md)
@@ -89,9 +91,9 @@ Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd,
 
 ```bash
 claude plugin uninstall i-have-adhd            # اول نسخه اصلی رو حذف کن:
-claude plugin marketplace remove i-have-adhd   # فورک و نسخه اصلی اسم مشترک دارند
+claude plugin marketplace remove flyingnobita-i-have-adhd   # فورک و نسخه اصلی اسم مشترک دارند
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Claude Code را ری‌استارت کنید و دوباره `/i-have-adhd` را صدا بزنید.

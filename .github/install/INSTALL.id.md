@@ -1,3 +1,5 @@
+> Fork note: Uninstall upstream first because both projects use the same skill and command names. Read [Fork installation notes](../../INSTALL.md#fork-installation-notes) for the renamed marketplaces, human-session gating, Codex hook trust, logging, opt-out, and OpenCode exception.
+
 # Cara Menginstal
 
 <details>
@@ -6,7 +8,7 @@
 ### Instalasi
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Verifikasi
@@ -19,7 +21,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### Uninstal
@@ -61,8 +63,8 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 ### Instalasi
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin marketplace add flyingnobita/i-have-adhd
+claude plugin install i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Ketik `/i-have-adhd`.
@@ -76,15 +78,15 @@ claude plugin list
 ### Pembaruan
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update flyingnobita-i-have-adhd
+claude plugin update i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Uninstal
 
 ```bash
 claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 Atau biarkan terinstal tetapi nonaktifkan: `claude plugin disable i-have-adhd`.
@@ -119,8 +121,8 @@ Hook ini hanya berjalan ketika file penanda ada, jadi menginstal plugin saja tid
 ### Instalasi
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add flyingnobita/i-have-adhd --ref main
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 Aktifkan skill ini secara eksplisit dengan mengetik `$i-have-adhd`. Codex ga bakalan memanggilnya secara otomatis.
@@ -134,16 +136,16 @@ codex plugin list
 ### Pembaruan
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
+codex plugin marketplace upgrade flyingnobita-i-have-adhd
 codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### Uninstal
 
 ```bash
 codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 ### Selalu Aktif (opsional)
@@ -180,7 +182,7 @@ Gemini CLI tidak memiliki marketplace plugin, jadi ada dua opsi bawaan: perintah
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -189,7 +191,7 @@ Mulai sesi baru dan ketik `/i-have-adhd`. Skill ini akan tetap aktif selama sesi
 ### Instalasi (ekstensi, always-on)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/flyingnobita/i-have-adhd
 ```
 
 Ekstensi ini memuat `GEMINI.md`, yang mengimpor skill secara lengkap; dengan demikian, aturannya berlaku sejak pesan pertama. Git harus sudah terinstal.
@@ -227,14 +229,14 @@ Copilot membaca Agent Skills secara native: menggunakan file `SKILL.md` yang sam
 ### Instalasi
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # proyek ini
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # semua proyek
+npx skills add flyingnobita/i-have-adhd -a github-copilot        # proyek ini
+npx skills add flyingnobita/i-have-adhd -a github-copilot -g     # semua proyek
 ```
 
 Tanpa CLI, salin folder skill ke direktori mana pun yang diperiksa oleh Copilot:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -299,7 +301,7 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 ### Instalasi
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 Ketik `/i-have-adhd`. Skill ini akan diinstal ke `~/.hermes/skills/` dan tersedia sebagai perintah slash saat sesi berikutnya dimulai.
@@ -307,9 +309,9 @@ Ketik `/i-have-adhd`. Skill ini akan diinstal ke `~/.hermes/skills/` dan tersedi
 Lebih suka menjelajah dulu? Tambahkan repositori ini sebagai sumber skill (sebagai "tap"), lalu cari dan instal:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add flyingnobita/i-have-adhd
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 ### Verifikasi
@@ -330,7 +332,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-Atau hapus juga tap-nya: `hermes skills tap remove ayghri/i-have-adhd`.
+Atau hapus juga tap-nya: `hermes skills tap remove flyingnobita/i-have-adhd`.
 
 ### Selalu Aktif (opsional)
 
@@ -366,7 +368,7 @@ Mulai sesi Kimi Code dan:
 
 1. Jalankan `/plugins`.
 2. Pilih **Custom**.
-3. Tempel `https://github.com/ayghri/i-have-adhd` dan tekan Enter.
+3. Tempel `https://github.com/flyingnobita/i-have-adhd` dan tekan Enter.
 4. Pilih **Trust and install**.
 
 Gunakan perintah slash `/skill:i-have-adhd` untuk memanggil skill ini secara eksplisit.
@@ -391,7 +393,7 @@ Plugin mendukung OpenCode V1 **1.18.29 atau lebih baru** dan V2. Plugin mendafta
 Untuk digunakan di semua proyek:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 mkdir -p ~/.config/opencode/plugins
 cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
@@ -454,13 +456,13 @@ Pi mengimplementasikan standar Agent Skills, sehingga file `SKILL.md` yang sama 
 ### Instalasi
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+npx skills add flyingnobita/i-have-adhd -a pi -y
 ```
 
 Lebih suka menggunakan sistem file? Pi menemukan skill di `~/.pi/agent/skills/` dan `~/.agents/skills/` (global), serta di `.pi/skills/` dan `.agents/skills/` (proyek):
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.pi/agent/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
 ```
@@ -528,7 +530,7 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 ### Instalasi
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install flyingnobita/i-have-adhd
 ```
 
 Qwen Code menerima format singkat GitHub dan menginstal repositori sebagai ekstensi native. Ekstensi ini akan menemukan skill di dalam `skills/`.
@@ -573,7 +575,7 @@ Zed Agent membaca Agent Skills secara native: menggunakan file `SKILL.md` yang s
 Di Agent Panel, buka pengelola Skills, pilih **Create skill from URL** (juga tersedia di palet sebagai `agent: create skill from url`) dan tempel:
 
 ```
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/flyingnobita/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 Simpan dengan cakupan **User** untuk semua proyek, atau **Project** untuk satu proyek tertentu. Setelah itu, ketik `/i-have-adhd` di Agent Panel.
@@ -581,7 +583,7 @@ Simpan dengan cakupan **User** untuk semua proyek, atau **Project** untuk satu p
 Lebih suka menggunakan sistem file? Klon repositori dan letakkan folder skill di direktori skill pengguna:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -631,10 +633,10 @@ Berfungsi di lingkungan apa pun yang mendukung pembacaan Agent Skills. Ganti `-a
 ### Instalasi
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # workspace ini
-npx skills add ayghri/i-have-adhd -g               # semua proyek
-npx skills add ayghri/i-have-adhd -a cursor -y     # satu agen saja
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add flyingnobita/i-have-adhd                  # workspace ini
+npx skills add flyingnobita/i-have-adhd -g               # semua proyek
+npx skills add flyingnobita/i-have-adhd -a cursor -y     # satu agen saja
+npx skills add flyingnobita/i-have-adhd -a opencode -y
 ```
 
 Buka obrolan agen baru dan ketik `/i-have-adhd`.
@@ -642,7 +644,7 @@ Buka obrolan agen baru dan ketik `/i-have-adhd`.
 Tanpa CLI, salin folder skill ke jalur yang diperiksa oleh agen Anda:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.cursor/skills     # Cursor. Gunakan .agents/skills di OpenCode atau jalur khusus agen Anda
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
@@ -706,7 +708,7 @@ Di Claude Code, Qwen Code, dan Codex gak ada jalan tengah: jikalau Anda tidak me
 
 **`/i-have-adhd` tidak muncul di pelengkapan otomatis (autocomplete).** Mulai ulang agen Anda. Indeks plugin dibaca saat startup.
 
-**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update i-have-adhd`, lalu `claude plugin update i-have-adhd@i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
+**Flag selalu aktif tidak berfungsi.** Perbarui plugin (`claude plugin marketplace update flyingnobita-i-have-adhd`, lalu `claude plugin update i-have-adhd@flyingnobita-i-have-adhd`) dan mulai ulang. Hook dibaca saat startup, dan flag ini memerlukan versi yang menyertakan `hooks/hooks.json`.
 
 **`claude plugin marketplace add` gagal.** Gunakan format `owner/repo`. Jalur lokal harus mengarah ke root repositori, bukan ke `.claude-plugin/`.
 
@@ -716,9 +718,9 @@ Di Claude Code, Qwen Code, dan Codex gak ada jalan tengah: jikalau Anda tidak me
 
 ```bash
 claude plugin uninstall i-have-adhd            # hapus dulu salinan upstream:
-claude plugin marketplace remove i-have-adhd   # fork dan upstream menggunakan nama yang sama
+claude plugin marketplace remove flyingnobita-i-have-adhd   # fork dan upstream menggunakan nama yang sama
 claude plugin marketplace add <username-anda>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Mulai ulang dan panggillah `/i-have-adhd` lagi.

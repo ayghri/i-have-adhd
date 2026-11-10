@@ -1,3 +1,5 @@
+> Fork note: Uninstall upstream first because both projects use the same skill and command names. Read [Fork installation notes](../../INSTALL.md#fork-installation-notes) for the renamed marketplaces, human-session gating, Codex hook trust, logging, opt-out, and OpenCode exception.
+
 # نحوه نصب
 
 <details>
@@ -6,7 +8,7 @@
 ### نصب
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### بررسی صحت نصب
@@ -19,7 +21,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### حذف نصب
@@ -64,7 +66,7 @@ AstronClaw از وارد کردن فایل Markdown به عنوان یک مها�
 
 ### نصب
 
-1. فایل [SKILL.md اصلی](https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/SKILL.md) را دانلود کرده و با نام `SKILL.md` ذخیره کنید. قبل از بارگذاری، محتوای آن را مرور کنید.
+1. فایل [SKILL.md اصلی](https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/SKILL.md) را دانلود کرده و با نام `SKILL.md` ذخیره کنید. قبل از بارگذاری، محتوای آن را مرور کنید.
 2. در AstronClaw، بخش **我的技能 (My skills)** را باز کنید، **新建 (New)** را انتخاب کرده و آن فایل `.md` را بارگذاری کنید.
 3. مطمئن شوید نام مهارت واردشده `i-have-adhd` است. برای کنترل در دسترس بودن آن، از گزینه **启用/禁用 (Enable/Disable)** استفاده کنید.
 
@@ -102,8 +104,8 @@ AstronClaw هم از درخواست‌های صریح و هم از فراخوا�
 ### نصب
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin marketplace add flyingnobita/i-have-adhd
+claude plugin install i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 سپس دستور `/i-have-adhd` را تایپ کنید.
@@ -117,15 +119,15 @@ claude plugin list
 ### به‌روزرسانی
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update flyingnobita-i-have-adhd
+claude plugin update i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### حذف نصب
 
 ```bash
 claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 یا اگر می‌خواهید نصب بماند اما غیرفعال شود: `claude plugin disable i-have-adhd`.
@@ -160,8 +162,8 @@ rm ~/.claude/.i-have-adhd-always
 ### نصب
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add flyingnobita/i-have-adhd --ref main
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 برای فراخوانی صریح مهارت، دستور `$i-have-adhd` را تایپ کنید. Codex آن را به صورت خودکار فعال نمی‌کند.
@@ -175,16 +177,16 @@ codex plugin list
 ### به‌روزرسانی
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
+codex plugin marketplace upgrade flyingnobita-i-have-adhd
 codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### حذف نصب
 
 ```bash
 codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 ### همیشه فعال (اختیاری)
@@ -221,7 +223,7 @@ Gemini CLI بازارچه (marketplace) پلاگین ندارد، بنابرای
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -230,7 +232,7 @@ curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-ha
 ### نصب (افزونه، همیشه فعال)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/flyingnobita/i-have-adhd
 ```
 
 این افزونه `GEMINI.md` را بارگذاری می‌کند که مهارت کامل را وارد می‌کند، بنابراین قوانین از همان پیام اول اعمال می‌شوند. `git` باید نصب باشد.
@@ -268,14 +270,14 @@ Copilot مهارت‌های عامل (Agent Skills) را به صورت بومی 
 ### نصب
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # فقط این پروژه
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # همه پروژه‌ها
+npx skills add flyingnobita/i-have-adhd -a github-copilot        # فقط این پروژه
+npx skills add flyingnobita/i-have-adhd -a github-copilot -g     # همه پروژه‌ها
 ```
 
 بدون استفاده از CLI، پوشه مهارت را در هر دایرکتوری که Copilot اسکن می‌کند کپی کنید:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -340,7 +342,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 ### نصب
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 دستور `/i-have-adhd` را تایپ کنید. این مهارت در `~/.hermes/skills/` نصب شده و به عنوان یک دستور اسلش در شروع نشست بعدی در دسترس قرار می‌گیرد.
@@ -348,9 +350,9 @@ hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 اگر ترجیح می‌دهید ابتدا مرور کنید؟ این ریپازیتوری را به عنوان منبع مهارت (یک "tap") اضافه کنید، سپس جستجو و نصب کنید:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add flyingnobita/i-have-adhd
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 ### بررسی صحت نصب
@@ -371,7 +373,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-یا برای حذف کامل منبع نیز: `hermes skills tap remove ayghri/i-have-adhd`.
+یا برای حذف کامل منبع نیز: `hermes skills tap remove flyingnobita/i-have-adhd`.
 
 ### همیشه فعال (اختیاری)
 
@@ -407,7 +409,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 1. دستور `/plugins` را اجرا کنید.
 2. گزینه **Custom** را انتخاب کنید.
-3. آدرس `https://github.com/ayghri/i-have-adhd` را پیست کرده و `Enter` را بزنید.
+3. آدرس `https://github.com/flyingnobita/i-have-adhd` را پیست کرده و `Enter` را بزنید.
 4. گزینه **Trust and install** را انتخاب کنید.
 
 برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd` استفاده کنید.
@@ -432,7 +434,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 برای استفاده در همه پروژه‌ها:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 mkdir -p ~/.config/opencode/plugins
 cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
@@ -495,7 +497,7 @@ Pi این ریپازیتوری را به عنوان یک بسته بومی کش�
 ### نصب
 
 ```bash
-pi install https://github.com/ayghri/i-have-adhd
+pi install https://github.com/flyingnobita/i-have-adhd
 ```
 
 یک نشست جدید Pi شروع کنید. حالت دوستدار ADHD را برای نشست جاری تغییر دهید:
@@ -537,7 +539,7 @@ pi list
 ### به‌روزرسانی
 
 ```bash
-pi update https://github.com/ayghri/i-have-adhd
+pi update https://github.com/flyingnobita/i-have-adhd
 ```
 
 یا همه بسته‌های Pi که پین نشده‌اند را با `pi update --extensions` به‌روزرسانی کنید.
@@ -545,7 +547,7 @@ pi update https://github.com/ayghri/i-have-adhd
 ### حذف نصب
 
 ```bash
-pi remove https://github.com/ayghri/i-have-adhd
+pi remove https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### همیشه فعال (اختیاری)
@@ -590,8 +592,8 @@ rm ~/.pi/agent/.i-have-adhd-always
 ### نصب
 
 ```bash
-omp plugin marketplace add ayghri/i-have-adhd
-omp plugin install --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace add flyingnobita/i-have-adhd
+omp plugin install --scope user i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 یک نشست جدید OMP شروع کنید و برای تغییر حالت، دستور `/i-have-adhd` را اجرا کنید.
@@ -599,15 +601,15 @@ omp plugin install --scope user i-have-adhd@i-have-adhd
 ### به‌روزرسانی
 
 ```bash
-omp plugin marketplace update i-have-adhd
-omp plugin upgrade --scope user i-have-adhd@i-have-adhd
+omp plugin marketplace update flyingnobita-i-have-adhd
+omp plugin upgrade --scope user i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### حذف نصب
 
 ```bash
-omp plugin uninstall --scope user i-have-adhd@i-have-adhd
-omp plugin marketplace remove i-have-adhd
+omp plugin uninstall --scope user i-have-adhd@flyingnobita-i-have-adhd
+omp plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 </details>
@@ -618,7 +620,7 @@ omp plugin marketplace remove i-have-adhd
 ### نصب
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install flyingnobita/i-have-adhd
 ```
 
 Qwen Code از مخفف GitHub پشتیبانی می‌کند و ریپازیتوری را به عنوان یک افزونه بومی نصب می‌کند. این افزونه مهارت را در پوشه `skills/` کشف می‌کند.
@@ -663,7 +665,7 @@ qwen extensions uninstall i-have-adhd
 در پنل Agent، مدیر مهارت‌ها (Skills manager) را باز کرده و **Create skill from URL** (همچنین در پالت دستورات به عنوان `agent: create skill from url`) را انتخاب کنید، سپس آدرس زیر را پیست کنید:
 
 ```text
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/flyingnobita/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 آن را در محدوده **User** برای همه پروژه‌ها، یا در محدوده **Project** برای یک پروژه ذخیره کنید. سپس در پنل Agent دستور `/i-have-adhd` را تایپ کنید.
@@ -671,7 +673,7 @@ https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 اگر فایل‌سیستم را ترجیح می‌دهید؟ ریپازیتوری را کلون کرده و پوشه مهارت را در دایرکتوری مهارت‌های کاربر خود رها کنید:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -721,10 +723,10 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 ### نصب
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # فقط این فضای کاری
-npx skills add ayghri/i-have-adhd -g               # همه پروژه‌ها
-npx skills add ayghri/i-have-adhd -a cursor -y     # فقط یک عامل خاص
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add flyingnobita/i-have-adhd                  # فقط این فضای کاری
+npx skills add flyingnobita/i-have-adhd -g               # همه پروژه‌ها
+npx skills add flyingnobita/i-have-adhd -a cursor -y     # فقط یک عامل خاص
+npx skills add flyingnobita/i-have-adhd -a opencode -y
 ```
 
 در چت جدید عامل، دستور `/i-have-adhd` را تایپ کنید.
@@ -732,7 +734,7 @@ npx skills add ayghri/i-have-adhd -a opencode -y
 بدون استفاده از CLI، پوشه مهارت را در هر مسیری که عامل شما اسکن می‌کند کپی کنید:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.cursor/skills     # برای Cursor. برای OpenCode از .agents/skills یا مسیر خاص عامل خود استفاده کنید
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
@@ -795,7 +797,7 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 **دستور `/i-have-adhd` در تکمیل خودکار نیست.** عامل را مجدداً راه‌اندازی کنید. فهرست پلاگین‌ها در شروع خوانده می‌شود.
 
-**پرچم همیشه فعال اثری ندارد.** پلاگین را به‌روزرسانی کنید (`claude plugin marketplace update i-have-adhd` و سپس `claude plugin update i-have-adhd@i-have-adhd`) و مجدداً راه‌اندازی کنید. هوک‌ها در شروع خوانده می‌شوند و پرچم به نسخه‌ای از پلاگین نیاز دارد که `hooks/hooks.json` را ارائه می‌دهد.
+**پرچم همیشه فعال اثری ندارد.** پلاگین را به‌روزرسانی کنید (`claude plugin marketplace update flyingnobita-i-have-adhd` و سپس `claude plugin update i-have-adhd@flyingnobita-i-have-adhd`) و مجدداً راه‌اندازی کنید. هوک‌ها در شروع خوانده می‌شوند و پرچم به نسخه‌ای از پلاگین نیاز دارد که `hooks/hooks.json` را ارائه می‌دهد.
 
 **دستور `claude plugin marketplace add` با خطا مواجه می‌شود.** از فرم `owner/repo` استفاده کنید. یک مسیر محلی باید به ریشه ریپازیتوری اشاره کند، نه به `.claude-plugin/`.
 
@@ -805,9 +807,9 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 
 ```bash
 claude plugin uninstall i-have-adhd            # ابتدا نسخه اصلی را حذف کنید:
-claude plugin marketplace remove i-have-adhd   # نام فورک و نسخه اصلی هر دو یکسان است
+claude plugin marketplace remove flyingnobita-i-have-adhd   # نام فورک و نسخه اصلی هر دو یکسان است
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 مجدداً راه‌اندازی کنید، سپس `/i-have-adhd` را مجدداً فراخوانی کنید.

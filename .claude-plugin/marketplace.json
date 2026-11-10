@@ -1,9 +1,9 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
-  "name": "i-have-adhd",
-  "description": "Shape Claude Code output for an ADHD reader. Action-first, numbered steps, no tangents.",
+  "name": "flyingnobita-i-have-adhd",
+  "description": "Shape Claude Code output for an ADHD reader. Action-first, numbered steps, no tangents. Always-on loads only in human sessions. Uninstall upstream first: both use the same skill name.",
   "owner": {
-    "name": "Ayoub G."
+    "name": "flyingnobita"
   },
   "plugins": [
     {

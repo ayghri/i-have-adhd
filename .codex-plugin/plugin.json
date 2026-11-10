@@ -1,13 +1,13 @@
 {
   "name": "i-have-adhd",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "ADHD-friendly output shaping for Codex: action first, numbered steps, no tangents, and visible progress.",
   "author": {
-    "name": "Ayoub G.",
-    "url": "https://github.com/ayghri"
+    "name": "flyingnobita",
+    "url": "https://github.com/flyingnobita"
   },
-  "homepage": "https://github.com/ayghri/i-have-adhd",
-  "repository": "https://github.com/ayghri/i-have-adhd",
+  "homepage": "https://github.com/flyingnobita/i-have-adhd",
+  "repository": "https://github.com/flyingnobita/i-have-adhd",
   "license": "MIT",
   "keywords": [
     "adhd",
@@ -17,16 +17,17 @@
     "codex"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/hooks.codex.json",
   "interface": {
     "displayName": "I Have ADHD",
     "shortDescription": "Action-first output for ADHD readers",
-    "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible.",
-    "developerName": "Ayoub G.",
+    "longDescription": "Shape Codex responses for an ADHD reader by leading with the next action, numbering multi-step work, suppressing tangents, restating state, and making progress visible. Loads only when a human is reading. Uninstall the upstream i-have-adhd plugin first: both use the same skill name, so their files collide.",
+    "developerName": "flyingnobita",
     "category": "Productivity",
     "capabilities": [
       "Instructions"
     ],
-    "websiteURL": "https://github.com/ayghri/i-have-adhd",
+    "websiteURL": "https://github.com/flyingnobita/i-have-adhd",
     "defaultPrompt": [
       "Use i-have-adhd for this task.",
       "Make this answer action-first and easy to execute.",

@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for improving **i-have-adhd**. Contributions from humans and coding agents are welcome. Keep changes understandable, reviewable, safe to run, and compatible with existing users.
+Thanks for improving **i-have-adhd**. Contribute to the standalone fork at [flyingnobita/i-have-adhd](https://github.com/flyingnobita/i-have-adhd). Contributions from humans and coding agents are welcome. Keep changes understandable, reviewable, safe to run, and compatible with existing users.
 
 ## Authorship and provenance
 

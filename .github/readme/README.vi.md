@@ -1,3 +1,5 @@
+> Fork note: Always-on rules now load only in human sessions. Read [Why this fork exists](../../README.md#why-this-fork-exists) for the decision table, unclear-session notice, decision log, worker opt-out, and OpenCode exception.
+
 <p align="center">
   <img src="../../logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +7,7 @@
   <strong align="center">Đầu ra thân thiện với người có ADHD. Không cần chẩn đoán ADHD!</strong>
 </p>
 <p align="center">
-  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="Giấy phép"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="Giấy phép"></a>
 </p>
 
 <p align="center">
@@ -83,9 +85,9 @@ Fork repo, chỉnh sửa `skills/i-have-adhd/SKILL.md`, sau đó chuyển sang d
 
 ```bash
 claude plugin uninstall i-have-adhd            # gỡ bản chính trước:
-claude plugin marketplace remove i-have-adhd   # bản fork và bản chính dùng chung tên
+claude plugin marketplace remove flyingnobita-i-have-adhd   # bản fork và bản chính dùng chung tên
 claude plugin marketplace add <username-của-bạn>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Khởi động lại Claude Code, sau đó gọi lại `/i-have-adhd`.

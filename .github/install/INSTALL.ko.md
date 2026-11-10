@@ -1,3 +1,5 @@
+> Fork note: Uninstall upstream first because both projects use the same skill and command names. Read [Fork installation notes](../../INSTALL.md#fork-installation-notes) for the renamed marketplaces, human-session gating, Codex hook trust, logging, opt-out, and OpenCode exception.
+
 # 설치 방법
 
 <details>
@@ -6,7 +8,7 @@
 ### 설치
 
 ```bash
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### 확인
@@ -19,7 +21,7 @@ agy plugin list
 
 ```bash
 agy plugin uninstall i-have-adhd
-agy plugin install https://github.com/ayghri/i-have-adhd
+agy plugin install https://github.com/flyingnobita/i-have-adhd
 ```
 
 ### 제거
@@ -61,8 +63,8 @@ agy plugin uninstall i-have-adhd
 ### 설치
 
 ```bash
-claude plugin marketplace add ayghri/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin marketplace add flyingnobita/i-have-adhd
+claude plugin install i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 `/i-have-adhd`를 입력하세요.
@@ -76,15 +78,15 @@ claude plugin list
 ### 업데이트
 
 ```bash
-claude plugin marketplace update i-have-adhd
-claude plugin update i-have-adhd@i-have-adhd
+claude plugin marketplace update flyingnobita-i-have-adhd
+claude plugin update i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### 제거
 
 ```bash
 claude plugin uninstall i-have-adhd
-claude plugin marketplace remove i-have-adhd
+claude plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 설치된 상태로 비활성화하려면 `claude plugin disable i-have-adhd`를 실행하세요.
@@ -120,8 +122,8 @@ rm ~/.claude/.i-have-adhd-always
 ### 설치
 
 ```bash
-codex plugin marketplace add ayghri/i-have-adhd --ref main
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin marketplace add flyingnobita/i-have-adhd --ref main
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 `$i-have-adhd`를 명시적으로 입력해 활성화하세요. Codex는 이 스킬을 자동으로 호출하지 않습니다.
@@ -135,16 +137,16 @@ codex plugin list
 ### 업데이트
 
 ```bash
-codex plugin marketplace upgrade i-have-adhd
+codex plugin marketplace upgrade flyingnobita-i-have-adhd
 codex plugin remove i-have-adhd
-codex plugin add i-have-adhd@i-have-adhd
+codex plugin add i-have-adhd@flyingnobita-i-have-adhd
 ```
 
 ### 제거
 
 ```bash
 codex plugin remove i-have-adhd
-codex plugin marketplace remove i-have-adhd
+codex plugin marketplace remove flyingnobita-i-have-adhd
 ```
 
 ### 항상 활성화(선택 사항)
@@ -181,7 +183,7 @@ Gemini CLI에는 플러그인 마켓플레이스가 없어 두 가지 기본 방
 
 ```bash
 mkdir -p ~/.gemini/commands
-curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
+curl -fsSL https://raw.githubusercontent.com/flyingnobita/i-have-adhd/main/skills/i-have-adhd/agents/gemini.toml \
   -o ~/.gemini/commands/i-have-adhd.toml
 ```
 
@@ -190,7 +192,7 @@ curl -fsSL https://raw.githubusercontent.com/ayghri/i-have-adhd/main/skills/i-ha
 ### 설치 (extension, always-on)
 
 ```bash
-gemini extensions install https://github.com/ayghri/i-have-adhd
+gemini extensions install https://github.com/flyingnobita/i-have-adhd
 ```
 
 확장 프로그램은 전체 스킬을 가져오는 `GEMINI.md`를 불러오므로 첫 메시지부터 규칙이 적용됩니다. `git`이 설치되어 있어야 합니다.
@@ -228,14 +230,14 @@ Copilot은 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변환 �
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd -a github-copilot        # 이 프로젝트
-npx skills add ayghri/i-have-adhd -a github-copilot -g     # 모든 프로젝트
+npx skills add flyingnobita/i-have-adhd -a github-copilot        # 이 프로젝트
+npx skills add flyingnobita/i-have-adhd -a github-copilot -g     # 모든 프로젝트
 ```
 
 CLI 없이 설치하려면 스킬 폴더를 Copilot이 검색하는 디렉터리 중 하나에 복사하세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.copilot/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.copilot/skills/
 ```
@@ -300,7 +302,7 @@ Copilot은 `disable-model-invocation`을 따릅니다. Claude Code와 마찬가�
 ### 설치
 
 ```bash
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 `/i-have-adhd`를 입력하세요. The skill installs into `~/.hermes/skills/` and is exposed as a slash command at the next session start.
@@ -308,9 +310,9 @@ hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
 먼저 둘러보려면 이 저장소를 스킬 소스("tap")로 추가한 뒤 검색하고 설치하세요:
 
 ```bash
-hermes skills tap add ayghri/i-have-adhd
+hermes skills tap add flyingnobita/i-have-adhd
 hermes skills search adhd
-hermes skills install ayghri/i-have-adhd/skills/i-have-adhd
+hermes skills install flyingnobita/i-have-adhd/skills/i-have-adhd
 ```
 
 ### 확인
@@ -331,7 +333,7 @@ hermes skills update i-have-adhd
 hermes skills uninstall i-have-adhd
 ```
 
-tap도 제거하려면 `hermes skills tap remove ayghri/i-have-adhd`를 실행하세요.
+tap도 제거하려면 `hermes skills tap remove flyingnobita/i-have-adhd`를 실행하세요.
 
 ### 항상 활성화(선택 사항)
 
@@ -367,7 +369,7 @@ Kimi Code 세션을 시작한 뒤 다음을 수행하세요.
 
 1. `/plugins`를 실행합니다.
 2. **Custom**을 선택합니다.
-3. `https://github.com/ayghri/i-have-adhd`를 붙여넣고 Enter를 누릅니다.
+3. `https://github.com/flyingnobita/i-have-adhd`를 붙여넣고 Enter를 누릅니다.
 4. **Trust and install**을 선택합니다.
 
 slash 명령 `/skill:i-have-adhd`로 이 스킬을 명시적으로 호출하세요.
@@ -393,7 +395,7 @@ Kimi Code 세션에서 `/plugins`를 실행하고 **I Have ADHD**에 커서를 �
 모든 프로젝트에서 사용하려면:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd ~/.config/opencode/vendor/i-have-adhd
 mkdir -p ~/.config/opencode/plugins
 cat > ~/.config/opencode/plugins/i-have-adhd.js <<'EOF'
 export { default } from '../vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs';
@@ -456,13 +458,13 @@ Pi는 Agent Skills 표준을 구현하므로 같은 `SKILL.md`를 변환 없이 
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd -a pi -y
+npx skills add flyingnobita/i-have-adhd -a pi -y
 ```
 
 파일 시스템 방식을 선호한다면 Pi는 `~/.pi/agent/skills/`와 `~/.agents/skills/`(전역), `.pi/skills/`와 `.agents/skills/`(프로젝트)에서 스킬을 찾습니다:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.pi/agent/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.pi/agent/skills/
 ```
@@ -531,7 +533,7 @@ npx skills remove i-have-adhd
 ### 설치
 
 ```bash
-qwen extensions install ayghri/i-have-adhd
+qwen extensions install flyingnobita/i-have-adhd
 ```
 
 Qwen Code는 GitHub 축약 표기를 지원하며 이 저장소를 네이티브 확장으로 설치합니다. 확장은 `skills/` 아래의 스킬을 검색합니다.
@@ -576,7 +578,7 @@ Zed의 Agent는 Agent Skills를 기본 지원하므로 같은 `SKILL.md`를 변�
 Agent Panel에서 Skills 관리자를 열고 **Create skill from URL**(명령 팔레트에서는 `agent: create skill from url`)을 선택한 뒤 다음을 붙여넣으세요:
 
 ```
-https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
+https://github.com/flyingnobita/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 ```
 
 모든 프로젝트에서 사용하려면 **User** 범위에, 한 프로젝트에서만 사용하려면 **Project** 범위에 저장하세요. 그런 다음 Agent Panel에서 `/i-have-adhd`를 입력하세요.
@@ -584,7 +586,7 @@ https://github.com/ayghri/i-have-adhd/blob/main/skills/i-have-adhd/SKILL.md
 파일 시스템 방식을 선호한다면 저장소를 클론하고 스킬 폴더를 사용자 skills 디렉터리에 넣으세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.agents/skills
 cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/
 ```
@@ -634,10 +636,10 @@ Agent Skills를 읽는 모든 실행 환경에서 작동합니다. `-a <agent>`�
 ### 설치
 
 ```bash
-npx skills add ayghri/i-have-adhd                  # this workspace
-npx skills add ayghri/i-have-adhd -g               # 모든 프로젝트
-npx skills add ayghri/i-have-adhd -a cursor -y     # one agent only
-npx skills add ayghri/i-have-adhd -a opencode -y
+npx skills add flyingnobita/i-have-adhd                  # this workspace
+npx skills add flyingnobita/i-have-adhd -g               # 모든 프로젝트
+npx skills add flyingnobita/i-have-adhd -a cursor -y     # one agent only
+npx skills add flyingnobita/i-have-adhd -a opencode -y
 ```
 
 새 에이전트 채팅에서 `/i-have-adhd`를 입력하세요.
@@ -645,7 +647,7 @@ npx skills add ayghri/i-have-adhd -a opencode -y
 CLI 없이 설치하려면 에이전트가 검색하는 경로에 스킬 폴더를 복사하세요:
 
 ```bash
-git clone https://github.com/ayghri/i-have-adhd
+git clone https://github.com/flyingnobita/i-have-adhd
 mkdir -p ~/.cursor/skills     # Cursor. OpenCode는 .agents/skills, 다른 에이전트는 자체 경로 사용
 cp -R i-have-adhd/skills/i-have-adhd ~/.cursor/skills/
 ```
@@ -709,7 +711,7 @@ Claude Code, Qwen Code, Codex에는 중간 상태가 없습니다. 켜지 않았
 
 **자동 완성에 `/i-have-adhd`가 없습니다.** 에이전트를 다시 시작하세요. 플러그인 인덱스는 시작 시 읽힙니다.
 
-**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update i-have-adhd` 실행 후 `claude plugin update i-have-adhd@i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
+**항상 활성화 플래그가 작동하지 않습니다.** 플러그인을 업데이트하고(`claude plugin marketplace update flyingnobita-i-have-adhd` 실행 후 `claude plugin update i-have-adhd@flyingnobita-i-have-adhd`) 다시 시작하세요. 훅은 시작 시 읽히며 플래그에는 `hooks/hooks.json`이 포함된 플러그인 버전이 필요합니다.
 
 **`claude plugin marketplace add`가 실패합니다.** `owner/repo` 형식을 사용하세요. 로컬 경로는 `.claude-plugin/`이 아니라 저장소 루트를 가리켜야 합니다.
 
@@ -719,9 +721,9 @@ Claude Code, Qwen Code, Codex에는 중간 상태가 없습니다. 켜지 않았
 
 ```bash
 claude plugin uninstall i-have-adhd            # 먼저 업스트림 복사본 제거:
-claude plugin marketplace remove i-have-adhd   # 포크와 업스트림은 같은 이름 사용
+claude plugin marketplace remove flyingnobita-i-have-adhd   # 포크와 업스트림은 같은 이름 사용
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 다시 시작한 뒤 `/i-have-adhd`를 다시 호출하세요.

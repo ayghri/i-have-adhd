@@ -1,3 +1,43 @@
+# i-have-adhd
+
+## Why this fork exists
+
+[flyingnobita/i-have-adhd](https://github.com/flyingnobita/i-have-adhd) is a standalone fork of Ayoub G.'s original project. Ayoub G. is the original author. This fork keeps the skill, plugin, and `/i-have-adhd` command names, but loads always-on rules only when a human is reading. Explicit invocation still works in any session.
+
+Always-on remains opt-in through each agent's flag file or configuration. The automatic decision is:
+
+| Agent | Human | Non-human | Unclear |
+| --- | --- | --- | --- |
+| Claude | `CLAUDE_CODE_SESSION_ATTENDED=1` | `CLAUDE_CODE_SESSION_ATTENDED=0` | unset or malformed |
+| Codex | parent `codex app-server ... --managed-daemon` | parent `codex exec` (or `e`) | any other parent |
+| Pi | `mode=tui` | `mode=print` or `mode=json` | `mode=rpc` or missing/malformed signals |
+| omp | `kind=main` and `mode=tui` | `kind=sub`, `mode=print`, or `mode=json` | main `mode=rpc` or missing/malformed signals |
+| OpenCode | top-level session (assumed human) | any `parentID` subagent | the session lookup fails or returns no session, the session ID is missing, or the `parentID` is malformed |
+
+An unclear session does not load the rules and shows only this notice:
+
+```text
+i-have-adhd: couldn't tell if a human is reading; rules not loaded. Run /i-have-adhd to turn them on.
+```
+
+Decision logging is off by default. Add a line containing exactly `log` to the agent's always-on flag file or set `I_HAVE_ADHD_LOG=1` to append one JSON object per decision to `~/.local/state/i-have-adhd/decisions.log`.
+
+### Opt out and worker sessions
+
+`I_HAVE_ADHD=0` overrides every human signal and disables automatic injection. Orchestrators set it for workers so ADHD chat formatting does not shape subagent prompts, orchestrator reports, files, commits, PRs, or handoffs.
+
+Run `export I_HAVE_ADHD=0` in the Herdr pane first, for example `herdr pane run <pane> "export I_HAVE_ADHD=0"`, then `herdr agent start ...`. For Orca, set it in the worker's environment where the launcher allows; otherwise rely on the skill's scope clause, which tells unattended workers to ignore it.
+
+### OpenCode exception
+
+OpenCode has no signal that distinguishes `run` from the TUI. With the always-on flag, top-level sessions are assumed human, while subagents are skipped by querying OpenCode's session API (`client.session.get` in V1, `ctx.session.get` in V2) to inspect `parentID`. If the lookup fails or the session ID is missing, the decision fails closed as unclear (no injection). OpenCode V1 shows an `assumed human` toast after injection; V2 has no toast API.
+
+See [INSTALL.md](INSTALL.md) for installation, upstream removal, Codex hook trust, and agent-specific flag paths.
+
+---
+
+## Original README (upstream ayghri/i-have-adhd)
+
 <p align="center">
   <img src="./logo.png" alt="i-have-adhd" width="140" />
 </p>
@@ -5,7 +45,7 @@
   <strong align="center">ADHD-friendly outputs. No ADHD diagnosis needed!</strong>
 </p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/flyingnobita/i-have-adhd?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -28,7 +68,7 @@
 Copy/paste into your CLI prompt:
 
 ```text
-Install the i-have-adhd skill/plugin from https://github.com/ayghri/i-have-adhd, refer to the repo's AGENTS.md for instructions.
+Install the i-have-adhd skill/plugin from https://github.com/flyingnobita/i-have-adhd, refer to the repo's AGENTS.md for instructions.
 ```
 
 Or 🔗 [check the installation instructions](INSTALL.md).
@@ -91,7 +131,7 @@ Fork, edit `skills/i-have-adhd/SKILL.md`, then swap your copy in:
 claude plugin uninstall i-have-adhd            # drop the upstream copy first:
 claude plugin marketplace remove i-have-adhd   # fork and upstream share both names
 claude plugin marketplace add <your-username>/i-have-adhd
-claude plugin install i-have-adhd@i-have-adhd
+claude plugin install i-have-adhd@<your-marketplace>
 ```
 
 Restart your coding assistant, then re-invoke `/i-have-adhd`.
