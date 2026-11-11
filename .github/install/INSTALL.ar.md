@@ -488,11 +488,11 @@ hermes skills uninstall i-have-adhd
 3. الصق `https://github.com/ayghri/i-have-adhd` ثم اضغط على `Enter`.
 4. اختر **الثقة والتثبيت**.
 
-استخدم الأمر الذي يبدأ بشرطة مائلة `/skill:i-have-adhd` لاستدعاء المهارة بشكل صريح.
+استخدم الأمر الذي يبدأ بشرطة مائلة `/skill:i-have-adhd:i-have-adhd` لاستدعاء المهارة بشكل صريح.
 
 ### تحديث
 
-`/plugins` في جلسة Kimi Code، ضع المؤشر على **I Have ADHD**، ثم اضغط على `R`.
+`/plugins` في جلسة Kimi Code، ضع المؤشر على **I Have ADHD**، ثم اضغط على `Enter`.
 
 ### إلغاء التثبيت
 
@@ -589,7 +589,7 @@ stop adhd mode
 يظل أمر مهارات الوكيل الحالي متاحًا كاسم مستعار:
 
 ```text
-/skill:i-have-adhd
+/skill:i-have-adhd:i-have-adhd
 ```
 
 ابدأ جلسة Pi جديدة مع تمكين الوضع افتراضيًا:

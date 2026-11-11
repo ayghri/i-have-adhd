@@ -1,10 +1,13 @@
 {
   "name": "i-have-adhd",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible.",
   "license": "MIT",
   "homepage": "https://github.com/ayghri/i-have-adhd",
   "skills": "./skills/",
+  "sessionStart": {
+    "skill": "i-have-adhd"
+  },
   "interface": {
     "displayName": "I Have ADHD",
     "shortDescription": "ADHD-friendly output shaping for Kimi Code CLI"

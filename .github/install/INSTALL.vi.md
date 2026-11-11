@@ -369,11 +369,11 @@ Hãy bắt đầu một phiên Kimi Code, rồi:
 3. Dán `https://github.com/ayghri/i-have-adhd` rồi nhấn Enter.
 4. Chọn **Trust and install**.
 
-Dùng lệnh slash `/skill:i-have-adhd` để gọi skill một cách rõ ràng.
+Dùng lệnh slash `/skill:i-have-adhd:i-have-adhd` để gọi skill một cách rõ ràng.
 
 ### Cập nhật
 
-Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `R`.
+Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `Enter`.
 
 ### Gỡ cài đặt
 
@@ -407,7 +407,7 @@ Bật lệnh gạch chéo cho skill trong `settings.json` của Pi:
 { "enableSkillCommands": true }
 ```
 
-Bắt đầu phiên mới và gõ `/skill:i-have-adhd`.
+Bắt đầu phiên mới và gõ `/skill:i-have-adhd:i-have-adhd`.
 
 ### Xác minh
 

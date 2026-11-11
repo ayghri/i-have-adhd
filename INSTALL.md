@@ -488,15 +488,16 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 Start a Kimi Code session, then:
 
 1. Run `/plugins`.
-2. Choose **Custom**.
+2. Press `Tab` to select the **Custom** tab.
 3. Paste `https://github.com/ayghri/i-have-adhd` and press `Enter`.
 4. Choose **Trust and install**.
+5. Run `/reload` or start a new session to activate.
 
-Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
+The ADHD rules load automatically at session start. To invoke the skill explicitly, use `/skill:i-have-adhd:i-have-adhd`.
 
 ### Update
 
-`/plugins` in Kimi Code session, cursor to **I Have ADHD**, press `R`.
+`/plugins` in Kimi Code session, cursor to **I Have ADHD**, press `Enter`.
 
 ### Uninstall
 

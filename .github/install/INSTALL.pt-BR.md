@@ -369,11 +369,11 @@ Inicie uma sessão do Kimi Code e:
 3. Cole `https://github.com/ayghri/i-have-adhd` e pressione Enter.
 4. Selecione **Trust and install**.
 
-Use o comando slash `/skill:i-have-adhd` para invocar a skill explicitamente.
+Use o comando slash `/skill:i-have-adhd:i-have-adhd` para invocar a skill explicitamente.
 
 ### Atualizar
 
-Em uma sessão do Kimi Code, execute `/plugins`, posicione o cursor em **I Have ADHD** e pressione `R`.
+Em uma sessão do Kimi Code, execute `/plugins`, posicione o cursor em **I Have ADHD** e pressione `Enter`.
 
 ### Desinstalar
 
@@ -407,7 +407,7 @@ Ative os comandos de barra de skills no `settings.json` do Pi:
 { "enableSkillCommands": true }
 ```
 
-Inicie uma nova sessão e digite `/skill:i-have-adhd`.
+Inicie uma nova sessão e digite `/skill:i-have-adhd:i-have-adhd`.
 
 ### Verificar
 

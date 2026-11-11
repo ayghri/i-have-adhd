@@ -422,11 +422,11 @@ hermes skills uninstall i-have-adhd
 3. 粘贴 `https://github.com/ayghri/i-have-adhd` 并 Enter。
 4. 选择 **Trust and install**。
 
-使用斜杠命令 `/skill:i-have-adhd` 显式调用此技能。
+使用斜杠命令 `/skill:i-have-adhd:i-have-adhd` 显式调用此技能。
 
 ### 更新
 
-在 Kimi Code 会话中输入 `/plugins`，将光标移至 **I Have ADHD**，按 `R`。
+在 Kimi Code 会话中输入 `/plugins`，将光标移至 **I Have ADHD**，按 `Enter`。
 
 ### 卸载
 
@@ -523,7 +523,7 @@ stop adhd mode
 现有的 Agent Skills 命令仍作为别名可用：
 
 ```text
-/skill:i-have-adhd
+/skill:i-have-adhd:i-have-adhd
 ```
 
 以默认启用模式开启新的 Pi 会话：

@@ -409,11 +409,11 @@ Exceptions: explain fully when asked to explain. Confirm before destructive acti
 3. آدرس `https://github.com/ayghri/i-have-adhd` را پیست کرده و `Enter` را بزنید.
 4. گزینه **Trust and install** را انتخاب کنید.
 
-برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd` استفاده کنید.
+برای فراخوانی صریح مهارت، از دستور اسلش `/skill:i-have-adhd:i-have-adhd` استفاده کنید.
 
 ### به‌روزرسانی
 
-در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `R` را فشار دهید.
+در نشست Kimi Code، دستور `/plugins` را بزنید، نشانگر را روی **I Have ADHD** ببرید و کلید `Enter` را فشار دهید.
 
 ### حذف نصب
 
@@ -508,7 +508,7 @@ stop adhd mode
 دستور Agent Skills موجود نیز به عنوان یک نام مستعار در دسترس است:
 
 ```text
-/skill:i-have-adhd
+/skill:i-have-adhd:i-have-adhd
 ```
 
 شروع یک نشست جدید Pi با این حالت به صورت پیش‌فرض فعال:

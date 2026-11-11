@@ -368,11 +368,11 @@ Mulai sesi Kimi Code dan:
 3. Tempel `https://github.com/ayghri/i-have-adhd` dan tekan Enter.
 4. Pilih **Trust and install**.
 
-Gunakan perintah slash `/skill:i-have-adhd` untuk memanggil skill ini secara eksplisit.
+Gunakan perintah slash `/skill:i-have-adhd:i-have-adhd` untuk memanggil skill ini secara eksplisit.
 
 ### Pembaruan
 
-Di dalam sesi Kimi Code, jalankan `/plugins`, arahkan kursor ke **I Have ADHD**, dan tekan `R`.
+Di dalam sesi Kimi Code, jalankan `/plugins`, arahkan kursor ke **I Have ADHD**, dan tekan `Enter`.
 
 ### Uninstal
 
@@ -405,7 +405,7 @@ Aktifkan perintah slash untuk skill di `settings.json` Pi:
 { "enableSkillCommands": true }
 ```
 
-Mulai sesi baru dan ketik `/skill:i-have-adhd`.
+Mulai sesi baru dan ketik `/skill:i-have-adhd:i-have-adhd`.
 
 ### Verifikasi
 

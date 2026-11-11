@@ -369,11 +369,11 @@ Kimi Code のセッションを開始し、以下の手順を実行します：
 3. `https://github.com/ayghri/i-have-adhd` を貼り付けて `Enter` を押す。
 4. **Trust and install** を選択する。
 
-スラッシュコマンド `/skill:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
+スラッシュコマンド `/skill:i-have-adhd:i-have-adhd` を使用することで、スキルを明示的に呼び出します。
 
 ### 更新
 
-Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `R` を押します。
+Kimi Code セッション内で `/plugins` を実行し、**I Have ADHD** にカーソルを合わせて `Enter` を押します。
 
 ### アンインストール
 
@@ -469,7 +469,7 @@ Claude Code のフックと同様、拡張機能は毎リクエストでシス�
 既存の Agent Skills コマンドもエイリアスとして利用可能です：
 
 ```text
-/skill:i-have-adhd
+/skill:i-have-adhd:i-have-adhd
 ```
 
 デフォルトで有効化した状態で新しい Pi セッションを開始する場合：
