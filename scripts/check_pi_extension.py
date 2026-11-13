@@ -295,6 +295,18 @@ export default function (pi: ExtensionAPI) {
                     "ADHD ON" in (text or "")
                     for text in status_texts(startup_events)
                 )
+
+                new_session, _ = client.request("new-session", {"type": "new_session"})
+                assert new_session["success"] is True
+                messages, _ = client.request(
+                    "messages-new-session",
+                    {"type": "get_messages"},
+                )
+                assert sum(
+                    1
+                    for message in messages["data"]["messages"]
+                    if message.get("customType") == "i-have-adhd-rules"
+                ) == 1, "Rules were not injected into the session opened by /new"
             finally:
                 client.close()
 
