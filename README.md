@@ -3,13 +3,8 @@
 </p>
 <p align="center">
   <strong>Zero-Fluff LLM Outputs. High Signal, Zero Noise.</strong>
-</p>
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/ayghri/i-have-adhd?style=flat" alt="License" /></a>
-</p>
+  <strong>For any bot or harness,that talks to much.</strong>
 
-
-## Purpose
 ## Purpose
 
 An intervention for coding assistants that talk too much and let you read a book a day...
