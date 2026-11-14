@@ -146,7 +146,13 @@ def group_responses(rows: list[dict[str, Any]]) -> dict[tuple, dict[str, str]]:
     """Collect responses into {(case_id, trial): {condition: response}} groups."""
     groups: dict[tuple, dict[str, str]] = defaultdict(dict)
     for row in rows:
-        groups[(row["case_id"], row["trial"])][row["condition"]] = row["response"]
+        group = groups[(row["case_id"], row["trial"])]
+        if row["condition"] in group:
+            raise ValueError(
+                f"duplicate {row['condition']} response for {row['case_id']} trial {row['trial']}; "
+                "judge one runner's responses at a time"
+            )
+        group[row["condition"]] = row["response"]
     return dict(groups)
 
 
