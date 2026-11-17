@@ -14,8 +14,8 @@ const commandPath = path.join(__dirname, '..', 'command', 'i-have-adhd.md');
 const SKILL_ID = 'i-have-adhd';
 const FALLBACK_DESCRIPTION =
   'Shape output for a reader with ADHD: lead with the next action, number ' +
-  'multi-step work, restate state across turns, suppress tangents, give ' +
-  'specific time estimates, make wins visible.';
+  'multi-step work, restate state across turns, suppress tangents, make ' +
+  'wins visible.';
 
 // Command frontmatter is JSON so both loaders can share metadata without a YAML parser.
 async function commandDefinition() {

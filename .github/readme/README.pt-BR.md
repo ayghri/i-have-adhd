@@ -64,18 +64,17 @@ Uma skill para o seu assistente de código que impede que ele enterre a resposta
 
 ## As regras
 
-10 regras. Texto completo no [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+9 regras. Texto completo no [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. Comece pela próxima ação.
 2. Numere tarefas de múltiplos passos.
 3. Termine com um próximo passo concreto.
 4. Corte as tangentes.
 5. Reafirme o estado atual a cada turno.
-6. Estimativas de tempo específicas (minutos, não "um pouco").
-7. Deixe as conquistas visíveis.
-8. Erros relatados de forma objetiva.
-9. Limite listas a 5 itens.
-10. Sem preâmbulo. Sem recapitulação. Sem frases de encerramento.
+6. Deixe as conquistas visíveis.
+7. Erros relatados de forma objetiva.
+8. Limite listas a 5 itens.
+9. Sem preâmbulo. Sem recapitulação. Sem frases de encerramento.
 
 ## Personalize
 

@@ -61,18 +61,17 @@ Sebuah skill untuk asisten coding-mu yang mencegahnya mengubur jawaban di tengah
 
 ## Aturannya
 
-10 aturan. Teks lengkap ada di [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+9 aturan. Teks lengkap ada di [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. Mulai dengan langkah selanjutnya.
 2. Beri nomor pada tugas yang memiliki beberapa langkah.
 3. Akhiri dengan langkah selanjutnya yang konkret.
 4. Potong pembahasan yang melebar (tidak relevan).
 5. Tegaskan kembali status terkini di setiap giliran.
-6. Berikan estimasi waktu yang spesifik (dalam menit, bukan "sebentar").
-7. Buat pencapaian terlihat jelas.
-8. Laporkan error secara objektif.
-9. Batasi daftar maksimal 5 item.
-10. Tanpa pembukaan. Tanpa ringkasan ulang. Tanpa kalimat penutup.
+6. Buat pencapaian terlihat jelas.
+7. Laporkan error secara objektif.
+8. Batasi daftar maksimal 5 item.
+9. Tanpa pembukaan. Tanpa ringkasan ulang. Tanpa kalimat penutup.
 
 ## Sesuaikan (Kustomisasi)
 

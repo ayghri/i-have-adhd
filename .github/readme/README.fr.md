@@ -70,18 +70,17 @@ Une *skill* pour votre assistant de code qui l'empêche de noyer la réponse. L'
 
 ## Les règles
 
-10 règles. Texte complet dans [SKILL.md](../../skills/i-have-adhd/SKILL.md) (en anglais).
+9 règles. Texte complet dans [SKILL.md](../../skills/i-have-adhd/SKILL.md) (en anglais).
 
 1. Commencer par la prochaine action.
 2. Numéroter les tâches en plusieurs étapes.
 3. Terminer par une seule prochaine étape concrète.
 4. Supprimer les digressions.
 5. Rappeler l'avancement à chaque réponse.
-6. Des estimations de temps précises (en minutes, pas « un moment »).
-7. Rendre les réussites visibles.
-8. Des erreurs annoncées sans drame.
-9. Limiter les listes à 5 éléments.
-10. Pas de préambule. Pas de récap. Pas de formule de fin.
+6. Rendre les réussites visibles.
+7. Des erreurs annoncées sans drame.
+8. Limiter les listes à 5 éléments.
+9. Pas de préambule. Pas de récap. Pas de formule de fin.
 
 ## Personnaliser
 
