@@ -39,6 +39,13 @@ type AdhdConfig = {
   hideStatus?: boolean;
 };
 
+type OmpSessionSwitchAPI = {
+  on(
+    event: "session_switch",
+    handler: (event: unknown, ctx: ExtensionContext) => Promise<void>,
+  ): unknown;
+};
+
 function loadConfig(): AdhdConfig {
   try {
     return JSON.parse(
@@ -235,6 +242,12 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
   });
 
   pi.on("session_start", async (_event, ctx) => restoreState(ctx));
+  // OMP emits session_switch instead of session_start for /new, /resume and
+  // /fork. Pi never emits it, and Pi's types do not declare it.
+  (pi as unknown as OmpSessionSwitchAPI).on(
+    "session_switch",
+    async (_event, ctx) => restoreState(ctx),
+  );
   pi.on("session_tree", async (_event, ctx) => restoreState(ctx));
   pi.on("session_compact", async (_event, ctx) => syncContext(ctx));
 }
