@@ -49,7 +49,8 @@ class AlwaysOnHookTest(unittest.TestCase):
             [str(part) for part in command],
             check=False,
             capture_output=True,
-            text=True,
+            encoding="utf-8",
+            errors="replace",
             env=env,
         )
 
@@ -167,6 +168,28 @@ class AlwaysOnHookTest(unittest.TestCase):
         self.assertIn("process.env.PLUGIN_ROOT", command)
         self.assertIn("await import", command)
         self.assertIn(".catch", command)
+
+    def test_runtimes_emit_the_body_as_utf8(self):
+        # The ruleset is injected verbatim into every response, so a runtime
+        # that re-encodes it corrupts the rules themselves. Windows PowerShell
+        # writes [Console]::Out through the console code page -- IBM437 on a
+        # default en-US install -- which has no mapping for these characters.
+        body = "Regla: di la conclusion primero. \u4e2d\u6587\u89c4\u5219\u3002 Caf\u00e9 \u2014 r\u00e8gle."
+        skill_path = self.plugin_root / "skills" / "i-have-adhd" / "SKILL.md"
+        skill_path.write_text(f"---\nname: fixture\n---\n{body}\n", encoding="utf-8")
+        (self.config_dir / ".i-have-adhd-always").touch()
+        outputs = {}
+
+        for name, command in self.runtimes():
+            with self.subTest(runtime=name):
+                result = self.run_hook(command)
+                self.assertEqual(0, result.returncode)
+                self.assertEqual("", result.stderr)
+                normalized = self.normalize(result.stdout)
+                self.assertIn(body, normalized)
+                outputs[name] = normalized
+
+        self.assertEqual(1, len(set(outputs.values())))
 
 
 if __name__ == "__main__":

@@ -43,7 +43,16 @@ try {
 
   $banner = 'ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. ' +
     '"stop adhd mode" turns it off for this session; delete '
-  [Console]::Out.Write($banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n")
+  $text = $banner + $flagPath + " to turn always-on off for good.`n`n" + $body + "`n"
+
+  # Write UTF-8 bytes straight to stdout. [Console]::Out encodes through the
+  # console code page -- IBM437 on a default en-US Windows PowerShell -- which
+  # replaces every non-ASCII character in the ruleset with "?" before the
+  # agent sees it. The Node and sh hooks both emit UTF-8.
+  $bytes = (New-Object System.Text.UTF8Encoding $false).GetBytes($text)
+  $stdout = [Console]::OpenStandardOutput()
+  $stdout.Write($bytes, 0, $bytes.Length)
+  $stdout.Flush()
 } catch {
   # Never block session start.
   exit 0
