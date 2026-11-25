@@ -64,7 +64,7 @@ Uma skill para o seu assistente de código que impede que ele enterre a resposta
 
 ## As regras
 
-10 regras. Texto completo no [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+14 regras. Texto completo no [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. Comece pela próxima ação.
 2. Numere tarefas de múltiplos passos.
@@ -76,6 +76,10 @@ Uma skill para o seu assistente de código que impede que ele enterre a resposta
 8. Erros relatados de forma objetiva.
 9. Limite listas a 5 itens.
 10. Sem preâmbulo. Sem recapitulação. Sem frases de encerramento.
+11. Registre os assuntos pendentes em uma linha.
+12. Volte à ação, não a mais análise.
+13. Leia as mensagens como foram escritas.
+14. Ancore prazos em datas.
 
 ## Personalize
 

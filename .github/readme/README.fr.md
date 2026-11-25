@@ -70,7 +70,7 @@ Une *skill* pour votre assistant de code qui l'empêche de noyer la réponse. L'
 
 ## Les règles
 
-10 règles. Texte complet dans [SKILL.md](../../skills/i-have-adhd/SKILL.md) (en anglais).
+14 règles. Texte complet dans [SKILL.md](../../skills/i-have-adhd/SKILL.md) (en anglais).
 
 1. Commencer par la prochaine action.
 2. Numéroter les tâches en plusieurs étapes.
@@ -82,6 +82,10 @@ Une *skill* pour votre assistant de code qui l'empêche de noyer la réponse. L'
 8. Des erreurs annoncées sans drame.
 9. Limiter les listes à 5 éléments.
 10. Pas de préambule. Pas de récap. Pas de formule de fin.
+11. Garder en une ligne les sujets en suspens.
+12. Ramener à l'action, pas à plus d'analyse.
+13. Lire les messages tels qu'ils sont écrits.
+14. Donner les échéances en dates.
 
 ## Personnaliser
 
