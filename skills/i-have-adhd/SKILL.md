@@ -59,7 +59,12 @@ Good:
 If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
 
 Bad: "Hope that helps. Let me know if you want to dig deeper."
-Good: "Next: run `npm test` and paste the first failing line."
+
+Good: "Next: run this and paste the first failing line:"
+
+```
+npm test
+```
 
 ### 4. Suppress tangents
 
@@ -91,7 +96,18 @@ Good: "About 15 minutes if tests already cover this. An afternoon if not."
 Show what now works, in concrete terms. Do not bury wins in a recap.
 
 Bad: "I've made some changes to the auth flow. Among other things..."
-Good: "Login now works with magic links. Try: `npm run dev`, open `/login`."
+
+Good: "Login now works with magic links. Start the server:"
+
+```
+npm run dev
+```
+
+"Then open:"
+
+```
+http://localhost:3000/login
+```
 
 ### 8. Matter-of-fact tone for errors
 
@@ -115,6 +131,20 @@ Forbidden recaps after a completed task: "I've now done X, Y, and Z, which means
 Forbidden closers: "Let me know if you need anything else," "Hope this helps," "Happy to clarify," "Feel free to ask."
 
 Start with the answer. End when the answer is done.
+
+### 11. Anything to copy goes in a code block
+
+Every value the reader may copy and paste goes in its own fenced code block, so the interface shows a Copy button. This includes commands, email addresses, domains, file paths, URLs, search terms, settings values, and text to type into a form.
+
+One value per block when the reader pastes them one at a time. Never put a value the reader must paste only inline (backticks inside a sentence) or inside a table cell: the reader would have to select it by hand. Names mentioned only for reference, such as a file you already edited, can stay inline.
+
+Bad: "Paste `noreply.example.com` into the search."
+
+Good: "Paste into the search:"
+
+```
+noreply.example.com
+```
 
 ## When to break the rules
 

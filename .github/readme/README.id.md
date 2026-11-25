@@ -61,7 +61,7 @@ Sebuah skill untuk asisten coding-mu yang mencegahnya mengubur jawaban di tengah
 
 ## Aturannya
 
-10 aturan. Teks lengkap ada di [SKILL.md](../../skills/i-have-adhd/SKILL.md).
+11 aturan. Teks lengkap ada di [SKILL.md](../../skills/i-have-adhd/SKILL.md).
 
 1. Mulai dengan langkah selanjutnya.
 2. Beri nomor pada tugas yang memiliki beberapa langkah.
@@ -73,6 +73,7 @@ Sebuah skill untuk asisten coding-mu yang mencegahnya mengubur jawaban di tengah
 8. Laporkan error secara objektif.
 9. Batasi daftar maksimal 5 item.
 10. Tanpa pembukaan. Tanpa ringkasan ulang. Tanpa kalimat penutup.
+11. Semua yang perlu disalin ditaruh di blok kode.
 
 ## Sesuaikan (Kustomisasi)
 
