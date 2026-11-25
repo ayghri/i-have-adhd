@@ -122,8 +122,11 @@ export default function iHaveAdhdExtension(pi: ExtensionAPI) {
       return;
     }
 
-    const dot = ctx.ui.theme.fg("success", "●");
-    const label = ctx.ui.theme.fg("accent", "ADHD ON");
+    // ctx.ui.theme is undefined outside interactive mode (RPC/print web-ui
+    // path) — fall back to plain text so session_start never throws.
+    const theme = ctx.ui.theme as unknown as { fg?: (c: string, t: string) => string } | undefined;
+    const dot = theme?.fg?.("success", "●") ?? "●";
+    const label = theme?.fg?.("accent", "ADHD ON") ?? "ADHD ON";
     ctx.ui.setStatus(STATUS_KEY, `${dot} ${label}`);
   };
 
