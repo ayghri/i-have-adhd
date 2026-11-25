@@ -1,10 +1,10 @@
 {
   "name": "i-have-adhd",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "description": "Shape output for an ADHD reader: lead with the next action, number steps, suppress tangents, restate state, make wins visible.",
   "author": {
     "name": "Ayoub G.",
-    "email": "ayghri@users.noreply.github.com"
+    "url": "https://github.com/ayghri"
   },
   "homepage": "https://github.com/ayghri/i-have-adhd",
   "repository": "https://github.com/ayghri/i-have-adhd",
