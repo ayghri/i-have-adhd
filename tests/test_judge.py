@@ -47,6 +47,15 @@ class GroupingTest(unittest.TestCase):
         self.assertEqual({"baseline": "51", "candidate": "102"}, groups[("direct-answer", 1)])
         self.assertEqual({"baseline": "again"}, groups[("direct-answer", 2)])
 
+    def test_duplicate_condition_rows_are_rejected_not_silently_merged(self):
+        rows = [
+            {"case_id": "direct-answer", "trial": 1, "condition": "baseline", "response": "from claude", "runner": "claude"},
+            {"case_id": "direct-answer", "trial": 1, "condition": "baseline", "response": "from codex", "runner": "codex"},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            judge.group_responses(rows)
+
     def test_groups_missing_a_condition_are_partitioned_out_not_dropped(self):
         groups = {
             ("direct-answer", 1): {"baseline": "x", "candidate": "y"},
