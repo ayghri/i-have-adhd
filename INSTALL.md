@@ -676,6 +676,8 @@ If `PI_CODING_AGENT_DIR` is set, put `.i-have-adhd-always` in that directory ins
 <details>
 <summary><strong>Oh My Pi (OMP)</strong></summary>
 
+OMP 18.16.0 shares marketplace plugin caches across user and project scopes. Installing, upgrading, or uninstalling a user-scoped plugin can replace or remove cached files another project uses. Check your other OMP projects before changing this installation; if they depend on the same cached plugin, defer the operation until your OMP version has a verified fix. See [OMP issue #16827](https://github.com/can1357/oh-my-pi/issues/16827).
+
 ### Install
 
 ```bash
@@ -696,6 +698,11 @@ omp plugin upgrade --scope user i-have-adhd@i-have-adhd
 
 ```bash
 omp plugin uninstall --scope user i-have-adhd@i-have-adhd
+```
+
+The uninstall can affect a project using the shared cache, as noted above. Remove the marketplace separately only after checking that no other installation needs it:
+
+```bash
 omp plugin marketplace remove i-have-adhd
 ```
 
