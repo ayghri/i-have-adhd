@@ -29,6 +29,7 @@ Agents may read and reference any GitHub issue or pull request. Commenting has n
 | Canonical skill | `skills/i-have-adhd/SKILL.md` | The source of truth for the 10 ADHD-friendly response rules. |
 | Skill mirror | `.cursor/skills/i-have-adhd/SKILL.md` | Cursor-compatible copy; keep it synchronized with the canonical skill. |
 | Claude and Codex metadata | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Plugin manifests and marketplace metadata. |
+| Agent Plugins packaging | `plugin.json` (Agent Plugins 1.0), `com.github.copilot/` | Root manifest following the [Agent Plugins Specification](https://github.com/agentplugins/agent-plugins-spec), consumed by VS Code and Copilot CLI; `com.github.copilot/` holds the Copilot-specific hook and command. |
 | Shared hooks | `hooks/hooks.json`, `hooks/always-on.*` | Hook declarations and cross-platform always-on behavior. |
 | Pi and OMP | `package.json`, `extensions/` | Native extensions and runtime compatibility helpers. |
 | OpenCode | `.opencode/` | Auto-discovered plugin and command entry points for V1 (1.18.29+) and V2. |
@@ -45,6 +46,7 @@ When debugging or changing one integration, begin with its entry point:
 | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/always-on.mjs` |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `hooks/hooks.json` |
+| VS Code and Copilot CLI | `plugin.json` (Agent Plugins 1.0), `com.github.copilot/hooks/hooks.json`, `com.github.copilot/commands/i-have-adhd.md`, `hooks/always-on.mjs` |
 | Grok | `plugin.json`, `skills/i-have-adhd/SKILL.md`, `INSTALL.md` |
 | Pi | `package.json` (`pi`), `extensions/i-have-adhd.ts` |
 | OMP | `package.json` (`omp`), `extensions/i-have-adhd.ts`, `extensions/context-compat.ts` |

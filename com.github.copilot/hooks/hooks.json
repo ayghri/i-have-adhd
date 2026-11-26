@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "command": "node \"${PLUGIN_ROOT}/hooks/always-on.mjs\"",
+        "env": {
+          "I_HAVE_ADHD_CLIENT": "copilot"
+        },
+        "timeoutSec": 30
+      }
+    ]
+  }
+}
