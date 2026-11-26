@@ -36,7 +36,39 @@ Both example runners isolate the call from the operator's own agent configuratio
 
 Isolation also drops the operator's saved model and effort settings, so the claude runner pins `--model` explicitly. Keep a pin when editing the runner: without one, the eval silently runs whatever the operator (or the CLI release) defaults to; the model would vary between operators and over time, and per-token cost varies with it. The pinned model is part of the result: record it with published numbers, as below.
 
-Runs are resumable: rerun the same command after a provider failure and completed `(case, trial, condition, runner)` rows are skipped. Each incomplete call is retried twice by default, and the final provider error is preserved.
+Runs are resumable: rerun the same command after a provider failure and completed `(case, trial, condition, runner)` rows are skipped. Each failed call is retried twice by default, while reported spending and reliable cost information permit it; the final provider error is preserved when retries are exhausted.
+
+Generation writes an additional `<output>.attempt-costs.jsonl` file next to the
+responses, for example `responses.jsonl.attempt-costs.jsonl`. It records the case,
+trial, condition, runner, exit code, and cost of failed or uncertain attempts;
+these entries never mark an answer complete. Keep both files together when
+resuming or moving a run. The allowance for each retry and later trial subtracts
+completed-response costs **and** failed-attempt costs for that condition and
+runner. A CLI budget flag receives that remaining amount rounded down to four
+decimal places; no call starts if the usable allowance is exhausted. The printed
+reported total includes known failed-attempt costs.
+
+A missing, negative, boolean, non-numeric, or non-finite cost is unknown, not free.
+In metered mode an uncertain attempt is flushed to the sidecar with
+`"cost_usd": null`, then generation stops before retrying. Metered resume also
+stops while either file contains unknown/invalid costs for the selected condition
+and runner, even when a different case is requested. To recover, reconcile those
+entries against the provider's records and replace only their `cost_usd` values
+with finite, non-negative dollar amounts; do not delete spending history to
+reset the allowance. If reliable costs are unavailable, `--allow-unmetered`
+explicitly permits continuing only with a separate provider-side hard cap.
+Known costs still reduce its allowance; unknown costs cannot be bounded by this
+harness.
+
+Use one generation process per output file. The sidecar is flushed before each
+retry, but this is not a transaction log: interruption between a provider call
+and writing its result, storage failures, or power loss can leave unrecorded
+spending. Reconcile interrupted runs before resuming. Older runs without a
+sidecar cannot reconstruct previously discarded failed-call costs. CLI-reported
+costs are estimates, not invoices; a provider may exceed its requested call cap.
+The harness stops subsequent calls once recorded spending exhausts the budget,
+but does not guarantee an invoice ceiling. Successful response rows and the
+judge/score input formats are unchanged.
 
 ## Measure
 
@@ -62,8 +94,8 @@ baseline has no meaningful percentage change, so that percentage is `null`.
 Claude input totals include cache creation/read tokens; Codex cached input is
 already part of its input count and is not added again.
 
-This measures recorded generation rows, not total provider billing: judge costs
-and unrecorded failed/retried calls are excluded. Scenario captures currently omit
+This measures completed generation rows, not total provider billing: judge costs
+and failed-attempt costs in the sidecar are excluded. Scenario captures currently omit
 token usage, and their response length includes transcript JSON and user prompts.
 The command is read-only and makes no model calls.
 
