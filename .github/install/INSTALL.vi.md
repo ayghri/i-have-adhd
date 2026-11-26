@@ -361,6 +361,8 @@ Ngoại lệ: giải thích đầy đủ khi được yêu cầu. Xác nhận tr
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Trước mỗi lần thay đổi plugin, hãy đóng tất cả phiên Kimi và bắt đầu phiên mới. Kiểm tra danh sách plugin sau mỗi thay đổi. Kimi 2.5.0 có thể mất đăng ký plugin khi một phiên cũ thay đổi plugin.
+
 ### Cài đặt
 
 Hãy bắt đầu một phiên Kimi Code, rồi:
@@ -369,12 +371,13 @@ Hãy bắt đầu một phiên Kimi Code, rồi:
 2. Chọn **Custom**.
 3. Dán `https://github.com/ayghri/i-have-adhd` rồi nhấn Enter.
 4. Chọn **Trust and install**.
+5. Chạy `/reload` hoặc bắt đầu phiên mới.
 
-Dùng lệnh slash `/skill:i-have-adhd` để gọi skill một cách rõ ràng.
+Dùng lệnh slash `/skill:i-have-adhd:i-have-adhd` để gọi skill một cách rõ ràng.
 
 ### Cập nhật
 
-Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `R`.
+Trong phiên Kimi Code, chạy `/plugins`, đưa con trỏ đến **I Have ADHD**, rồi nhấn `Enter`. Sau khi cập nhật, chạy `/reload` hoặc bắt đầu phiên mới.
 
 ### Gỡ cài đặt
 

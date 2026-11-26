@@ -360,6 +360,8 @@ Pengecualian: jelaskan secara lengkap jika diminta. Konfirmasi sebelum melakukan
 <details>
 <summary><strong>Kimi Code CLI</strong></summary>
 
+Sebelum setiap perubahan plugin, tutup semua sesi Kimi dan mulai sesi baru. Periksa daftar plugin setelah setiap perubahan. Kimi 2.5.0 dapat kehilangan pendaftaran plugin saat sesi lama mengubah plugin.
+
 ### Instalasi
 
 Mulai sesi Kimi Code dan:
@@ -368,12 +370,13 @@ Mulai sesi Kimi Code dan:
 2. Pilih **Custom**.
 3. Tempel `https://github.com/ayghri/i-have-adhd` dan tekan Enter.
 4. Pilih **Trust and install**.
+5. Jalankan `/reload` atau mulai sesi baru.
 
-Gunakan perintah slash `/skill:i-have-adhd` untuk memanggil skill ini secara eksplisit.
+Gunakan perintah slash `/skill:i-have-adhd:i-have-adhd` untuk memanggil skill ini secara eksplisit.
 
 ### Pembaruan
 
-Di dalam sesi Kimi Code, jalankan `/plugins`, arahkan kursor ke **I Have ADHD**, dan tekan `R`.
+Di dalam sesi Kimi Code, jalankan `/plugins`, arahkan kursor ke **I Have ADHD**, dan tekan `Enter`. Jalankan `/reload` atau mulai sesi baru setelah pembaruan.
 
 ### Uninstal
 
