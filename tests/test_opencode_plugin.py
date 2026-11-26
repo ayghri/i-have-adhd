@@ -114,6 +114,59 @@ class OpenCodePluginTest(unittest.TestCase):
         self.assertIn("ADHD", command["description"])
         self.assertIn("stop adhd mode", command["template"])
 
+    def test_v2_command_uses_bundled_rules_without_overwriting_user_skill(self):
+        result = self.run_plugin(mode="command-collision")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual("USER-OWNED SKILL", output["skill"]["content"])
+        self.assertIn("Working memory is small", output["prompt"]["text"])
+        self.assertIn("stop adhd mode", output["prompt"]["text"])
+        self.assertTrue(output["prompt"]["text"].endswith("User request"))
+        self.assertNotIn("Use the `i-have-adhd` skill", output["prompt"]["text"])
+        self.assertEqual("steer", output["prompt"]["delivery"])
+        self.assertEqual(
+            [{"name": "fixture.txt", "uri": "data:text/plain;base64,Zml4dHVyZQ==", "source": {"type": "inline"}}],
+            output["prompt"]["files"],
+        )
+        self.assertEqual("ses_test", output["permissionRequests"][0]["sessionID"])
+        self.assertEqual("skill", output["permissionRequests"][0]["action"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["resources"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["save"])
+
+    def test_v2_denied_skill_does_not_send_command_prompt(self):
+        result = self.run_plugin(mode="command-denied")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual("skill denied", output["error"])
+        self.assertEqual([], output["prompts"])
+        self.assertEqual("skill", output["permissionRequests"][0]["action"])
+        self.assertEqual(["i-have-adhd"], output["permissionRequests"][0]["resources"])
+
+    def test_v2_missing_skill_does_not_register_broken_command(self):
+        (self.plugin_root / "skills/i-have-adhd/SKILL.md").unlink()
+        result = self.run_plugin(mode="command")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual([], json.loads(result.stdout))
+
+    def test_v2_existing_command_is_preserved_without_skipping_other_capabilities(self):
+        result = self.run_plugin(mode="command-existing")
+        self.assertEqual(0, result.returncode, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual(["i-have-adhd"], output["commands"])
+        self.assertEqual([{"text": "USER COMMAND"}], output["prompts"])
+        self.assertIn("i-have-adhd", output["skills"])
+        self.assertTrue(output["hook"])
+
+    def test_v2_uninspectable_commands_are_not_overwritten(self):
+        for mode in ("command-unavailable", "command-rejected", "command-malformed", "permission-unavailable"):
+            with self.subTest(mode=mode):
+                result = self.run_plugin(mode=mode)
+                self.assertEqual(0, result.returncode, result.stderr)
+                output = json.loads(result.stdout)
+                self.assertEqual([], output["commands"])
+                self.assertIn("i-have-adhd", output["skills"])
+                self.assertTrue(output["hook"])
+
     def test_setup_registers_the_skill(self):
         result = self.run_plugin(mode="skill")
         self.assertEqual(0, result.returncode, result.stderr)
