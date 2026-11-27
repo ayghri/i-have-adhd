@@ -1,0 +1,8 @@
+{
+  "i-have-adhd": {
+    "enabled": true,
+    "SessionStart": [
+      { "type": "command", "command": "node ./hooks/agy-always-on.mjs", "timeout": 10 }
+    ]
+  }
+}
