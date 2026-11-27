@@ -1,0 +1,82 @@
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+@unittest.skipUnless(shutil.which('node'), 'node is required for the MiMo Code plugin')
+class MiMoCodePluginTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.plugin_root = self.root / 'plugin'
+        shutil.copytree(ROOT / '.mimocode', self.plugin_root / '.mimocode')
+        shutil.copytree(ROOT / 'skills', self.plugin_root / 'skills')
+        self.env = os.environ.copy()
+        self.env['XDG_CONFIG_HOME'] = str(self.root / 'config')
+        self.env.pop('MIMOCODE_HOME', None)
+
+    def run_plugin(self, mode, config=None):
+        args = ['node', str(ROOT / 'tests/opencode_plugin_driver.mjs'),
+                str(self.plugin_root / '.mimocode/plugins/i-have-adhd.mjs'), mode]
+        if config is not None:
+            args.append(json.dumps(config))
+        return subprocess.run(args, env=self.env, text=True, capture_output=True, check=True).stdout
+
+    def test_registers_skill_path_without_adding_a_command(self):
+        config = json.loads(self.run_plugin('v1-config'))
+        self.assertNotIn('i-have-adhd', config.get('command', {}))
+        self.assertEqual([str(self.plugin_root / 'skills')], config['skills']['paths'])
+
+    def test_preserves_other_configuration_and_user_command(self):
+        existing = {'command': {'i-have-adhd': {'template': 'user command'}, 'other': {'template': 'keep'}},
+                    'skills': {'paths': ['/other/skills']}}
+        config = json.loads(self.run_plugin('v1-config', existing))
+        self.assertEqual(existing['command'], config['command'])
+        self.assertEqual(['/other/skills', str(self.plugin_root / 'skills')], config['skills']['paths'])
+
+    def test_always_on_requires_mimocode_flag(self):
+        self.assertEqual('', self.run_plugin('v1-context'))
+        wrong = self.root / 'config/opencode/.i-have-adhd-always'
+        wrong.parent.mkdir(parents=True)
+        wrong.touch()
+        self.assertEqual('', self.run_plugin('v1-context'))
+        flag = self.root / 'config/mimocode/.i-have-adhd-always'
+        flag.parent.mkdir(parents=True)
+        flag.touch()
+        output = self.run_plugin('v1-context')
+        self.assertIn('Working memory is small', output)
+        self.assertNotIn(str(self.root), output)
+        flag.unlink()
+        self.assertEqual('', self.run_plugin('v1-context'))
+
+    def test_mimocode_home_overrides_xdg_for_opt_in(self):
+        self.env['MIMOCODE_HOME'] = str(self.root / 'mimo-home')
+        flag = self.root / 'mimo-home/config/.i-have-adhd-always'
+        flag.parent.mkdir(parents=True)
+        flag.touch()
+        self.assertIn('Working memory is small', self.run_plugin('v1-context'))
+
+    def test_missing_or_unreadable_skill_does_not_break_other_config_or_hooks(self):
+        skill = self.plugin_root / 'skills/i-have-adhd/SKILL.md'
+        skill.unlink()
+        flag = self.root / 'config/mimocode/.i-have-adhd-always'
+        flag.parent.mkdir(parents=True)
+        flag.touch()
+        for condition in ('missing', 'unreadable'):
+            with self.subTest(condition=condition):
+                if condition == 'unreadable':
+                    # A directory in place of the file reliably raises a read error.
+                    skill.mkdir()
+                existing = {'command': {'other': {'template': 'keep'}},
+                            'skills': {'paths': ['/other/skills']}}
+                config = json.loads(self.run_plugin('v1-config', existing))
+                self.assertEqual(existing['command'], config['command'])
+                self.assertIn('/other/skills', config['skills']['paths'])
+                self.assertEqual('', self.run_plugin('v1-context'))

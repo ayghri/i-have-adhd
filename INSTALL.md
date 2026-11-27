@@ -511,6 +511,57 @@ Use slash command `/skill:i-have-adhd` to invoke the skill explicitly.
 </details>
 
 <details>
+<summary><strong>MiMo Code</strong></summary>
+
+MiMo Code 0.1.16 loads the bundled server plugin using its native `plugin`
+configuration. MiMo derives `/i-have-adhd` from the registered skill and
+checks skill permissions when it is invoked.
+
+**Known limitations:** In MiMo 0.1.16, the plugin's skill path can shadow a
+user or project skill with the same name. Its optional always-on injection
+delivered the rules even when the tested `skill` permission denied
+`i-have-adhd`. Do not use this integration when preserving a same-name skill
+or enforcing that permission in always-on mode is required. These limitations
+remain unresolved.
+
+Clone this repository to a stable location, for example
+`~/.config/mimocode/vendor/i-have-adhd`, and add the plugin's **absolute file
+URL** to the existing `plugin` array in MiMo's `mimocode.json` or
+`mimocode.jsonc`. Keep all other entries. Replace the example with your own
+path; file URLs must percent-encode spaces and other reserved characters.
+For Windows, use a valid file URL such as `file:///C:/Users/name/...`.
+
+```json
+{
+  "plugin": ["file:///absolute/path/to/i-have-adhd/.mimocode/plugins/i-have-adhd.mjs"]
+}
+```
+
+The global config directory is `${XDG_CONFIG_HOME:-~/.config}/mimocode`.
+When `MIMOCODE_HOME` is set, it is `$MIMOCODE_HOME/config` instead. Restart
+MiMo after changing the plugin or updating the checkout. Run
+`mimo debug config` and `mimo debug skill` to inspect the command and skill;
+then run `/i-have-adhd` in a session to opt in. A separately configured
+command with the same name takes precedence over the skill-derived command.
+
+For optional always-on mode, create `.i-have-adhd-always` in the MiMo global
+config directory and restart MiMo. Delete that flag to turn always-on mode
+off. This flag is separate from OpenCode's. Saying "stop adhd mode" or
+"normal mode" asks the model to use its normal style; while the flag exists,
+the plugin continues to inject the rules on later turns.
+
+To update, update the checkout and restart MiMo. To remove the plugin, remove
+only its file URL from `plugin`, restart MiMo, and remove the checkout and flag
+if no longer needed. Existing configuration and other plugins can stay in
+place. If the command is missing, check the file URL, JSON syntax, and the
+resolved configuration and any existing command or skill with the same name.
+If the rules do not appear, check that MiMo loaded this plugin and that the canonical `skills/i-have-adhd/SKILL.md` exists in the checkout.
+MiMo 0.1.16 behavior was checked on macOS with a synthetic local provider;
+real model response behavior and other platforms have not been tested.
+
+</details>
+
+<details>
 <summary><strong>OpenCode</strong></summary>
 
 The plugin supports OpenCode V1 **1.18.29+** and V2. It registers the skill and `/i-have-adhd` command, and adds optional always-on mode. Older V1 versions need an upgrade or the plugin from the previous skill release.
