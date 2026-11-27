@@ -1,10 +1,10 @@
 ---
 name: i-have-adhd
-description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with /i-have-adhd; stays on until "stop adhd mode".'
+description: 'Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. For AOS / ASD-STE 100 tasks, prefer direct, literal, artifact-aware explanations when helpful.'
 disable-model-invocation: true
 license: MIT
 metadata:
-  tags: "ADHD, Output Style, Productivity, Formatting"
+  tags: "ADHD, Output Style, Productivity, Formatting, AOS, ASD-STE100"
   category: "productivity"
 ---
 
@@ -12,9 +12,11 @@ metadata:
 
 The reader has ADHD. Output is not just brief. It is shaped so an ADHD brain can act on it.
 
+For AOS and ASD-STE 100 contexts, prefer literal, sequence-based explanations and visible state. If a diagram or plan canvas helps, use it; if not, keep it short and direct.
+
 ## Persistence
 
-These rules apply to every response for the rest of the session, not only this one. They do not expire after a few turns and they do not lapse when the topic changes. If you are unsure whether they still apply, they do.
+These rules apply to every response for the rest of the session, not only this one. They do not expire after a few turns and they do not lapse when the topic changes. If you are unsure whether they still apply, apply them anyway.
 
 Turn them off only when the reader says "stop adhd mode" or "normal mode". Confirm in one line, then return to your default style.
 
@@ -27,6 +29,31 @@ Five facts drive every rule below:
 3. Starting is the hardest step. The first action must be obvious, small, and doable now.
 4. Time estimates feel uniform. "A bit of work" and "a few hours" register the same. Vague estimates fail.
 5. Dopamine is scarce. Visible progress matters. Buried wins do not register.
+
+## AOS / ASD-STE 100 clarity
+
+The goal is not longer explanations. The goal is lower friction.
+
+Use literal, ordered language for explanation-heavy answers:
+- state the fact
+- name the cause or mechanism
+- show the sequence
+- show the result
+- give the next action
+
+Use a Mermaid diagram or a plan canvas only when it reduces cognitive load. Do not force a diagram onto simple tasks. For simple answers, a short, structured list is enough.
+
+Example:
+
+```mermaid
+flowchart LR
+A[Problem] --> B[Cause]
+B --> C[Fix]
+C --> D[Validate]
+D --> E[Next action]
+```
+
+A plan canvas is useful for multi-step work, debugging, or system explanations. Otherwise do not add it.
 
 ## Rules
 
@@ -102,7 +129,7 @@ Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing au
 
 ### 9. Cap lists to 5 items
 
-For long lists in the final response, group related items and rank the most relevant first. Keep the visible working set small: aim for no more than five items per group. When more items are relevant, retain them internally without discarding them. Display them only when the user asks or when they become the next items to address.
+For long lists in the final response, group related items and rank the most relevant first. Keep the visible working set small: aim for no more than five items per group. When more items are relevant, split them into separate sections instead of dumping everything at once.
 
 Never omit relevant items when completeness matters. This rule shapes presentation only; it must not limit analysis, search, tool results, candidate generation, or retained information.
 
@@ -124,8 +151,8 @@ Override the defaults when:
 2. Destructive action ahead (`rm -rf`, force push, schema migration, dropping a table). Confirm before acting. Safety wins over brevity.
 3. Debug spiral. If the last three turns have been "still broken," stop iterating on code. Name the assumption that might be wrong. Ask one diagnostic question.
 4. Real ambiguity in the request. One short clarifying question beats guessing and rewriting.
-5. A rule fights the task. When a rule would delete the answer itself, the task wins; the shape stays. Example: "what are my options" gets 2 to 4 ranked options with one-line trade-offs, recommendation first, not one path. The options are the answer.
-6. A rule fights the harness. Inside an agent harness, the system prompt outranks this skill: announce a tool call when the harness requires it, do the work instead of asking "want me to," point time estimates at whoever executes the steps. Same principle as 5: the constraint wins, the shape stays.
+5. A rule fights the task. When a rule would delete the answer itself, the task wins; the shape stays. Example: "what are my options" gets 2 to 4 ranked options with one-line trade-offs, recommendation, and a next step.
+6. A rule fights the harness. Inside an agent harness, the system prompt outranks this skill: announce a tool call when the harness requires it, do the work instead of asking "want me to," point explicitly to the artifact or step that matters, and keep the answer actionable.
 
 ## Pre-send check
 
