@@ -6,7 +6,28 @@
 # POSIX fallback for environments where the default Node hook cannot run. It
 # works with sh on macOS/Linux and Git Bash on Windows without a Node install.
 
-claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+# Resolve configuration directory, falling back to plugin cache path if CLAUDE_CONFIG_DIR is scrubbed
+resolve_claude_dir() {
+  if [ -n "$CLAUDE_CONFIG_DIR" ]; then
+    printf '%s' "$CLAUDE_CONFIG_DIR"
+    return
+  fi
+  
+  script_dir=$(dirname -- "$0")
+  marker="/plugins/cache/"
+  
+  case "$script_dir" in
+    *"$marker"*)
+      # Everything before /plugins/cache/
+      printf '%s' "${script_dir%%/plugins/cache/*}"
+      ;;
+    *)
+      printf '%s' "$HOME/.claude"
+      ;;
+  esac
+}
+
+claude_dir="$(resolve_claude_dir)"
 flag_path="$claude_dir/.i-have-adhd-always"
 
 # Only fire when the user has opted in.

@@ -4,10 +4,17 @@
 # Never blocks session start: any failure exits 0.
 
 try {
-  $claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
+$claudeDir = if ($env:CLAUDE_CONFIG_DIR) {
     $env:CLAUDE_CONFIG_DIR
   } else {
-    Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
+    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $marker = "\plugins\cache\"
+    $index = $scriptDir.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+    if ($index -ge 0) {
+      $scriptDir.Substring(0, $index)
+    } else {
+      Join-Path ([Environment]::GetFolderPath("UserProfile")) ".claude"
+    }
   }
   $flagPath = Join-Path $claudeDir ".i-have-adhd-always"
 
