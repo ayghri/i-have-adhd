@@ -1,0 +1,31 @@
+name: tests
+
+# `python -m unittest discover -s tests` is the documented pre-PR command
+# (CONTRIBUTING, pull request template), but nothing ran it automatically, so
+# tests that only failed on Windows stayed green. Run the whole suite on both
+# platforms the project claims to support.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -v
