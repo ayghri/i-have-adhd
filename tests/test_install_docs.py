@@ -67,5 +67,54 @@ class GrokInstallPathTest(unittest.TestCase):
         self.assertNotIn("~/.claude/.i-have-adhd-always", section)
 
 
+class AlwaysOnSnippetTest(unittest.TestCase):
+    # The pasted always-on snippets and the Gemini command are condensed copies
+    # of SKILL.md. They must keep its off-switch, and the English snippet must
+    # keep rule 9 presentation-only (#96) rather than a bare "cap at 5".
+    def rule_blocks(self, path):
+        text = path.read_text(encoding="utf8")
+        blocks = re.findall(r"```markdown\n(.*?)```", text, re.S)
+        return [block for block in blocks if re.search(r"^10\. ", block, re.M)]
+
+    def test_snippets_keep_off_switch(self):
+        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
+        self.assertTrue(translations, "No translated installation guides found")
+        for path in [ROOT / "INSTALL.md", *translations]:
+            with self.subTest(file=path.name):
+                blocks = self.rule_blocks(path)
+                self.assertTrue(blocks, "No always-on rule snippets found")
+                for block in blocks:
+                    self.assertIn("stop adhd mode", block)
+                    self.assertIn("normal mode", block)
+
+    def test_english_snippet_rule_9_is_presentation_only(self):
+        for block in self.rule_blocks(ROOT / "INSTALL.md"):
+            self.assertIn("presentation only", block)
+            self.assertNotIn("9. Cap lists to 5 items.\n", block)
+
+    def test_gemini_command_keeps_off_switch(self):
+        text = (ROOT / "skills/i-have-adhd/agents/gemini.toml").read_text(encoding="utf8")
+        self.assertIn("stop adhd mode", text)
+        self.assertIn("normal mode", text)
+
+    def test_gemini_rules_keep_canonical_conditions(self):
+        skill = (ROOT / "skills/i-have-adhd/SKILL.md").read_text(encoding="utf8")
+        command = (ROOT / "skills/i-have-adhd/agents/gemini.toml").read_text(
+            encoding="utf8"
+        )
+        for number in (3, 9):
+            with self.subTest(rule=number):
+                section = re.search(
+                    rf"^### {number}\. [^\n]+\n\n(.*?)(?=\n### |\Z)",
+                    skill,
+                    re.M | re.S,
+                )
+                self.assertIsNotNone(section)
+                body = section.group(1).split("\n\nBad:", 1)[0]
+                rule = re.search(rf"^{number}\. (.+)$", command, re.M)
+                self.assertIsNotNone(rule)
+                self.assertEqual(rule.group(1), " ".join(body.split()))
+
+
 if __name__ == "__main__":
     unittest.main()
