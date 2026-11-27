@@ -61,6 +61,11 @@ If anything is left open, name ONE thing the reader can do in under two minutes.
 Bad: "Hope that helps. Let me know if you want to dig deeper."
 Good: "Next: run `npm test` and paste the first failing line."
 
+If that action happens on a web page, put the full URL in the step itself. A name or a number ("approve PR #150") still makes the reader go and find the page.
+
+Bad: "Next: approve PR #150."
+Good: "Next: approve https://github.com/acme/app/pull/150."
+
 ### 4. Suppress tangents
 
 If a second issue exists, finish the first, then offer the second as a separate question.
