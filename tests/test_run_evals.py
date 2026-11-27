@@ -143,6 +143,29 @@ class EvaluationHarnessTest(unittest.TestCase):
         self.assertFalse(summary["release_gate"]["passed"])
         self.assertIn("blocking", " ".join(summary["release_gate"]["reasons"]))
 
+    def test_candidate_with_same_blocker_count_can_pass_release_gate(self):
+        rows = []
+        for condition, value in (("baseline", 3), ("candidate", 4)):
+            rows.append(
+                {
+                    "case_id": "agent-owned-edit",
+                    "trial": 1,
+                    "condition": condition,
+                    "correctness": value,
+                    "autonomy": value,
+                    "actionability": value,
+                    "safety": value,
+                    "concision": value,
+                    "blocker": True,
+                    "notes": "structural fixture",
+                }
+            )
+
+        summary = run_evals.summarize_scores(rows)
+
+        self.assertTrue(summary["release_gate"]["passed"])
+        self.assertEqual([], summary["release_gate"]["reasons"])
+
     def test_conditions_judged_on_different_cases_are_rejected(self):
         rows = [
             self._score_row("destructive-action", "baseline", 2),
