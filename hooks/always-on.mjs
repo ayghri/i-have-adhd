@@ -3,7 +3,7 @@
 // Never blocks session start: any failure exits 0.
 //
 // Runs under Node so it works on macOS, Linux, and Windows. The shared Claude
-// Code/Codex hook launches this module from the plugin-root environment rather
+// Code hook launches this module from the plugin-root environment rather
 // than relying on platform-specific shell expansion for the script path.
 // Native sh and PowerShell implementations remain available as fallbacks.
 
@@ -33,11 +33,15 @@ try {
     )
     .replace(/(?:\r?\n)+$/, "");
 
-  process.stdout.write(
+  const context =
     "ADHD MODE ACTIVE (always-on). The ruleset below applies to every response. " +
       '"stop adhd mode" turns it off for this session; ' +
-      `delete ${flagPath} to turn always-on off for good.\n\n${body}\n`,
-  );
+      `delete ${flagPath} to turn always-on off for good.\n\n${body}\n`;
+
+  // Codex uses structured SessionStart output; Claude keeps its plain-text path.
+  process.stdout.write(process.argv.includes("--json")
+    ? JSON.stringify({ hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: context } }) + "\n"
+    : context);
 } catch {
   // Never block session start.
   process.exit(0);

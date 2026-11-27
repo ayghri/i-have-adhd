@@ -10,6 +10,7 @@ on:
       - hooks/**
       - skills/**
       - tests/test_always_on_hooks.py
+      - tests/test_codex_hook.py
       - .github/workflows/plugin-load-check.yml
   push:
     branches: [main]
@@ -26,7 +27,7 @@ jobs:
         with:
           python-version: "3.x"
       - name: Test native hook implementations
-        run: python -m unittest tests.test_always_on_hooks -v
+        run: python -m unittest tests.test_always_on_hooks tests.test_codex_hook -v
 
   load:
     runs-on: ubuntu-latest
