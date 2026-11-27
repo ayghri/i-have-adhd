@@ -226,6 +226,76 @@ codex plugin marketplace remove i-have-adhd
 </details>
 
 <details>
+<summary><strong>Qoder IDE 和 Qoder CLI</strong></summary>
+
+Qoder 通过原生插件格式直接加载规范文件 `skills/i-have-adhd/SKILL.md`，不维护第二份 Qoder 专用规则。
+
+### 安装（CLI）
+
+```bash
+git clone https://github.com/ayghri/i-have-adhd.git
+qoder plugins validate ./i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+旧版 Qoder CLI 的可执行文件可能名为 `qodercli`；将上面命令中的 `qoder` 替换为 `qodercli` 即可。
+
+### 安装（IDE）
+
+克隆仓库并构建 Qoder ZIP：
+
+```bash
+python3 i-have-adhd/scripts/package_qoder_plugin.py
+```
+
+在 Qoder IDE 中打开 **Extensions → Plugins → Add Plugins → Upload Plugin**，选择 `i-have-adhd/dist/qoder/i-have-adhd-0.3.0.zip`。Upload Plugin 接受 ZIP 包，不接受克隆的仓库目录。[官方说明](https://docs.qoder.com/qoder/plugins)。
+
+### 验证和启用
+
+```bash
+qoder plugins list
+```
+
+新建 Qoder 任务，输入 `/` 并选择 `/i-have-adhd`。规则会持续到该任务中输入 `stop adhd mode` 或 `normal mode`。
+
+Qoder 也可能在请求与描述匹配时自动选择已安装的 Skill。Qoder 官方只记录了 `name` 和 `description` 两个 Skill 元数据字段，没有记录 `disable-model-invocation`，因此不要依靠该字段阻止 Qoder 的模型自动选择。
+
+### 更新
+
+```bash
+git -C i-have-adhd pull --ff-only
+qoder plugins uninstall i-have-adhd
+qoder plugins install ./i-have-adhd
+```
+
+然后新建任务，让 Qoder 重新加载插件清单。
+
+### 卸载
+
+```bash
+qoder plugins uninstall i-have-adhd
+```
+
+在 Qoder IDE 中，打开 **Extensions → Plugins → Installed** 并移除 **I Have ADHD**。
+
+### 始终启用（可选）
+
+始终启用 Hook 要求非交互 Hook 的 `PATH` 中可找到 `node`。Skill 本身不依赖 Node；即使可选 Hook 运行时不可用，仍可正常使用 `/i-have-adhd` 调用。
+
+```bash
+mkdir -p "${QODER_CONFIG_DIR:-$HOME/.qoder}"
+touch "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+新建 Qoder 任务。插件的 `SessionStart` Hook 会从第一条消息起注入规范规则，并在新建任务、恢复、清空或压缩后再次注入。恢复按需模式：
+
+```bash
+rm "${QODER_CONFIG_DIR:-$HOME/.qoder}/.i-have-adhd-always"
+```
+
+</details>
+
+<details>
 <summary><strong>Gemini CLI</strong></summary>
 
 Gemini CLI 没有插件市场，因此有两种原生方式：**自定义命令**（选择启用，调用前保持关闭）或**扩展**（安装后始终启用）。命令方式符合此技能的默认行为；除非希望每次会话都使用这些规则，否则请选择命令方式。
@@ -802,8 +872,8 @@ npx skills remove i-have-adhd -g    # 如果全局安装
 
 ## 启用机制
 
-1. **已安装但未调用。** 在 Claude Code、Qwen Code 和 Codex 中，只有明确调用技能后才会发生变化。Claude Code 和 Qwen Code 遵循 `SKILL.md` 中的 `disable-model-invocation: true`；Codex 遵循 `agents/openai.yaml` 中的 `policy.allow_implicit_invocation: false`。其他运行环境可能会在启动时加载每个技能的描述，并自行启用技能。
-2. **明确调用技能。** 在 Claude Code 或 Qwen Code 中输入 `/i-have-adhd`，在 Codex 中输入 `$i-have-adhd`。规则将在该会话中启用。输入“stop adhd mode”或“normal mode”可将其关闭。
+1. **已安装但未调用。** 在 Claude Code、Qwen Code 和 Codex 中，只有明确调用技能后才会发生变化。Claude Code 和 Qwen Code 遵循 `SKILL.md` 中的 `disable-model-invocation: true`；Codex 遵循 `agents/openai.yaml` 中的 `policy.allow_implicit_invocation: false`。Qoder 和其他运行环境可能根据描述自动选择已安装的 Skill。
+2. **明确调用技能。** 在 Claude Code、Qwen Code 或 Qoder 中输入 `/i-have-adhd`，在 Codex 中输入 `$i-have-adhd`。规则将在该会话中启用。输入“stop adhd mode”或“normal mode”可将其关闭。
 3. **创建 `~/.claude/.i-have-adhd-always`**（Claude Code）。`SessionStart` 钩子会在每次会话中从第一条消息起加载完整规则。
 4. **添加上面的始终启用片段**（其他运行环境）。这样会将核心规则保留在智能体的持久上下文中。
 

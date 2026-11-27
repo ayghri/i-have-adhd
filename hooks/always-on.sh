@@ -1,13 +1,18 @@
 #!/usr/bin/env sh
 # SessionStart hook: injects the full i-have-adhd ruleset when the user has
-# opted in by creating $CLAUDE_CONFIG_DIR/.i-have-adhd-always (default ~/.claude).
+# opted in by creating .i-have-adhd-always in the active host's config dir:
+# $CLAUDE_CONFIG_DIR (default ~/.claude) or $QODER_CONFIG_DIR (default ~/.qoder).
 # Never blocks session start: any failure exits 0.
 #
 # POSIX fallback for environments where the default Node hook cannot run. It
 # works with sh on macOS/Linux and Git Bash on Windows without a Node install.
 
-claude_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
-flag_path="$claude_dir/.i-have-adhd-always"
+if [ -n "${QODER_PLUGIN_ROOT:-}" ]; then
+  config_dir="${QODER_CONFIG_DIR:-$HOME/.qoder}"
+else
+  config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+fi
+flag_path="$config_dir/.i-have-adhd-always"
 
 # Only fire when the user has opted in.
 [ -f "$flag_path" ] || exit 0
