@@ -1,4 +1,5 @@
 import json
+import shutil
 import sys
 import tempfile
 import unittest
@@ -10,6 +11,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import judge  # noqa: E402
 import run_evals  # noqa: E402
+
+# The stub judge runners are `sh -c` scripts. Paths reach them as positional
+# arguments, never formatted into the script: `sh` would read the backslashes
+# in a Windows path as escapes.
+requires_sh = unittest.skipUnless(shutil.which("sh"), "sh is required for the stub judge runner")
 
 
 class LabelAssignmentTest(unittest.TestCase):
@@ -187,6 +193,7 @@ class EndToEndTest(unittest.TestCase):
         "notes": "fixture",
     }
 
+    @requires_sh
     def test_judging_produces_paired_rows_the_scorer_accepts(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -223,7 +230,9 @@ class EndToEndTest(unittest.TestCase):
                             # Reads the prompt from stdin, not argv: a trailing
                             # option such as `--tools ""` otherwise swallows a
                             # prompt appended to the command line.
-                            "command": ["sh", "-c", f"cat > {captured}; cat {payload}"],
+                            "command": [
+                                "sh", "-c", 'cat > "$1"; cat "$2"', "sh", str(captured), str(payload)
+                            ],
                             "response_format": "text",
                         }
                     }
@@ -256,6 +265,7 @@ class EndToEndTest(unittest.TestCase):
             self.assertNotIn("baseline", prompt.lower())
             self.assertNotIn("candidate", prompt.lower())
 
+    @requires_sh
     def test_a_malformed_verdict_skips_its_group_instead_of_killing_the_run(self):
         # One bad grader response must not discard the groups already judged
         # nor the ones still queued behind it.
@@ -291,7 +301,9 @@ class EndToEndTest(unittest.TestCase):
                                 # `blocker` omitted for the casual-message group.
                                 f'p=$(cat); case "$p" in *casual-message*)'
                                 f' echo \'{{"A":{{"correctness":3}},"B":{{"correctness":3}}}}\';;'
-                                f" *) cat {good};; esac",
+                                ' *) cat "$1";; esac',
+                                "sh",
+                                str(good),
                             ],
                             "response_format": "text",
                         }
@@ -357,6 +369,7 @@ class EndToEndTest(unittest.TestCase):
                 )
             self.assertFalse(output.exists())
 
+    @requires_sh
     def test_runner_failure_skips_its_group_and_continues(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -387,7 +400,9 @@ class EndToEndTest(unittest.TestCase):
                             "command": [
                                 "sh",
                                 "-c",
-                                f'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat {verdict};; esac',
+                                'p=$(cat); case "$p" in *direct-answer*) exit 7;; *) cat "$1";; esac',
+                                "sh",
+                                str(verdict),
                             ],
                             "response_format": "text",
                         }
